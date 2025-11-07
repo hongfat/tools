@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日期換算工具 - UNCLE FAT'S TOOL BOX</title>
+    <script src="lunar.js"></script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-text-color: #e0e0e0;
+            --secondary-text-color: #a0a0a0;
+            --accent-color: #bb86fc;
+            --card-border-color: #333;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-text-color);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background-color: var(--surface-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border-color);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 2rem auto;
+            background-color: var(--surface-color);
+            border-radius: 8px;
+        }
+
+        h1, h2 {
+            color: var(--accent-color);
+            border-bottom: 1px solid var(--card-border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .calculator-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-text-color);
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: var(--bg-color);
+            border: 1px solid var(--card-border-color);
+            color: var(--primary-text-color);
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        #result, #lunar-date {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
+    </nav>
+
+    <div class="container">
+        <h1>日期換算工具</h1>
+
+        <div class="calculator-section">
+            <h2>計算天數差異</h2>
+            <div class="form-group">
+                <label for="startDate">開始日期</label>
+                <input type="date" id="startDate">
+            </div>
+            <div class="form-group">
+                <label for="endDate">結束日期</label>
+                <input type="date" id="endDate">
+            </div>
+            <button id="calculateBtn">計算</button>
+            <p id="result"></p>
+        </div>
+
+        <div class="lunar-section">
+            <h2>今日農曆</h2>
+            <p id="lunar-date"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 計算天數差異
+            const calculateBtn = document.getElementById('calculateBtn');
+            calculateBtn.addEventListener('click', () => {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const resultEl = document.getElementById('result');
+
+                if (startDate && endDate) {
+                    const start = new Date(startDate);
+                    const end = new Date(endDate);
+                    const timeDiff = end.getTime() - start.getTime();
+                    const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    resultEl.textContent = `兩個日期之間相差 ${dayDiff} 天。`;
+                } else {
+                    resultEl.textContent = '請選擇開始和結束日期。';
+                }
+            });
+
+            // 顯示今日農曆
+            const lunarDateEl = document.getElementById('lunar-date');
+            const today = new Date();
+            const lunarData = calendar.solar2lunar(today);
+            lunarDateEl.textContent = `今天是農曆 ${lunarData.lunarYear}年 (${lunarData.animal}年) ${lunarData.lunarMonth}${lunarData.lunarDay}。`;
+        });
+    </script>
+
+</body>
+</html>
