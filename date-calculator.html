@@ -64,5 +64,92 @@
     lunarDateEl.textContent = `今天是農曆 ${lunar.getYearInChinese()}年 (${lunar.getYearZodiac()}年) ${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}。`;
     </script>
 
+    <!-- 嘗試載入可用的 UMD CDN（按順序） -->
+    <script>
+    (async function() {
+        // 計算天數差異（保持原功能）
+        const calculateBtn = document.getElementById('calculateBtn');
+        calculateBtn.addEventListener('click', () => {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const resultEl = document.getElementById('result');
+
+            if (startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const timeDiff = end.getTime() - start.getTime();
+                const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                resultEl.textContent = `兩個日期之間相差 ${dayDiff} 天。`;
+            } else {
+                resultEl.textContent = '請選擇開始和結束日期。';
+            }
+        });
+
+        // 嘗試載入可用的 UMD CDN（按順序）
+        const candidates = [
+            'https://cdn.jsdelivr.net/npm/lunar-javascript/dist/index.umd.js',
+            'https://unpkg.com/lunar-javascript/dist/index.umd.js',
+            'https://cdn.jsdelivr.net/npm/solarlunar/dist/solarlunar.umd.min.js',
+            'https://unpkg.com/solarlunar/dist/solarlunar.umd.min.js'
+        ];
+
+        function loadScript(url) {
+            return new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = url;
+                s.onload = () => resolve(url);
+                s.onerror = () => reject(url);
+                document.head.appendChild(s);
+            });
+        }
+
+        let loaded = false;
+        for (const url of candidates) {
+            try {
+                // 若載入成功就跳出
+                await loadScript(url);
+                loaded = true;
+                console.info('載入農曆函式庫：', url);
+                break;
+            } catch (_) {
+                console.warn('載入失敗：', url);
+            }
+        }
+
+        const lunarDateEl = document.getElementById('lunar-date');
+        const today = new Date();
+
+        if (!loaded) {
+            lunarDateEl.textContent = '無法載入農曆函式庫（請檢查網路或改用本機檔案）。';
+            console.error('所有候選 CDN 均載入失敗。');
+            return;
+        }
+
+        // 根據實際全域物件選擇轉換方式
+        try {
+            if (window.Lunar && typeof Lunar.fromDate === 'function') {
+                // lunar-javascript (UMD)
+                const lunar = Lunar.fromDate(today);
+                let year = (lunar.getYearInChinese && lunar.getYearInChinese()) || lunar.getFullYear?.() || lunar.lYear || '';
+                let zodiac = lunar.getYearZodiac ? lunar.getYearZodiac() : (lunar.animal || '');
+                let month = lunar.getMonthInChinese ? lunar.getMonthInChinese() : (lunar.lMonth || '');
+                let day = lunar.getDayInChinese ? lunar.getDayInChinese() : (lunar.lDay || '');
+                lunarDateEl.textContent = `今天是農曆 ${year}年 (${zodiac}年) ${month}月${day}。`;
+            } else if (window.solarlunar && typeof solarlunar.solar2lunar === 'function') {
+                // solarlunar (UMD)
+                const r = solarlunar.solar2lunar(today.getFullYear(), today.getMonth() + 1, today.getDate());
+                // r 物件常見欄位：lYear, lMonth, lDay, isLeap
+                lunarDateEl.textContent = `今天是農曆 ${r.lYear || ''}年 ${r.isLeap ? '閏' : ''}${r.lMonth || ''}月${r.lDay || ''}日。`;
+            } else {
+                lunarDateEl.textContent = '載入的函式庫不包含已知的農曆 API。';
+                console.error('找到的函式庫不是預期的格式：', window.Lunar, window.solarlunar);
+            }
+        } catch (e) {
+            lunarDateEl.textContent = '處理農曆時發生錯誤（詳見 console）。';
+            console.error(e);
+        }
+    })();
+    </script>
+
 </body>
 </html>
