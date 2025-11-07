@@ -35,31 +35,33 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript" defer></script>
-    <script defer>
-        // 計算天數差異
-        const calculateBtn = document.getElementById('calculateBtn');
-        calculateBtn.addEventListener('click', () => {
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            const resultEl = document.getElementById('result');
+    <!-- 移除原本的 <script src="...lunar-javascript" defer></script> 和內嵌 defer 腳本，改用 module import -->
+    <script type="module">
+    import { Lunar } from 'https://cdn.jsdelivr.net/npm/lunar-javascript/dist/index.esm.js';
 
-            if (startDate && endDate) {
-                const start = new Date(startDate);
-                const end = new Date(endDate);
-                const timeDiff = end.getTime() - start.getTime();
-                const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                resultEl.textContent = `兩個日期之間相差 ${dayDiff} 天。`;
-            } else {
-                resultEl.textContent = '請選擇開始和結束日期。';
-            }
-        });
+    // 計算天數差異
+    const calculateBtn = document.getElementById('calculateBtn');
+    calculateBtn.addEventListener('click', () => {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const resultEl = document.getElementById('result');
 
-        // 顯示今日農曆
-        const lunarDateEl = document.getElementById('lunar-date');
-        const today = new Date();
-        const lunar = Lunar.fromDate(today);
-        lunarDateEl.textContent = `今天是農曆 ${lunar.getYearInChinese()}年 (${lunar.getYearZodiac()}年) ${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}。`;
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const timeDiff = end.getTime() - start.getTime();
+            const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            resultEl.textContent = `兩個日期之間相差 ${dayDiff} 天。`;
+        } else {
+            resultEl.textContent = '請選擇開始和結束日期。';
+        }
+    });
+
+    // 顯示今日農曆
+    const lunarDateEl = document.getElementById('lunar-date');
+    const today = new Date();
+    const lunar = Lunar.fromDate(today);
+    lunarDateEl.textContent = `今天是農曆 ${lunar.getYearInChinese()}年 (${lunar.getYearZodiac()}年) ${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}。`;
     </script>
 
 </body>
