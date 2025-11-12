@@ -10,11 +10,15 @@
 
     <nav class="navbar">
         <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
-        <div id="today-date-display" class="nav-links">載入中...</div>
+        <div id="datetime-display" class="nav-links"></div>
     </nav>
 
     <div class="container">
         <h1>日期換算工具</h1>
+
+        <div class="today-info-section">
+            <p id="full-date-display">載入中...</p>
+        </div>
 
         <div class="calculator-section">
             <h2>計算天數差異</h2>
@@ -34,6 +38,24 @@
 
     <script type="module">
         import { Database, Constants } from './dist/index.esm.js';
+
+        // --- 導覽列時間更新 ---
+        function updateDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            const dateTimeString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            
+            const displayElement = document.getElementById('datetime-display');
+            if (displayElement) {
+                displayElement.textContent = dateTimeString;
+            }
+        }
 
         // --- 計算天數差異 ---
         const calculateBtn = document.getElementById('calculateBtn');
@@ -55,7 +77,7 @@
         });
         
         // --- 顯示今日農曆 (使用 traditional-chinese-calendar-database) ---
-        const todayDateEl = document.getElementById('today-date-display');
+        const fullDateEl = document.getElementById('full-date-display');
         const database = new Database();
         // 假設 all.bin 檔案位於 /database/all.bin
         database.load('./database/all.bin').then(() => {
@@ -70,12 +92,17 @@
             const lunarDateStr = `${date.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[date.lunarMonth - 1]}${Constants.LUNAR_DATES[date.lunarDate - 1]}`;
 
             // 組合最終字串
-            todayDateEl.textContent = `今天為西元${gregorianStr} 農曆 ${lunarYearStr} ${lunarDateStr}`;
+            fullDateEl.textContent = `今天是西元${gregorianStr} 農曆 ${lunarYearStr} ${lunarDateStr}`;
 
         }).catch(error => {
-            todayDateEl.textContent = '無法載入農曆資料庫。';
+            fullDateEl.textContent = '無法載入農曆資料庫。';
             console.error('Error loading lunar database:', error);
         });
+
+        // 立即執行一次時間更新，然後每秒更新
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
     </script>
 </body>
 </html>

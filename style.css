@@ -112,6 +112,15 @@ body {
     padding-bottom: 0.5rem;
 }
 
+.today-info-section {
+    background-color: var(--bg-color);
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
 .calculator-section {
     margin-bottom: 2rem;
 }
