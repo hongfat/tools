@@ -16,6 +16,7 @@
     <div class="container">
         <h1>日期換算工具</h1>
 
+        <h2>農曆日期</h2>
         <div class="today-info-section">
             <p id="full-date-display">載入中...</p>
         </div>
@@ -88,11 +89,14 @@
             const gregorianStr = `${date.year}年${String(date.month).padStart(2, '0')}月${String(date.date).padStart(2, '0')}日`;
 
             // 格式化農曆
-            const lunarYearStr = `${Constants.TIAN_GAN[date.tiangan]}${Constants.DI_ZHI[date.dizhi]}年`;
+            const lunarYearStr = `${Constants.TIAN_GAN[date.tiangan]}${Constants.DI_ZHI[date.dizhi]}${Constants.ZODIAC[date.dizhi]}年`;
             const lunarDateStr = `${date.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[date.lunarMonth - 1]}${Constants.LUNAR_DATES[date.lunarDate - 1]}`;
 
+            // 取得節氣資訊 (如果有的話)
+            const solarTermStr = date.solarTerm > 0 ? ` ${Constants.JIE_QI[date.solarTerm - 1]}` : '';
+
             // 組合最終字串
-            fullDateEl.textContent = `今天是西元${gregorianStr} 農曆 ${lunarYearStr} ${lunarDateStr}`;
+            fullDateEl.innerHTML = `西元${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateStr}${solarTermStr}`;
 
         }).catch(error => {
             fullDateEl.textContent = '無法載入農曆資料庫。';
