@@ -17,8 +17,15 @@
         <h1>日期換算工具</h1>
 
         <h2>農曆日期</h2>
-        <div class="today-info-section">
+        <div class="info-section">
+            <p><strong>今日農曆</strong></p>
             <p id="full-date-display">載入中...</p>
+        </div>
+
+        <div class="form-group">
+            <label for="lunarQueryDate"><strong>查詢特定日期農曆</strong></label>
+            <input type="date" id="lunarQueryDate">
+            <p id="lunarQueryResult" style="margin-top: 10px;"></p>
         </div>
 
         <div class="calculator-section">
@@ -77,26 +84,47 @@
             }
         });
         
-        // --- 顯示今日農曆 (使用 traditional-chinese-calendar-database) ---
+        // --- 農曆換算 (使用 traditional-chinese-calendar-database) ---
         const fullDateEl = document.getElementById('full-date-display');
+        const lunarQueryDateEl = document.getElementById('lunarQueryDate');
+        const lunarQueryResultEl = document.getElementById('lunarQueryResult');
         const database = new Database();
-        database.load('./lunar/database/all.bin').then(() => {
-            const now = new Date();
-            const date = database.getCompoundDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+
+        function displayLunarDate(date, element) {
+            const compoundDate = database.getCompoundDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
 
             // 格式化西元日期
-            const gregorianStr = `${date.year}年${String(date.month).padStart(2, '0')}月${String(date.date).padStart(2, '0')}日`;
+            const gregorianStr = `${compoundDate.year}年${String(compoundDate.month).padStart(2, '0')}月${String(compoundDate.date).padStart(2, '0')}日`;
 
             // 格式化農曆
-            const lunarYearStr = `${Constants.TIAN_GAN[date.tiangan]}${Constants.DI_ZHI[date.dizhi]}${Constants.ZODIAC[date.dizhi]}年`;
-            const lunarDateStr = `${date.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[date.lunarMonth - 1]}${Constants.LUNAR_DATES[date.lunarDate - 1]}`;
+            const lunarYearStr = `${Constants.TIAN_GAN[compoundDate.tiangan]}${Constants.DI_ZHI[compoundDate.dizhi]}${Constants.ZODIAC[compoundDate.dizhi]}年`;
+            const lunarDateStr = `${compoundDate.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[compoundDate.lunarMonth - 1]}${Constants.LUNAR_DATES[compoundDate.lunarDate - 1]}`;
 
             // 取得節氣資訊 (如果有的話)
-            const solarTermStr = date.solarTerm > 0 ? ` ${Constants.JIE_QI[date.solarTerm - 1]}` : '';
+            const solarTermStr = compoundDate.solarTerm > 0 ? ` ${Constants.JIE_QI[compoundDate.solarTerm - 1]}` : '';
 
             // 組合最終字串
-            fullDateEl.innerHTML = `西元${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateStr}${solarTermStr}`;
+            element.innerHTML = `西元 ${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateStr}${solarTermStr}`;
+        }
 
+        database.load('./lunar/database/all.bin').then(() => {
+            const now = new Date();
+            
+            // 1. 顯示今日農曆
+            displayLunarDate(now, fullDateEl);
+
+            // 2. 設定查詢欄位的預設值為今天，並顯示結果
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            lunarQueryDateEl.value = `${yyyy}-${mm}-${dd}`;
+            displayLunarDate(now, lunarQueryResultEl);
+
+            // 3. 監聽日期選擇事件
+            lunarQueryDateEl.addEventListener('change', (event) => {
+                const selectedDate = new Date(event.target.value);
+                displayLunarDate(selectedDate, lunarQueryResultEl);
+            });
         }).catch(error => {
             fullDateEl.textContent = '無法載入農曆資料庫。';
             console.error('Error loading lunar database:', error);
