@@ -69,8 +69,8 @@
         fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
-                // API 回傳格式：{ "lunarYear": "甲辰", "lunarDate": "六月十五" }
-                lunarDateEl.textContent = `今天是農曆 ${data.lunarYear}年 ${data.lunarDate}。`;
+                // API 回傳格式：{ "LunarYear": "乙巳年，蛇", "LunarDate": "九月廿三" }
+                lunarDateEl.textContent = `今天是農曆 ${data.LunarYear} ${data.LunarDate}。`;
             })
             .catch(error => {
                 lunarDateEl.textContent = '無法取得農曆日期，請檢查網路連線。';
