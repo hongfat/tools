@@ -80,8 +80,7 @@
         // --- 顯示今日農曆 (使用 traditional-chinese-calendar-database) ---
         const fullDateEl = document.getElementById('full-date-display');
         const database = new Database();
-        // 假設 all.bin 檔案位於 /database/all.bin
-        database.load('./database/all.bin').then(() => {
+        database.load('./lunar/database/all.bin').then(() => {
             const now = new Date();
             const date = database.getCompoundDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
 
