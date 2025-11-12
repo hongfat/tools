@@ -10,6 +10,7 @@
 
     <nav class="navbar">
         <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
+        <div id="today-date-display" class="nav-links">載入中...</div>
     </nav>
 
     <div class="container">
@@ -29,14 +30,10 @@
             <p id="result"></p>
         </div>
 
-        <div class="lunar-section">
-            <h2>今日農曆</h2>
-            <p id="lunar-date">載入中...</p>
-        </div>
     </div>
 
     <script type="module">
-        import { Database } from './dist/index.esm.js';
+        import { Database, Constants } from './dist/index.esm.js';
 
         // --- 計算天數差異 ---
         const calculateBtn = document.getElementById('calculateBtn');
@@ -58,22 +55,27 @@
         });
         
         // --- 顯示今日農曆 (使用 traditional-chinese-calendar-database) ---
-        const lunarDateEl = document.getElementById('lunar-date');
+        const todayDateEl = document.getElementById('today-date-display');
         const database = new Database();
         // 假設 all.bin 檔案位於 /database/all.bin
         database.load('./database/all.bin').then(() => {
             const now = new Date();
             const date = database.getCompoundDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
-            // 使用函式庫的 toString('lunar') 方法來格式化農曆日期
-            lunarDateEl.textContent = `今天是農曆 ${date.toString('lunar')}`;
+
+            // 格式化西元日期
+            const gregorianStr = `${date.year}年${String(date.month).padStart(2, '0')}月${String(date.date).padStart(2, '0')}日`;
+
+            // 格式化農曆
+            const lunarYearStr = `${Constants.TIAN_GAN[date.tiangan]}${Constants.DI_ZHI[date.dizhi]}年`;
+            const lunarDateStr = `${date.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[date.lunarMonth - 1]}${Constants.LUNAR_DATES[date.lunarDate - 1]}`;
+
+            // 組合最終字串
+            todayDateEl.textContent = `今天為西元${gregorianStr} 農曆 ${lunarYearStr} ${lunarDateStr}`;
+
         }).catch(error => {
-            lunarDateEl.textContent = '無法載入農曆資料庫。';
+            todayDateEl.textContent = '無法載入農曆資料庫。';
             console.error('Error loading lunar database:', error);
         });
     </script>
-<!-- https://data.ntpc.gov.tw/datasets/308dcd75-6434-45bc-a95f-584da4fed251 -->
-<!-- https://github.com/880831ian/taiwan-calendar -->
-<!-- https://github.com/hungtcs/traditional-chinese-calendar-database/tree/master -->
-<!-- https://hungtcs.github.io/traditional-chinese-calendar-database/examples/browser-esmodule.html -->
 </body>
 </html>
