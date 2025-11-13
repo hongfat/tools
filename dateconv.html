@@ -14,18 +14,33 @@
     </nav>
 
     <div class="container">
-        <h1>日期換算工具</h1>
+        <h1>日期換算與天數計算</h1>
 
-        <h2>農曆日期</h2>
-        <div class="info-section">
-            <p><strong>今日農曆</strong></p>
-            <p id="full-date-display">載入中...</p>
-        </div>
-
+        <h2>西元轉農曆</h2>
         <div class="form-group">
-            <label for="lunarQueryDate"><strong>特定日期轉換為農曆</strong></label>
+            <label for="lunarQueryDate">選擇西元日期</label>
             <input type="date" id="lunarQueryDate">
             <p id="lunarQueryResult" style="margin-top: 10px;"></p>
+        </div>
+
+        <h2>農曆轉西元</h2>
+        <div class="form-group-inline">
+            <div class="form-group">
+                <label for="lunarYear">年</label>
+                <select id="lunarYear"></select>
+            </div>
+            <div class="form-group">
+                <label for="lunarMonth">月</label>
+                <select id="lunarMonth"></select>
+            </div>
+             <div class="form-group">
+                <label for="lunarDay">日</label>
+                <select id="lunarDay"></select>
+            </div>
+        </div>
+        <div class="form-group">
+             <button id="convertToGregorianBtn">轉換為西元</button>
+             <p id="gregorianResult" style="margin-top: 10px;"></p>
         </div>
 
         <div class="calculator-section">
@@ -85,7 +100,6 @@
         });
         
         // --- 農曆換算 (使用 traditional-chinese-calendar-database) ---
-        const fullDateEl = document.getElementById('full-date-display');
         const lunarQueryDateEl = document.getElementById('lunarQueryDate');
         const lunarQueryResultEl = document.getElementById('lunarQueryResult');
         const database = new Database();
@@ -110,10 +124,7 @@
         database.load('./lunar/database/all.bin').then(() => {
             const now = new Date();
             
-            // 1. 顯示今日農曆
-            displayLunarDate(now, fullDateEl);
-
-            // 2. 設定查詢欄位的預設值為今天，並顯示結果
+            // 1. 設定查詢欄位的預設值為今天，並顯示結果
             const yyyy = now.getFullYear();
             const mm = String(now.getMonth() + 1).padStart(2, '0');
             const dd = String(now.getDate()).padStart(2, '0');
@@ -121,14 +132,89 @@
             displayLunarDate(now, lunarQueryResultEl);
 
             // 3. 監聽日期選擇事件
-            lunarQueryDateEl.addEventListener('change', (event) => {
+            lunarQueryDateEl.addEventListener('input', (event) => {
                 const selectedDate = new Date(event.target.value);
                 displayLunarDate(selectedDate, lunarQueryResultEl);
             });
+
+            // 4. 監聽年份輸入，自動跳轉到月份
+            lunarQueryDateEl.addEventListener('input', (event) => {
+                const input = event.target;
+                if (input.value.length === 4 && /^\d{4}$/.test(input.value)) {
+                    input.value += '-';
+                }
+            });
+
+            // --- 農曆轉西元功能初始化 ---
+            initializeLunarToGregorianConverter();
+
         }).catch(error => {
-            fullDateEl.textContent = '無法載入農曆資料庫。';
+            lunarQueryResultEl.textContent = '無法載入農曆資料庫。';
             console.error('Error loading lunar database:', error);
         });
+
+        function initializeLunarToGregorianConverter() {
+            const lunarYearEl = document.getElementById('lunarYear');
+            const lunarMonthEl = document.getElementById('lunarMonth');
+            const lunarDayEl = document.getElementById('lunarDay');
+            const convertBtn = document.getElementById('convertToGregorianBtn');
+            const gregorianResultEl = document.getElementById('gregorianResult');
+
+            // 填充年份 (1901-2100)
+            for (let year = 1901; year <= 2100; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = `${year} (${Constants.TIAN_GAN[(year - 1901 + 7) % 10]}${Constants.DI_ZHI[(year - 1901 + 9) % 12]})`;
+                lunarYearEl.appendChild(option);
+            }
+            lunarYearEl.value = new Date().getFullYear(); // 預設當年
+
+            // 填充月份
+            Constants.LUNAR_MONTHS.forEach((monthName, index) => {
+                const option = document.createElement('option');
+                option.value = index + 1;
+                option.textContent = monthName;
+                lunarMonthEl.appendChild(option);
+            });
+            // 增加閏月選項
+            const leapMonthOption = document.createElement('option');
+            leapMonthOption.value = 'leap';
+            leapMonthOption.textContent = '閏月';
+            lunarMonthEl.appendChild(leapMonthOption);
+
+            // 填充日期
+            Constants.LUNAR_DATES.forEach((dateName, index) => {
+                const option = document.createElement('option');
+                option.value = index + 1;
+                option.textContent = dateName;
+                lunarDayEl.appendChild(option);
+            });
+
+            // 轉換按鈕事件
+            convertBtn.addEventListener('click', () => {
+                const year = parseInt(lunarYearEl.value);
+                const monthValue = lunarMonthEl.value;
+                const day = parseInt(lunarDayEl.value);
+
+                let month = monthValue === 'leap' ? 1 : parseInt(monthValue);
+                let isLeap = monthValue === 'leap';
+
+                try {
+                    // 查找對應的西元日期
+                    const gregorianDate = database.getDateByLunar(year, month, day, isLeap);
+                    if (gregorianDate) {
+                        const y = gregorianDate.getFullYear();
+                        const m = String(gregorianDate.getMonth() + 1).padStart(2, '0');
+                        const d = String(gregorianDate.getDate()).padStart(2, '0');
+                        gregorianResultEl.textContent = `對應的西元日期是：${y}年${m}月${d}日`;
+                    } else {
+                        gregorianResultEl.textContent = '找不到對應的西元日期，請確認該年是否有此農曆日期（例如：閏月或三十日）。';
+                    }
+                } catch (e) {
+                    gregorianResultEl.textContent = '查詢時發生錯誤，請確認輸入的日期是否有效。';
+                }
+            });
+        }
 
         // 立即執行一次時間更新，然後每秒更新
         updateDateTime();
