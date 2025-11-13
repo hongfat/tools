@@ -105,7 +105,7 @@
         const database = new Database();
 
         function displayLunarDate(date, element) {
-            const compoundDate = database.getCompoundDate(date.getFullYear(), date.getMonth(), date.getDate());
+            const compoundDate = database.getCompoundDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
 
             // 格式化西元日期
             const gregorianStr = `${compoundDate.year}年${String(compoundDate.month).padStart(2, '0')}月${String(compoundDate.date).padStart(2, '0')}日`;
