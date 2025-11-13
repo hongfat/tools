@@ -110,29 +110,21 @@
 
             const compoundDate = database.getCompoundDate(year, month, day) || {};
 
-            if (!compoundDate.year) {
+            // --- 除錯：打印原始數據 ---
+            console.log('Input:', {year, month, day});
+            console.log('API Response:', compoundDate);
+
+            if (!compoundDate.lunarYear) {
                 element.innerHTML = '查詢日期超出範圍。';
                 return;
             }
 
-            // 格式化西元日期
-            const gregorianStr = `${compoundDate.year}年${String(compoundDate.month).padStart(2, '0')}月${String(compoundDate.date).padStart(2, '0')}日`;
+            // 根據 API 實際回傳的欄位名稱調整
+            const gregorianStr = `${year}年${String(month).padStart(2, '0')}月${String(day).padStart(2, '0')}日`;
+            const lunarYearStr = compoundDate.lunarYear || '未知';
+            const lunarDateStr = compoundDate.lunarDate || '未知';
 
-            // 格式化農曆 - 修正天干地支索引
-            const tiangan = compoundDate.tiangan || 0;
-            const dizhi = compoundDate.dizhi || 0;
-            const lunarYearStr = `${Constants.TIAN_GAN[tiangan % Constants.TIAN_GAN.length]}${Constants.DI_ZHI[dizhi % Constants.DI_ZHI.length]}${Constants.ZODIAC[dizhi % Constants.ZODIAC.length]}年`;
-            
-            const lunarMonthIndex = compoundDate.lunarMonth - 1;
-            const lunarDateIndex = compoundDate.lunarDate - 1;
-            
-            const lunarMonthStr = Constants.LUNAR_MONTHS[lunarMonthIndex] || `${compoundDate.lunarMonth}月`;
-            const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${compoundDate.lunarDate}`;
-            const lunarDateFullStr = `${compoundDate.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
-
-            const solarTermStr = compoundDate.solarTerm > 0 ? ` ${Constants.JIE_QI[compoundDate.solarTerm - 1]}` : '';
-
-            element.innerHTML = `西元 ${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateFullStr}${solarTermStr}`;
+            element.innerHTML = `西元 ${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateStr}`;
         }
 
         function displayGregorianDate(date, element) {
