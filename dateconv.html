@@ -181,7 +181,7 @@
             if (lunarInfo.solarTerm) {
                 // 確保 Constants.SOLAR_TERMS 存在且索引有效
                 if (Constants.SOLAR_TERMS && lunarInfo.solarTerm > 0 && lunarInfo.solarTerm <= Constants.SOLAR_TERMS.length) {
-                    lunarString += ` (${Constants.SOLAR_TERMS[lunarInfo.solarTerm - 1]})`;
+                    lunarString += ` (${Constants.SOLAR_TERMS[lunarInfo.solarTerm]})`;
                 }
             }
             return lunarString;
