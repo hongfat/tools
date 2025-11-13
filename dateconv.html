@@ -108,23 +108,28 @@
                 return;
             }
 
-            const compoundDate = database.getCompoundDate(year, month, day) || {};
+            // 使用 getGregorianDate() 進行西元轉農曆
+            const lunarInfo = database.getGregorianDate(year, month, day) || {};
 
-            // --- 除錯：打印原始數據 ---
             console.log('Input:', {year, month, day});
-            console.log('API Response:', compoundDate);
+            console.log('API Response:', lunarInfo);
 
-            if (!compoundDate.lunarYear) {
+            if (!lunarInfo.lunarYear) {
                 element.innerHTML = '查詢日期超出範圍。';
                 return;
             }
 
             // 根據 API 實際回傳的欄位名稱調整
             const gregorianStr = `${year}年${String(month).padStart(2, '0')}月${String(day).padStart(2, '0')}日`;
-            const lunarYearStr = compoundDate.lunarYear || '未知';
-            const lunarDateStr = compoundDate.lunarDate || '未知';
+            const lunarYearStr = lunarInfo.lunarYear || '未知';
+            const lunarMonthIndex = lunarInfo.lunarMonth - 1;
+            const lunarDateIndex = lunarInfo.lunarDate - 1;
+            
+            const lunarMonthStr = Constants.LUNAR_MONTHS[lunarMonthIndex] || `${lunarInfo.lunarMonth}月`;
+            const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${lunarInfo.lunarDate}`;
+            const lunarDateFullStr = `${lunarInfo.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
 
-            element.innerHTML = `西元 ${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateStr}`;
+            element.innerHTML = `西元 ${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateFullStr}`;
         }
 
         function displayGregorianDate(date, element) {
@@ -144,26 +149,30 @@
                 return;
             }
 
-            const lunarInfo = database.getCompoundDate(year, month, day) || {};
+            // 使用 getCompoundDate() 進行農曆轉西元
+            const gregorianInfo = database.getCompoundDate(year, month, day) || {};
             
-            if (!lunarInfo.year) {
+            console.log('Input (Lunar):', {year, month, day});
+            console.log('API Response (Gregorian):', gregorianInfo);
+
+            if (!gregorianInfo.year) {
                 element.innerHTML = '查詢日期超出範圍。';
                 return;
             }
 
             // 修正天干地支索引
-            const tiangan = lunarInfo.tiangan || 0;
-            const dizhi = lunarInfo.dizhi || 0;
+            const tiangan = gregorianInfo.tiangan || 0;
+            const dizhi = gregorianInfo.dizhi || 0;
             const lunarYearStr = `${Constants.TIAN_GAN[tiangan % Constants.TIAN_GAN.length]}${Constants.DI_ZHI[dizhi % Constants.DI_ZHI.length]}${Constants.ZODIAC[dizhi % Constants.ZODIAC.length]}年`;
             
-            const lunarMonthIndex = lunarInfo.lunarMonth - 1;
-            const lunarDateIndex = lunarInfo.lunarDate - 1;
+            const lunarMonthIndex = gregorianInfo.lunarMonth - 1;
+            const lunarDateIndex = gregorianInfo.lunarDate - 1;
             
-            const lunarMonthStr = Constants.LUNAR_MONTHS[lunarMonthIndex] || `${lunarInfo.lunarMonth}月`;
-            const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${lunarInfo.lunarDate}`;
-            const lunarDateFullStr = `${lunarInfo.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
+            const lunarMonthStr = Constants.LUNAR_MONTHS[lunarMonthIndex] || `${gregorianInfo.lunarMonth}月`;
+            const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${gregorianInfo.lunarDate}`;
+            const lunarDateFullStr = `${gregorianInfo.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
             
-            element.innerHTML = `農曆 ${lunarYearStr} ${lunarDateFullStr}<br>對應西元 ${lunarInfo.year}年${String(lunarInfo.month).padStart(2, '0')}月${String(lunarInfo.date).padStart(2, '0')}日`;
+            element.innerHTML = `農曆 ${lunarYearStr} ${lunarDateFullStr}<br>對應西元 ${gregorianInfo.year}年${String(gregorianInfo.month).padStart(2, '0')}月${String(gregorianInfo.date).padStart(2, '0')}日`;
         }
 
         database.load('./lunar/database/all.bin').then(() => {
