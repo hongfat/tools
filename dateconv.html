@@ -177,7 +177,11 @@
             const day = date.getDate();
             const lunarInfo = database.getCompoundDate(year, month, day);
             const lunarYearStr = `${Constants.TIAN_GAN[lunarInfo.tiangan]}${Constants.DI_ZHI[lunarInfo.dizhi]}${Constants.ZODIAC[lunarInfo.dizhi]}年`;
-            return `農曆 ${lunarYearStr} ${lunarInfo.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[lunarInfo.lunarMonth - 1]}${Constants.LUNAR_DATES[lunarInfo.lunarDate - 1]}`;
+            let lunarString = `農曆 ${lunarYearStr} ${lunarInfo.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[lunarInfo.lunarMonth - 1]}${Constants.LUNAR_DATES[lunarInfo.lunarDate - 1]}`;
+            if (lunarInfo.solarTerm) {
+                lunarString += ` (${Constants.SOLAR_TERMS[lunarInfo.solarTerm - 1]})`;
+            }
+            return lunarString;
         }
 
         function displayLunarDate(date, element) {
