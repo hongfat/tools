@@ -92,7 +92,28 @@
         const database = new Database();
 
         function displayLunarDate(date, element) {
-            const compoundDate = database.getCompoundDate(date.getFullYear(), date.getMonth() + 1, date.getDate()) || {};
+            // 驗證日期是否有效
+            if (isNaN(date.getTime())) {
+                element.innerHTML = '請輸入有效的日期。';
+                return;
+            }
+
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+
+            // 檢查日期是否在支援範圍內 (1901-2100)
+            if (year < 1901 || year > 2100) {
+                element.innerHTML = `查詢日期 ${year} 年超出支援範圍 (1901-2100)。`;
+                return;
+            }
+
+            const compoundDate = database.getCompoundDate(year, month, day) || {};
+
+            if (!compoundDate.year) {
+                element.innerHTML = '查詢日期超出範圍。';
+                return;
+            }
 
             // 格式化西元日期
             const gregorianStr = `${compoundDate.year}年${String(compoundDate.month).padStart(2, '0')}月${String(compoundDate.date).padStart(2, '0')}日`;
@@ -100,7 +121,6 @@
             // 格式化農曆
             const lunarYearStr = `${Constants.TIAN_GAN[compoundDate.tiangan]}${Constants.DI_ZHI[compoundDate.dizhi]}${Constants.ZODIAC[compoundDate.dizhi]}年`;
             
-            // 修正：農曆月份和日期的索引計算
             const lunarMonthIndex = compoundDate.lunarMonth - 1;
             const lunarDateIndex = compoundDate.lunarDate - 1;
             
@@ -108,15 +128,9 @@
             const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${compoundDate.lunarDate}`;
             const lunarDateFullStr = `${compoundDate.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
 
-            // 取得節氣資訊 (如果有的話)
             const solarTermStr = compoundDate.solarTerm > 0 ? ` ${Constants.JIE_QI[compoundDate.solarTerm - 1]}` : '';
 
-            // 組合最終字串
-            if (compoundDate.year) {
-                element.innerHTML = `西元 ${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateFullStr}${solarTermStr}`;
-            } else {
-                element.innerHTML = '查詢日期超出範圍 (1901-2100)。';
-            }
+            element.innerHTML = `西元 ${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateFullStr}${solarTermStr}`;
         }
 
         database.load('./lunar/database/all.bin').then(() => {
@@ -134,7 +148,86 @@
                 // 確保 event.target.value 是一個有效的日期字串
                 if (event.target.value) {
                     const selectedDate = new Date(event.target.value);
-                    displayLunarDate(selectedDate, lunarQueryResultEl);
+                    displayLunarDate(selectedDate, lunarQueryResultEl);                            function displayLunarDate(date, element) {
+                                // 驗證日期是否有效
+                                if (isNaN(date.getTime())) {
+                                    element.innerHTML = '請輸入有效的日期。';
+                                    return;
+                                }
+                    
+                                const year = date.getFullYear();
+                                const month = date.getMonth() + 1;
+                                const day = date.getDate();
+                    
+                                // 檢查日期是否在支援範圍內 (1901-2100)
+                                if (year < 1901 || year > 2100) {
+                                    element.innerHTML = `查詢日期 ${year} 年超出支援範圍 (1901-2100)。`;
+                                    return;
+                                }
+                    
+                                const compoundDate = database.getCompoundDate(year, month, day) || {};
+                    
+                                if (!compoundDate.year) {
+                                    element.innerHTML = '查詢日期超出範圍。';
+                                    return;
+                                }
+                    
+                                // 格式化西元日期
+                                const gregorianStr = `${compoundDate.year}年${String(compoundDate.month).padStart(2, '0')}月${String(compoundDate.date).padStart(2, '0')}日`;
+                    
+                                // 格式化農曆
+                                const lunarYearStr = `${Constants.TIAN_GAN[compoundDate.tiangan]}${Constants.DI_ZHI[compoundDate.dizhi]}${Constants.ZODIAC[compoundDate.dizhi]}年`;
+                                
+                                const lunarMonthIndex = compoundDate.lunarMonth - 1;
+                                const lunarDateIndex = compoundDate.lunarDate - 1;
+                                
+                                const lunarMonthStr = Constants.LUNAR_MONTHS[lunarMonthIndex] || `${compoundDate.lunarMonth}月`;
+                                const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${compoundDate.lunarDate}`;
+                                const lunarDateFullStr = `${compoundDate.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
+                    
+                                const solarTermStr = compoundDate.solarTerm > 0 ? ` ${Constants.JIE_QI[compoundDate.solarTerm - 1]}` : '';
+                    
+                                element.innerHTML = `西元 ${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateFullStr}${solarTermStr}`;
+                            }
+                    
+                            // ...existing code...
+                    
+                            function displayGregorianDate(date, element) {
+                                // 驗證日期是否有效
+                                if (isNaN(date.getTime())) {
+                                    element.innerHTML = '請輸入有效的日期。';
+                                    return;
+                                }
+                    
+                                const year = date.getFullYear();
+                                const month = date.getMonth() + 1;
+                                const day = date.getDate();
+                    
+                                // 檢查日期是否在支援範圍內 (1901-2100)
+                                if (year < 1901 || year > 2100) {
+                                    element.innerHTML = `查詢日期 ${year} 年超出範圍 (1901-2100)。`;
+                                    return;
+                                }
+                    
+                                const lunarInfo = database.getCompoundDate(year, month, day) || {};
+                                
+                                if (!lunarInfo.year) {
+                                    element.innerHTML = '查詢日期超出範圍。';
+                                    return;
+                                }
+                    
+                                const lunarYearStr = `${Constants.TIAN_GAN[lunarInfo.tiangan]}${Constants.DI_ZHI[lunarInfo.dizhi]}${Constants.ZODIAC[lunarInfo.dizhi]}年`;
+                                
+                                const lunarMonthIndex = lunarInfo.lunarMonth - 1;
+                                const lunarDateIndex = lunarInfo.lunarDate - 1;
+                                
+                                const lunarMonthStr = Constants.LUNAR_MONTHS[lunarMonthIndex] || `${lunarInfo.lunarMonth}月`;
+                                const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${lunarInfo.lunarDate}`;
+                                const lunarDateFullStr = `${lunarInfo.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
+                                
+                                element.innerHTML = `農曆 ${lunarYearStr} ${lunarDateFullStr}<br>對應西元 ${lunarInfo.year}年${String(lunarInfo.month).padStart(2, '0')}月${String(lunarInfo.date).padStart(2, '0')}日`;
+                            }
+                    // ...existing code...
                 }
             });
 
