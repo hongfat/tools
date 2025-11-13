@@ -72,9 +72,51 @@
             if (startDate && endDate) {
                 const start = new Date(startDate);
                 const end = new Date(endDate);
-                const timeDiff = Math.abs(end.getTime() - start.getTime());
+
+                // 確保 start 是較早的日期
+                if (start > end) {
+                    [start, end] = [end, start];
+                }
+
+                const timeDiff = end.getTime() - start.getTime();
                 const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-                resultEl.textContent = `兩個日期之間相差 ${dayDiff} 天。`;
+
+                let resultText = `兩個日期之間相差 ${dayDiff} 天。`;
+
+                // 當天數大於等於一個月時，提供更詳細的年月日差異
+                if (dayDiff >= 30) {
+                    let tempStart = new Date(start);
+                    let years = 0;
+                    let months = 0;
+                    let days = 0;
+
+                    // 計算年份
+                    while (tempStart.getFullYear() < end.getFullYear()) {
+                        tempStart.setFullYear(tempStart.getFullYear() + 1);
+                        if (tempStart > end) {
+                            tempStart.setFullYear(tempStart.getFullYear() - 1);
+                            break;
+                        }
+                        years++;
+                    }
+
+                    // 計算月份
+                    while (tempStart.getMonth() < end.getMonth() || tempStart.getFullYear() < end.getFullYear()) {
+                        tempStart.setMonth(tempStart.getMonth() + 1);
+                        if (tempStart > end) {
+                            tempStart.setMonth(tempStart.getMonth() - 1);
+                            break;
+                        }
+                        months++;
+                    }
+
+                    // 計算剩餘天數
+                    days = Math.ceil((end - tempStart) / (1000 * 3600 * 24));
+
+                    resultText += `<br>詳細計算：約 ${years} 年 ${months} 個月又 ${days} 天。`;
+                }
+
+                resultEl.innerHTML = resultText;
             } else {
                 resultEl.textContent = '請選擇開始和結束日期。';
             }
@@ -133,6 +175,11 @@
             const dd = String(now.getDate()).padStart(2, '0');
             lunarQueryDateEl.value = `${yyyy}-${mm}-${dd}`;
             displayLunarDate(now, lunarQueryResultEl);
+
+            // 2. 設定天數計算欄位的預設值為今天
+            const todayString = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('startDate').value = todayString;
+            document.getElementById('endDate').value = todayString;
 
             // 2. 監聽日期選擇事件，當日期改變時更新農曆資訊
             lunarQueryDateEl.addEventListener('input', (event) => {
