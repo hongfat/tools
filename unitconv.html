@@ -143,6 +143,14 @@
                 }
             });
         });
+
+        // 頁面載入時，為所有已展開的內容設定正確的 max-height
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.collapsible-content.expanded').forEach(content => {
+                // 設定為實際高度以避免內容被截斷
+                content.style.maxHeight = content.scrollHeight + 'px';
+            });
+        });
     </script>
 </body>
 </html>
