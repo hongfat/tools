@@ -162,30 +162,13 @@ button {
 }
 
 /* --- 折疊功能樣式 --- */
-.calculator-section h3 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.collapsible-header {
     cursor: pointer; /* 讓標題看起來可點擊 */
+    user-select: none; /* 防止點擊時選取文字 */
 }
 
-.toggle-btn {
-    background: none;
-    border: none;
-    color: var(--secondary-text-color);
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.2rem;
-    transition: transform 0.3s ease;
-}
-
-.toggle-btn .arrow {
-    display: inline-block;
-    transform: rotate(0deg); /* 預設向上 */
-}
-
-.toggle-btn[aria-expanded="false"] .arrow {
-    transform: rotate(180deg); /* 折疊時向下 */
+.collapsible-header:hover {
+    color: var(--primary-text-color); /* 滑鼠移上去時稍微變亮 */
 }
 
 .collapsible-content {
