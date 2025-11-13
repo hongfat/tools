@@ -18,21 +18,7 @@
 
         <div class="calculator-section">
             <h3>長度換算</h3>
-            <div class="unit-converter">
-                <div class="conversion-group">
-                    <label for="lengthValue1">數值</label>
-                    <input type="number" id="lengthValue1" value="1">
-                    <label for="lengthUnit1">單位</label>
-                    <select id="lengthUnit1"></select>
-                </div>
-                <div class="equals-sign">=</div>
-                <div class="conversion-group">
-                    <label for="lengthValue2">數值</label>
-                    <input type="number" id="lengthValue2">
-                    <label for="lengthUnit2">單位</label>
-                    <select id="lengthUnit2"></select>
-                </div>
-            </div>
+            <div id="length-converter-container" class="unit-converter-grid"></div>
         </div>
 
         <div class="calculator-section">
@@ -64,65 +50,49 @@
         // --- 長度換算 ---
         const lengthUnits = {
             kilometer: { name: '公里 (km)', toMeter: 1000 },
-            meter:     { name: '公尺 (m)', toMeter: 1 },
+            meter: { name: '公尺 (m)', toMeter: 1 },
             centimeter:{ name: '公分 (cm)', toMeter: 0.01 },
-            foot:      { name: '英呎 (ft)', toMeter: 0.3048 },
-            inch:      { name: '英吋 (in)', toMeter: 0.0254 }
+            foot: { name: '英呎 (ft)', toMeter: 0.3048 },
+            inch: { name: '英吋 (in)', toMeter: 0.0254 }
         };
 
-        const lengthValue1 = document.getElementById('lengthValue1');
-        const lengthUnit1 = document.getElementById('lengthUnit1');
-        const lengthValue2 = document.getElementById('lengthValue2');
-        const lengthUnit2 = document.getElementById('lengthUnit2');
+        const lengthContainer = document.getElementById('length-converter-container');
 
-        // 填充單位選項
+        // 動態生成輸入框
         for (const unit in lengthUnits) {
-            lengthUnit1.add(new Option(lengthUnits[unit].name, unit));
-            lengthUnit2.add(new Option(lengthUnits[unit].name, unit));
+            const group = document.createElement('div');
+            group.className = 'unit-input-group';
+            
+            const label = document.createElement('label');
+            label.htmlFor = `length-input-${unit}`;
+            label.textContent = lengthUnits[unit].name;
+            
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.id = `length-input-${unit}`;
+            input.dataset.unit = unit; // 使用 data-* 屬性來儲存單位
+            
+            group.appendChild(label);
+            group.appendChild(input);
+            lengthContainer.appendChild(group);
+            
+            input.addEventListener('input', handleLengthConversion);
         }
-        // 設定預設單位
-        lengthUnit1.value = 'meter';
-        lengthUnit2.value = 'centimeter';
 
-        function convertLength() {
-            const fromUnit = lengthUnit1.value;
-            const toUnit = lengthUnit2.value;
-            const value = parseFloat(lengthValue1.value);
+        function handleLengthConversion(event) {
+            const sourceInput = event.target;
+            const sourceUnit = sourceInput.dataset.unit;
+            const sourceValue = parseFloat(sourceInput.value);
 
-            if (isNaN(value)) {
-                lengthValue2.value = '';
-                return;
+            const valueInMeters = isNaN(sourceValue) ? 0 : sourceValue * lengthUnits[sourceUnit].toMeter;
+
+            for (const unit in lengthUnits) {
+                if (unit === sourceUnit) continue; // 跳過正在輸入的欄位
+                const targetInput = document.getElementById(`length-input-${unit}`);
+                const convertedValue = valueInMeters / lengthUnits[unit].toMeter;
+                targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
             }
-
-            const valueInMeters = value * lengthUnits[fromUnit].toMeter;
-            const result = valueInMeters / lengthUnits[toUnit].toMeter;
-
-            // 避免浮點數精度問題，限制小數點位數
-            lengthValue2.value = parseFloat(result.toPrecision(10));
         }
-
-        function convertLengthReverse() {
-            const fromUnit = lengthUnit2.value;
-            const toUnit = lengthUnit1.value;
-            const value = parseFloat(lengthValue2.value);
-
-            if (isNaN(value)) {
-                lengthValue1.value = '';
-                return;
-            }
-
-            const valueInMeters = value * lengthUnits[fromUnit].toMeter;
-            const result = valueInMeters / lengthUnits[toUnit].toMeter;
-            lengthValue1.value = parseFloat(result.toPrecision(10));
-        }
-
-        lengthValue1.addEventListener('input', convertLength);
-        lengthUnit1.addEventListener('change', convertLength);
-        lengthValue2.addEventListener('input', convertLengthReverse);
-        lengthUnit2.addEventListener('change', convertLength);
-
-        // 初始換算
-        convertLength();
     </script>
 </body>
 </html>
