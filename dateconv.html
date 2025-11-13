@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>日期換算工具 - UNCLE FAT'S TOOL BOX</title>    
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* 用於計算結果的淡入動畫 */
+        .fade-in {
+            animation: fadeInColor 1s ease-in-out;
+        }
+        @keyframes fadeInColor {
+            from { color: red; }
+            to { color: inherit; }
+        }
+    </style>
 </head>
 <body>
 
@@ -97,41 +107,32 @@
                 const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
                 let resultText = `兩個日期之間相差 ${dayDiff} 天。`;
+                
+                // 優化：提供更精確的 "X年X月X天" 的差異計算
+                if (dayDiff > 0) {
+                    let years = end.getFullYear() - start.getFullYear();
+                    let months = end.getMonth() - start.getMonth();
+                    let days = end.getDate() - start.getDate();
 
-                // 當天數大於等於一個月時，提供更詳細的年月日差異
-                if (dayDiff >= 30) {
-                    let tempStart = new Date(start);
-                    let years = 0;
-                    let months = 0;
-                    let days = 0;
-
-                    // 計算年份
-                    while (tempStart.getFullYear() < end.getFullYear()) {
-                        tempStart.setFullYear(tempStart.getFullYear() + 1);
-                        if (tempStart > end) {
-                            tempStart.setFullYear(tempStart.getFullYear() - 1);
-                            break;
-                        }
-                        years++;
+                    if (days < 0) {
+                        months--;
+                        // 取得上一個月的總天數來補足天數
+                        const lastMonth = new Date(end.getFullYear(), end.getMonth(), 0);
+                        days += lastMonth.getDate();
                     }
 
-                    // 計算月份
-                    while (tempStart.getMonth() < end.getMonth() || tempStart.getFullYear() < end.getFullYear()) {
-                        tempStart.setMonth(tempStart.getMonth() + 1);
-                        if (tempStart > end) {
-                            tempStart.setMonth(tempStart.getMonth() - 1);
-                            break;
-                        }
-                        months++;
+                    if (months < 0) {
+                        years--;
+                        months += 12;
                     }
-
-                    // 計算剩餘天數
-                    days = Math.ceil((end - tempStart) / (1000 * 3600 * 24));
-
-                    resultText += `<br>詳細計算：約 ${years} 年 ${months} 個月又 ${days} 天。`;
+                    
+                    if (years > 0 || months > 0) {
+                         resultText += `<br>詳細計算：${years} 年 ${months} 個月又 ${days} 天。`;
+                    }
                 }
 
                 resultEl.innerHTML = resultText;
+                triggerFadeIn(resultEl);
             } else {
                 resultEl.textContent = '請選擇開始和結束日期。';
             }
@@ -143,6 +144,15 @@
         const addBtn = document.getElementById('addDaysBtn');
         const subtractBtn = document.getElementById('subtractDaysBtn');
         const dateCalcResultEl = document.getElementById('dateCalcResult');
+
+        // 觸發計算結果的視覺回饋
+        function triggerFadeIn(element) {
+            element.classList.remove('fade-in');
+            // void element.offsetWidth; // 強制瀏覽器重繪
+            requestAnimationFrame(() => {
+                element.classList.add('fade-in');
+            });
+        }
 
         function calculateNewDate(operation) {
             const baseDateValue = baseDateEl.value;
@@ -168,16 +178,26 @@
             const dd = String(baseDate.getDate()).padStart(2, '0');
             const newDateStr = `${yyyy}年${mm}月${dd}日`;
 
-            const lunarInfo = database.getCompoundDate(yyyy, parseInt(mm, 10), parseInt(dd, 10));
-            const lunarDateFullStr = `${Constants.TIAN_GAN[lunarInfo.tiangan]}${Constants.DI_ZHI[lunarInfo.dizhi]}${Constants.ZODIAC[lunarInfo.dizhi]}年 ${lunarInfo.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[lunarInfo.lunarMonth - 1]}${Constants.LUNAR_DATES[lunarInfo.lunarDate - 1]}`;
+            const lunarDateFullStr = getLunarString(baseDate);
             
-            dateCalcResultEl.innerHTML = `結果：<br>西元 ${newDateStr}<br>農曆 ${lunarDateFullStr}`;
+            dateCalcResultEl.innerHTML = `結果：<br>西元 ${newDateStr}<br>${lunarDateFullStr}`;
+            triggerFadeIn(dateCalcResultEl);
         }
         
         // --- 農曆換算 (使用 traditional-chinese-calendar-database) ---
         const lunarQueryDateEl = document.getElementById('lunarQueryDate');
         const lunarQueryResultEl = document.getElementById('lunarQueryResult');
         const database = new Database();
+
+        // 提取重複邏輯：根據 Date 物件取得農曆字串
+        function getLunarString(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const lunarInfo = database.getCompoundDate(year, month, day);
+            const lunarYearStr = `${Constants.TIAN_GAN[lunarInfo.tiangan]}${Constants.DI_ZHI[lunarInfo.dizhi]}${Constants.ZODIAC[lunarInfo.dizhi]}年`;
+            return `農曆 ${lunarYearStr} ${lunarInfo.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[lunarInfo.lunarMonth - 1]}${Constants.LUNAR_DATES[lunarInfo.lunarDate - 1]}`;
+        }
 
         function displayLunarDate(date, element) {
             // 驗證日期是否有效
@@ -196,23 +216,16 @@
                 return;
             }
 
-            // 使用 getCompoundDate() 進行西元轉農曆
-            const lunarInfo = database.getCompoundDate(year, month, day);
-
-            console.log('Input:', {year, month, day});
-            console.log('API Response:', lunarInfo);
-
-            if (!lunarInfo || lunarInfo.year !== year) {
-                element.innerHTML = `西元 ${year}年${String(month).padStart(2, '0')}月${String(day).padStart(2, '0')}日<br>農曆資料查詢錯誤或日期不正確。`;
-                return;
-            }
-
-            // 根據 API 實際回傳的欄位名稱調整
             const gregorianStr = `${year}年${String(month).padStart(2, '0')}月${String(day).padStart(2, '0')}日`;
-            const lunarYearStr = `${Constants.TIAN_GAN[lunarInfo.tiangan]}${Constants.DI_ZHI[lunarInfo.dizhi]}${Constants.ZODIAC[lunarInfo.dizhi]}年`;
-            const lunarDateFullStr = `${lunarInfo.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[lunarInfo.lunarMonth - 1]}${Constants.LUNAR_DATES[lunarInfo.lunarDate - 1]}`;
+            const lunarDateFullStr = getLunarString(date);
 
-            element.innerHTML = `西元 ${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateFullStr}`;
+            element.innerHTML = `西元 ${gregorianStr}<br>${lunarDateFullStr}`;
+        }
+
+        // 提取重複邏輯：取得 YYYY-MM-DD 格式的日期字串
+        function getTodayString() {
+            const now = new Date();
+            return now.toISOString().split('T')[0];
         }
 
         database.load('./lunar/database/all.bin').then(() => {
@@ -221,15 +234,12 @@
             
             const now = new Date();
             
+            const todayString = getTodayString();
             // 1. 設定查詢欄位的預設值為今天，並顯示結果
-            const yyyy = now.getFullYear();
-            const mm = String(now.getMonth() + 1).padStart(2, '0');
-            const dd = String(now.getDate()).padStart(2, '0');
-            lunarQueryDateEl.value = `${yyyy}-${mm}-${dd}`;
+            lunarQueryDateEl.value = todayString;
             displayLunarDate(now, lunarQueryResultEl);
 
             // 2. 設定天數計算欄位的預設值為今天
-            const todayString = `${yyyy}-${mm}-${dd}`;
             document.getElementById('startDate').value = todayString;
             document.getElementById('endDate').value = todayString;
             document.getElementById('baseDate').value = todayString;
