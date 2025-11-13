@@ -178,10 +178,10 @@
             const lunarInfo = database.getCompoundDate(year, month, day);
             const lunarYearStr = `${Constants.TIAN_GAN[lunarInfo.tiangan]}${Constants.DI_ZHI[lunarInfo.dizhi]}${Constants.ZODIAC[lunarInfo.dizhi]}年`;
             let lunarString = `農曆 ${lunarYearStr} ${lunarInfo.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[lunarInfo.lunarMonth - 1]}${Constants.LUNAR_DATES[lunarInfo.lunarDate - 1]}`;
-            if (lunarInfo.solarTerm >= 0) {
-                // 確保 Constants.SOLAR_TERMS 存在且索引有效
-                if (Constants.SOLAR_TERMS && lunarInfo.solarTerm < Constants.SOLAR_TERMS.length) {
-                    lunarString += ` (${Constants.SOLAR_TERMS[lunarInfo.solarTerm - 1]})`;
+            // 檢查 solarTerm 是否存在且為有效數字
+            if (lunarInfo.solarTerm) {
+                if (Constants.JIE_QI && lunarInfo.solarTerm > 0 && lunarInfo.solarTerm <= Constants.JIE_QI.length) {
+                    lunarString += ` (${Constants.JIE_QI[lunarInfo.solarTerm - 1]})`;
                 }
             }
             return lunarString;
