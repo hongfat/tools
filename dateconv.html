@@ -131,17 +131,12 @@
             lunarQueryDateEl.value = `${yyyy}-${mm}-${dd}`;
             displayLunarDate(now, lunarQueryResultEl);
 
-            // 3. 監聽日期選擇事件
+            // 2. 監聽日期選擇事件，當日期改變時更新農曆資訊
             lunarQueryDateEl.addEventListener('input', (event) => {
-                const selectedDate = new Date(event.target.value);
-                displayLunarDate(selectedDate, lunarQueryResultEl);
-            });
-
-            // 4. 監聽年份輸入，自動跳轉到月份
-            lunarQueryDateEl.addEventListener('input', (event) => {
-                const input = event.target;
-                if (input.value.length === 4 && /^\d{4}$/.test(input.value)) {
-                    input.value += '-';
+                // 確保 event.target.value 是一個有效的日期字串
+                if (event.target.value) {
+                    const selectedDate = new Date(event.target.value);
+                    displayLunarDate(selectedDate, lunarQueryResultEl);
                 }
             });
 
