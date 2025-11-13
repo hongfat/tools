@@ -106,7 +106,7 @@ body {
     border-radius: 8px;
 }
 
-.container h1, .container h2 {
+.container h1, .container h2, .container h3 {
     color: var(--accent-color);
     border-bottom: 1px solid var(--card-border-color);
     padding-bottom: 0.5rem;
