@@ -163,7 +163,7 @@ button {
 
 /* --- 單位換算器 (unitconv.html) 專用樣式 --- */
 .unit-converter-grid {
-    display: flex;
+    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
 }
