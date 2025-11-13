@@ -99,14 +99,21 @@
 
             // 格式化農曆
             const lunarYearStr = `${Constants.TIAN_GAN[compoundDate.tiangan]}${Constants.DI_ZHI[compoundDate.dizhi]}${Constants.ZODIAC[compoundDate.dizhi]}年`;
-            const lunarDateStr = `${compoundDate.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[compoundDate.lunarMonth - 1]}${Constants.LUNAR_DATES[compoundDate.lunarDate - 1]}`;
+            
+            // 修正：農曆月份和日期的索引計算
+            const lunarMonthIndex = compoundDate.lunarMonth - 1;
+            const lunarDateIndex = compoundDate.lunarDate - 1;
+            
+            const lunarMonthStr = Constants.LUNAR_MONTHS[lunarMonthIndex] || `${compoundDate.lunarMonth}月`;
+            const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${compoundDate.lunarDate}`;
+            const lunarDateFullStr = `${compoundDate.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
 
             // 取得節氣資訊 (如果有的話)
             const solarTermStr = compoundDate.solarTerm > 0 ? ` ${Constants.JIE_QI[compoundDate.solarTerm - 1]}` : '';
 
             // 組合最終字串
             if (compoundDate.year) {
-                element.innerHTML = `西元 ${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateStr}${solarTermStr}`;
+                element.innerHTML = `西元 ${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateFullStr}${solarTermStr}`;
             } else {
                 element.innerHTML = '查詢日期超出範圍 (1901-2100)。';
             }
@@ -165,8 +172,16 @@
             }
 
             const lunarYearStr = `${Constants.TIAN_GAN[lunarInfo.tiangan]}${Constants.DI_ZHI[lunarInfo.dizhi]}${Constants.ZODIAC[lunarInfo.dizhi]}年`;
-            const lunarDateStr = `${lunarInfo.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[lunarInfo.lunarMonth - 1]}${Constants.LUNAR_DATES[lunarInfo.lunarDate - 1]}`;
-            element.innerHTML = `農曆 ${lunarYearStr} ${lunarDateStr}<br>對應西元 ${lunarInfo.year}年${String(lunarInfo.month).padStart(2, '0')}月${String(lunarInfo.date).padStart(2, '0')}日`;
+            
+            // 修正：農曆月份和日期的索引計算
+            const lunarMonthIndex = lunarInfo.lunarMonth - 1;
+            const lunarDateIndex = lunarInfo.lunarDate - 1;
+            
+            const lunarMonthStr = Constants.LUNAR_MONTHS[lunarMonthIndex] || `${lunarInfo.lunarMonth}月`;
+            const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${lunarInfo.lunarDate}`;
+            const lunarDateFullStr = `${lunarInfo.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
+            
+            element.innerHTML = `農曆 ${lunarYearStr} ${lunarDateFullStr}<br>對應西元 ${lunarInfo.year}年${String(lunarInfo.month).padStart(2, '0')}月${String(lunarInfo.date).padStart(2, '0')}日`;
         }
 
         // 立即執行一次時間更新，然後每秒更新
