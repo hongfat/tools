@@ -18,7 +18,16 @@
 
         <div class="calculator-section">
             <h3>長度換算</h3>
+                <button class="toggle-btn" data-target="length-conversion-content" aria-expanded="true" aria-controls="length-conversion-content">
+                    <span class="arrow">▲</span>
+                </button>
+            </h3>
+            <div id="length-conversion-content" class="collapsible-content expanded">
+            <div class="converter-controls">
+                <button id="resetLengthBtn" class="reset-btn">重設</button>
+            </div>
             <div id="length-converter-container" class="unit-converter-grid"></div>
+            </div>
         </div>
 
         <div class="calculator-section">
@@ -50,8 +59,8 @@
         // --- 長度換算 ---
         const lengthUnits = {
             // 公制
-            meter:      { name: '公尺 (m)', toMeter: 1 },
             centimeter: { name: '公分 (cm)', toMeter: 0.01 },
+            meter:      { name: '公尺 (m)', toMeter: 1 },
             kilometer:  { name: '公里 (km)', toMeter: 1000 },
             millimeter: { name: '公釐 (mm)', toMeter: 0.001 },
             micrometer: { name: '微米 (μm)', toMeter: 1e-6 },
@@ -64,6 +73,7 @@
             // 其他
             nauticalMile: { name: '海浬 (nmi)', toMeter: 1852 },
             taiwaneseFoot:{ name: '台尺', toMeter: 10/33 },
+            lightYear:    { name: '光年 (ly)', toMeter: 9460730472580800 },
         };
 
         const lengthContainer = document.getElementById('length-converter-container');
@@ -103,6 +113,36 @@
                 targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
             }
         }
+
+        // --- 重設按鈕 ---
+        const resetLengthBtn = document.getElementById('resetLengthBtn');
+        resetLengthBtn.addEventListener('click', () => {
+            const inputs = lengthContainer.getElementsByTagName('input');
+            for (const input of inputs) {
+                input.value = '';
+            }
+        });
+
+        // --- 折疊功能 ---
+        document.querySelectorAll('.toggle-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.dataset.target;
+                const targetContent = document.getElementById(targetId);
+                const arrow = button.querySelector('.arrow');
+
+                if (targetContent.classList.contains('expanded')) {
+                    targetContent.classList.remove('expanded');
+                    targetContent.style.maxHeight = '0';
+                    button.setAttribute('aria-expanded', 'false');
+                    arrow.textContent = '▼';
+                } else {
+                    targetContent.classList.add('expanded');
+                    targetContent.style.maxHeight = targetContent.scrollHeight + 'px'; // 設定為實際高度以實現平滑展開
+                    button.setAttribute('aria-expanded', 'true');
+                    arrow.textContent = '▲';
+                }
+            });
+        });
     </script>
 </body>
 </html>
