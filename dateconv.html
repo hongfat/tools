@@ -23,20 +23,6 @@
             <p id="lunarQueryResult" style="margin-top: 10px;"></p>
         </div>
 
-        <h2>農曆轉西元</h2>
-        <div class="form-group">
-            <label>選擇農曆日期</label>
-            <div id="lunar-input-group" style="display: flex; align-items: center; gap: 10px;">
-                <select id="lunarYear"></select> 年
-                <select id="lunarMonth"></select> 月
-                <select id="lunarDay"></select> 日
-                <label style="margin-left: 10px;">
-                    <input type="checkbox" id="isLeapMonth"> 閏月
-                </label>
-            </div>
-            <p id="gregorianResult" style="margin-top: 10px;"></p>
-        </div>
-
 
         <div class="calculator-section">
             <h2>計算天數差異</h2>
@@ -156,86 +142,10 @@
                 }
             });
 
-            // --- 農曆轉西元功能初始化 ---
-            initializeLunarToGregorianConverter();
-
         }).catch(error => {
             lunarQueryResultEl.textContent = '無法載入農曆資料庫。';
             console.error('Error loading lunar database:', error);
         });
-
-        function convertLunarToGregorian() {
-            const year = parseInt(document.getElementById('lunarYear').value, 10);
-            const month = parseInt(document.getElementById('lunarMonth').value, 10);
-            const day = parseInt(document.getElementById('lunarDay').value, 10);
-            const isLeap = document.getElementById('isLeapMonth').checked;
-            const resultEl = document.getElementById('gregorianResult');
-
-            try {
-                const gregorianInfo = database.getLunarDate(year, month, day, isLeap);
-                
-                if (!gregorianInfo) {
-                    throw new Error('Invalid lunar date');
-                }
-
-                const lunarYearStr = `${Constants.TIAN_GAN[gregorianInfo.tiangan]}${Constants.DI_ZHI[gregorianInfo.dizhi]}${Constants.ZODIAC[gregorianInfo.dizhi]}年`;
-                const lunarDateStr = `${isLeap ? '閏' : ''}${Constants.LUNAR_MONTHS[month - 1]}${Constants.LUNAR_DATES[day - 1]}`;
-                const gregorianDateStr = `${gregorianInfo.year}年${String(gregorianInfo.month).padStart(2, '0')}月${String(gregorianInfo.day).padStart(2, '0')}日`;
-
-                resultEl.innerHTML = `農曆 ${lunarYearStr} ${lunarDateStr}<br>對應西元 ${gregorianDateStr}`;
-            } catch (e) {
-                resultEl.innerHTML = `農曆 ${year}年${isLeap ? '閏' : ''}${month}月${day}日<br>查無對應的西元日期，請確認輸入是否正確。`;
-                console.error('Lunar to Gregorian conversion error:', e);
-            }
-        }
-
-        function initializeLunarToGregorianConverter() {
-            const yearSelect = document.getElementById('lunarYear');
-            const monthSelect = document.getElementById('lunarMonth');
-            const daySelect = document.getElementById('lunarDay');
-            const isLeapCheckbox = document.getElementById('isLeapMonth');
-
-            // 填充年份 (1901-2100)
-            for (let y = 1901; y <= 2100; y++) {
-                const option = document.createElement('option');
-                option.value = y;
-                option.textContent = y;
-                yearSelect.appendChild(option);
-            }
-
-            // 填充月份
-            for (let m = 1; m <= 12; m++) {
-                const option = document.createElement('option');
-                option.value = m;
-                option.textContent = Constants.LUNAR_MONTHS[m - 1];
-                monthSelect.appendChild(option);
-            }
-
-            // 填充日期
-            for (let d = 1; d <= 30; d++) {
-                const option = document.createElement('option');
-                option.value = d;
-                option.textContent = Constants.LUNAR_DATES[d - 1];
-                daySelect.appendChild(option);
-            }
-
-            // 設定預設值為今天對應的農曆日期
-            const now = new Date();
-            const todayLunar = database.getCompoundDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
-            yearSelect.value = todayLunar.lunarYear;
-            monthSelect.value = todayLunar.lunarMonth;
-            daySelect.value = todayLunar.lunarDate;
-            isLeapCheckbox.checked = todayLunar.leap;
-
-            // 初始轉換
-            convertLunarToGregorian();
-
-            // 監聽所有輸入欄位的變更
-            yearSelect.addEventListener('change', convertLunarToGregorian);
-            monthSelect.addEventListener('change', convertLunarToGregorian);
-            daySelect.addEventListener('change', convertLunarToGregorian);
-            isLeapCheckbox.addEventListener('change', convertLunarToGregorian);
-        }
 
         // 立即執行一次時間更新，然後每秒更新
         updateDateTime();
