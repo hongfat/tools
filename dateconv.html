@@ -109,71 +109,28 @@
             }
 
             // 使用 getCompoundDate() 進行西元轉農曆
-            const lunarInfo = database.getCompoundDate(year, month, day) || {};
+            const lunarInfo = database.getCompoundDate(year, month, day);
 
             console.log('Input:', {year, month, day});
             console.log('API Response:', lunarInfo);
 
-            if (!lunarInfo.lunarYear !== undefined) {
-                element.innerHTML = '查詢日期超出範圍。';
+            if (!lunarInfo || lunarInfo.year !== year) {
+                element.innerHTML = `西元 ${year}年${String(month).padStart(2, '0')}月${String(day).padStart(2, '0')}日<br>農曆資料查詢錯誤或日期不正確。`;
                 return;
             }
 
             // 根據 API 實際回傳的欄位名稱調整
             const gregorianStr = `${year}年${String(month).padStart(2, '0')}月${String(day).padStart(2, '0')}日`;
-            const lunarYearStr = lunarInfo.lunarYear || '未知';
-            const lunarMonthIndex = lunarInfo.lunarMonth - 1;
-            const lunarDateIndex = lunarInfo.lunarDate - 1;
-            
-            const lunarMonthStr = Constants.LUNAR_MONTHS[lunarMonthIndex] || `${lunarInfo.lunarMonth}月`;
-            const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${lunarInfo.lunarDate}`;
-            const lunarDateFullStr = `${lunarInfo.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
+            const lunarYearStr = `${Constants.TIAN_GAN[lunarInfo.tiangan]}${Constants.DI_ZHI[lunarInfo.dizhi]}${Constants.ZODIAC[lunarInfo.dizhi]}年`;
+            const lunarDateFullStr = `${lunarInfo.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[lunarInfo.lunarMonth - 1]}${Constants.LUNAR_DATES[lunarInfo.lunarDate - 1]}`;
 
             element.innerHTML = `西元 ${gregorianStr}<br>農曆 ${lunarYearStr} ${lunarDateFullStr}`;
         }
 
         function displayGregorianDate(date, element) {
-            // 驗證日期是否有效
-            if (isNaN(date.getTime())) {
-                element.innerHTML = '請輸入有效的日期。';
-                return;
-            }
-
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1;
-            const day = date.getDate();
-
-            // 檢查日期是否在支援範圍內 (1901-2100)
-            if (year < 1901 || year > 2100) {
-                element.innerHTML = `查詢日期 ${year} 年超出範圍 (1901-2100)。`;
-                return;
-            }
-
-            // 農曆轉西元：先用 find() 搜尋農曆日期
-            // find(lunarYear, lunarMonth, lunarDate, isLeap)
-            const result = database.find(year, month, day, false) || {};
-            
-            console.log('Input (Lunar):', {year, month, day});
-            console.log('API Response (Gregorian):', result);
-
-            if (!result.year) {
-                element.innerHTML = '查詢日期超出範圍。';
-                return;
-            }
-
-            // 修正天干地支索引
-            const tiangan = result.tiangan || 0;
-            const dizhi = result.dizhi || 0;
-            const lunarYearStr = `${Constants.TIAN_GAN[tiangan % Constants.TIAN_GAN.length]}${Constants.DI_ZHI[dizhi % Constants.DI_ZHI.length]}${Constants.ZODIAC[dizhi % Constants.ZODIAC.length]}年`;
-            
-            const lunarMonthIndex = result.lunarMonth - 1;
-            const lunarDateIndex = result.lunarDate - 1;
-            
-            const lunarMonthStr = Constants.LUNAR_MONTHS[lunarMonthIndex] || `${result.lunarMonth}月`;
-            const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${result.lunarDate}`;
-            const lunarDateFullStr = `${result.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
-            
-            element.innerHTML = `農曆 ${lunarYearStr} ${lunarDateFullStr}<br>對應西元 ${result.year}年${String(result.month).padStart(2, '0')}月${String(result.date).padStart(2, '0')}日`;
+            // "農曆轉西元"的介面也是選擇西元日期，所以直接複用 displayLunarDate 的邏輯
+            // 只是顯示的文字順序不同
+            displayLunarDate(date, element);
         }
 
         database.load('./lunar/database/all.bin').then(() => {
