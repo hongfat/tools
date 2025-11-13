@@ -176,6 +176,9 @@
         }
 
         database.load('./lunar/database/all.bin').then(() => {
+            // 先檢查 database 的可用方法
+            console.log('Database methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(database)));
+            
             const now = new Date();
             
             // 1. 設定查詢欄位的預設值為今天，並顯示結果
