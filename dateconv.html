@@ -108,13 +108,13 @@
                 return;
             }
 
-            // 使用 getGregorianDate() 進行西元轉農曆
-            const lunarInfo = database.getGregorianDate(year, month, day) || {};
+            // 使用 getCompoundDate() 進行西元轉農曆
+            const lunarInfo = database.getCompoundDate(year, month, day) || {};
 
             console.log('Input:', {year, month, day});
             console.log('API Response:', lunarInfo);
 
-            if (!lunarInfo.lunarYear) {
+            if (!lunarInfo.lunarYear !== undefined) {
                 element.innerHTML = '查詢日期超出範圍。';
                 return;
             }
@@ -149,30 +149,31 @@
                 return;
             }
 
-            // 使用 getCompoundDate() 進行農曆轉西元
-            const gregorianInfo = database.getCompoundDate(year, month, day) || {};
+            // 農曆轉西元：先用 find() 搜尋農曆日期
+            // find(lunarYear, lunarMonth, lunarDate, isLeap)
+            const result = database.find(year, month, day, false) || {};
             
             console.log('Input (Lunar):', {year, month, day});
-            console.log('API Response (Gregorian):', gregorianInfo);
+            console.log('API Response (Gregorian):', result);
 
-            if (!gregorianInfo.year) {
+            if (!result.year) {
                 element.innerHTML = '查詢日期超出範圍。';
                 return;
             }
 
             // 修正天干地支索引
-            const tiangan = gregorianInfo.tiangan || 0;
-            const dizhi = gregorianInfo.dizhi || 0;
+            const tiangan = result.tiangan || 0;
+            const dizhi = result.dizhi || 0;
             const lunarYearStr = `${Constants.TIAN_GAN[tiangan % Constants.TIAN_GAN.length]}${Constants.DI_ZHI[dizhi % Constants.DI_ZHI.length]}${Constants.ZODIAC[dizhi % Constants.ZODIAC.length]}年`;
             
-            const lunarMonthIndex = gregorianInfo.lunarMonth - 1;
-            const lunarDateIndex = gregorianInfo.lunarDate - 1;
+            const lunarMonthIndex = result.lunarMonth - 1;
+            const lunarDateIndex = result.lunarDate - 1;
             
-            const lunarMonthStr = Constants.LUNAR_MONTHS[lunarMonthIndex] || `${gregorianInfo.lunarMonth}月`;
-            const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${gregorianInfo.lunarDate}`;
-            const lunarDateFullStr = `${gregorianInfo.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
+            const lunarMonthStr = Constants.LUNAR_MONTHS[lunarMonthIndex] || `${result.lunarMonth}月`;
+            const lunarDateStr = Constants.LUNAR_DATES[lunarDateIndex] || `${result.lunarDate}`;
+            const lunarDateFullStr = `${result.leap ? '閏' : ''}${lunarMonthStr}${lunarDateStr}`;
             
-            element.innerHTML = `農曆 ${lunarYearStr} ${lunarDateFullStr}<br>對應西元 ${gregorianInfo.year}年${String(gregorianInfo.month).padStart(2, '0')}月${String(gregorianInfo.date).padStart(2, '0')}日`;
+            element.innerHTML = `農曆 ${lunarYearStr} ${lunarDateFullStr}<br>對應西元 ${result.year}年${String(result.month).padStart(2, '0')}月${String(result.date).padStart(2, '0')}日`;
         }
 
         database.load('./lunar/database/all.bin').then(() => {
