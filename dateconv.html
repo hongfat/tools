@@ -179,7 +179,10 @@
             const lunarYearStr = `${Constants.TIAN_GAN[lunarInfo.tiangan]}${Constants.DI_ZHI[lunarInfo.dizhi]}${Constants.ZODIAC[lunarInfo.dizhi]}年`;
             let lunarString = `農曆 ${lunarYearStr} ${lunarInfo.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[lunarInfo.lunarMonth - 1]}${Constants.LUNAR_DATES[lunarInfo.lunarDate - 1]}`;
             if (lunarInfo.solarTerm) {
-                lunarString += ` (${Constants.SOLAR_TERMS[lunarInfo.solarTerm - 1]})`;
+                // 確保 Constants.SOLAR_TERMS 存在且索引有效
+                if (Constants.SOLAR_TERMS && lunarInfo.solarTerm > 0 && lunarInfo.solarTerm <= Constants.SOLAR_TERMS.length) {
+                    lunarString += ` (${Constants.SOLAR_TERMS[lunarInfo.solarTerm - 1]})`;
+                }
             }
             return lunarString;
         }
