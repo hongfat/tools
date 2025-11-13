@@ -25,7 +25,7 @@
 
 
         <div class="calculator-section">
-            <h2>計算天數差異</h2>
+            <h2>日期天數計算</h2>
             <div class="form-group">
                 <label for="startDate">開始日期</label>
                 <input type="date" id="startDate">
@@ -36,6 +36,21 @@
             </div>
             <button id="calculateBtn">計算</button>
             <p id="result"></p>
+        </div>
+
+        <div class="calculator-section">
+            <h2>日期加減計算</h2>
+            <div class="form-group">
+                <label for="baseDate">基準日期</label>
+                <input type="date" id="baseDate">
+            </div>
+            <div class="form-group">
+                <label for="daysToAddOrSubtract">天數</label>
+                <input type="number" id="daysToAddOrSubtract" value="1" min="0">
+            </div>
+            <button id="addDaysBtn">加 N 天</button>
+            <button id="subtractDaysBtn">減 N 天</button>
+            <p id="dateCalcResult"></p>
         </div>
 
     </div>
@@ -121,6 +136,43 @@
                 resultEl.textContent = '請選擇開始和結束日期。';
             }
         });
+
+        // --- 日期加減計算 ---
+        const baseDateEl = document.getElementById('baseDate');
+        const daysEl = document.getElementById('daysToAddOrSubtract');
+        const addBtn = document.getElementById('addDaysBtn');
+        const subtractBtn = document.getElementById('subtractDaysBtn');
+        const dateCalcResultEl = document.getElementById('dateCalcResult');
+
+        function calculateNewDate(operation) {
+            const baseDateValue = baseDateEl.value;
+            const days = parseInt(daysEl.value, 10);
+
+            if (!baseDateValue || isNaN(days) || days < 0) {
+                dateCalcResultEl.textContent = '請選擇有效的基準日期並輸入正整數天數。';
+                return;
+            }
+
+            const baseDate = new Date(baseDateValue);
+            // 處理時區問題，確保日期計算正確
+            baseDate.setMinutes(baseDate.getMinutes() + baseDate.getTimezoneOffset());
+
+            if (operation === 'add') {
+                baseDate.setDate(baseDate.getDate() + days);
+            } else { // subtract
+                baseDate.setDate(baseDate.getDate() - days);
+            }
+
+            const yyyy = baseDate.getFullYear();
+            const mm = String(baseDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(baseDate.getDate()).padStart(2, '0');
+            const newDateStr = `${yyyy}年${mm}月${dd}日`;
+
+            const lunarInfo = database.getCompoundDate(yyyy, parseInt(mm, 10), parseInt(dd, 10));
+            const lunarDateFullStr = `${Constants.TIAN_GAN[lunarInfo.tiangan]}${Constants.DI_ZHI[lunarInfo.dizhi]}${Constants.ZODIAC[lunarInfo.dizhi]}年 ${lunarInfo.leap ? '閏' : ''}${Constants.LUNAR_MONTHS[lunarInfo.lunarMonth - 1]}${Constants.LUNAR_DATES[lunarInfo.lunarDate - 1]}`;
+            
+            dateCalcResultEl.innerHTML = `結果：<br>西元 ${newDateStr}<br>農曆 ${lunarDateFullStr}`;
+        }
         
         // --- 農曆換算 (使用 traditional-chinese-calendar-database) ---
         const lunarQueryDateEl = document.getElementById('lunarQueryDate');
@@ -180,6 +232,7 @@
             const todayString = `${yyyy}-${mm}-${dd}`;
             document.getElementById('startDate').value = todayString;
             document.getElementById('endDate').value = todayString;
+            document.getElementById('baseDate').value = todayString;
 
             // 2. 監聽日期選擇事件，當日期改變時更新農曆資訊
             lunarQueryDateEl.addEventListener('input', (event) => {
@@ -188,6 +241,10 @@
                     displayLunarDate(selectedDate, lunarQueryResultEl);
                 }
             });
+
+            // 3. 監聽日期加減按鈕事件
+            addBtn.addEventListener('click', () => calculateNewDate('add'));
+            subtractBtn.addEventListener('click', () => calculateNewDate('subtract'));
 
         }).catch(error => {
             lunarQueryResultEl.textContent = '無法載入農曆資料庫。';
