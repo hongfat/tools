@@ -105,7 +105,7 @@
         const database = new Database();
 
         function displayLunarDate(date, element) {
-            const compoundDate = database.getCompoundDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
+            const compoundDate = database.getCompoundDate(date.getFullYear(), date.getMonth(), date.getDate());
 
             // 格式化西元日期
             const gregorianStr = `${compoundDate.year}年${String(compoundDate.month).padStart(2, '0')}月${String(compoundDate.date).padStart(2, '0')}日`;
@@ -191,12 +191,12 @@
                 const monthValue = lunarMonthEl.value;
                 const day = parseInt(lunarDayEl.value);
 
-                let month = monthValue === 'leap' ? 1 : parseInt(monthValue);
+                let month = parseInt(monthValue);
                 let isLeap = monthValue === 'leap';
 
                 try {
                     // 查找對應的西元日期
-                    const gregorianDate = database.getDateByLunar(year, month, day, isLeap);
+                    const gregorianDate = database.getDateByLunar(year, isLeap ? 1 : month - 1, day, isLeap);
                     if (gregorianDate) {
                         const y = gregorianDate.getFullYear();
                         const m = String(gregorianDate.getMonth() + 1).padStart(2, '0');
