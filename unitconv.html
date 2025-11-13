@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>單位換算工具 - UNCLE FAT'S TOOL BOX</title>    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
+        <div id="datetime-display" class="nav-links"></div>
+    </nav>
+
+    <div class="container">
+        <h2><center>單位換算工具</center></h2>
+
+        <div class="calculator-section">
+            <h3>長度換算</h3>
+            <div class="unit-converter">
+                <div class="conversion-group">
+                    <label for="lengthValue1">數值</label>
+                    <input type="number" id="lengthValue1" value="1">
+                    <label for="lengthUnit1">單位</label>
+                    <select id="lengthUnit1"></select>
+                </div>
+                <div class="equals-sign">=</div>
+                <div class="conversion-group">
+                    <label for="lengthValue2">數值</label>
+                    <input type="number" id="lengthValue2">
+                    <label for="lengthUnit2">單位</label>
+                    <select id="lengthUnit2"></select>
+                </div>
+            </div>
+        </div>
+
+        <div class="calculator-section">
+            <h3>重量換算</h3>
+            <p>功能開發中...</p>
+        </div>
+
+        <div class="calculator-section">
+            <h3>溫度換算</h3>
+            <p>功能開發中...</p>
+        </div>
+
+    </div>
+
+    <script type="module">
+        function updateDateTime() {
+            const now = new Date();
+            const dateTimeString = now.toLocaleString('sv-SE').replace('T', ' '); // YYYY-MM-DD HH:MM:SS
+            
+            const displayElement = document.getElementById('datetime-display');
+            if (displayElement) {
+                displayElement.textContent = dateTimeString;
+            }
+        }
+        // 立即執行一次，然後每秒更新
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        // --- 長度換算 ---
+        const lengthUnits = {
+            kilometer: { name: '公里 (km)', toMeter: 1000 },
+            meter:     { name: '公尺 (m)', toMeter: 1 },
+            centimeter:{ name: '公分 (cm)', toMeter: 0.01 },
+            foot:      { name: '英呎 (ft)', toMeter: 0.3048 },
+            inch:      { name: '英吋 (in)', toMeter: 0.0254 }
+        };
+
+        const lengthValue1 = document.getElementById('lengthValue1');
+        const lengthUnit1 = document.getElementById('lengthUnit1');
+        const lengthValue2 = document.getElementById('lengthValue2');
+        const lengthUnit2 = document.getElementById('lengthUnit2');
+
+        // 填充單位選項
+        for (const unit in lengthUnits) {
+            lengthUnit1.add(new Option(lengthUnits[unit].name, unit));
+            lengthUnit2.add(new Option(lengthUnits[unit].name, unit));
+        }
+        // 設定預設單位
+        lengthUnit1.value = 'meter';
+        lengthUnit2.value = 'centimeter';
+
+        function convertLength() {
+            const fromUnit = lengthUnit1.value;
+            const toUnit = lengthUnit2.value;
+            const value = parseFloat(lengthValue1.value);
+
+            if (isNaN(value)) {
+                lengthValue2.value = '';
+                return;
+            }
+
+            const valueInMeters = value * lengthUnits[fromUnit].toMeter;
+            const result = valueInMeters / lengthUnits[toUnit].toMeter;
+
+            // 避免浮點數精度問題，限制小數點位數
+            lengthValue2.value = parseFloat(result.toPrecision(10));
+        }
+
+        function convertLengthReverse() {
+            const fromUnit = lengthUnit2.value;
+            const toUnit = lengthUnit1.value;
+            const value = parseFloat(lengthValue2.value);
+
+            if (isNaN(value)) {
+                lengthValue1.value = '';
+                return;
+            }
+
+            const valueInMeters = value * lengthUnits[fromUnit].toMeter;
+            const result = valueInMeters / lengthUnits[toUnit].toMeter;
+            lengthValue1.value = parseFloat(result.toPrecision(10));
+        }
+
+        lengthValue1.addEventListener('input', convertLength);
+        lengthUnit1.addEventListener('change', convertLength);
+        lengthValue2.addEventListener('input', convertLengthReverse);
+        lengthUnit2.addEventListener('change', convertLength);
+
+        // 初始換算
+        convertLength();
+    </script>
+</body>
+</html>

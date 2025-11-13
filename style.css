@@ -46,7 +46,7 @@ body {
 }
 
 .hero h1 {
-    font-size: 2rem;
+    font-size: 3rem;
     margin-bottom: 1rem;
 }
 
@@ -158,6 +158,36 @@ button {
 #result, #lunar-date {
     margin-top: 1rem;
     font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* --- 單位換算器 (unitconv.html) 專用樣式 --- */
+.unit-converter {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.conversion-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 200px;
+}
+
+.conversion-group input, .conversion-group select {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: var(--bg-color);
+    border: 1px solid var(--card-border-color);
+    color: var(--primary-text-color);
+    border-radius: 4px;
+}
+
+.equals-sign {
+    font-size: 2rem;
     font-weight: bold;
 }
 
