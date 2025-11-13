@@ -49,11 +49,21 @@
 
         // --- 長度換算 ---
         const lengthUnits = {
-            centimeter:{ name: '公分 (cm)', toMeter: 0.01 },
-            meter: { name: '公尺 (m)', toMeter: 1 },
-            kilometer: { name: '公里 (km)', toMeter: 1000 },
-            foot: { name: '英呎 (ft)', toMeter: 0.3048 },
-            inch: { name: '英吋 (in)', toMeter: 0.0254 }
+            // 公制
+            meter:      { name: '公尺 (m)', toMeter: 1 },
+            centimeter: { name: '公分 (cm)', toMeter: 0.01 },
+            kilometer:  { name: '公里 (km)', toMeter: 1000 },
+            millimeter: { name: '公釐 (mm)', toMeter: 0.001 },
+            micrometer: { name: '微米 (μm)', toMeter: 1e-6 },
+            nanometer:  { name: '奈米 (nm)', toMeter: 1e-9 },
+            // 英制
+            inch:       { name: '英吋 (in)', toMeter: 0.0254 },
+            foot:       { name: '英呎 (ft)', toMeter: 0.3048 },
+            yard:       { name: '碼 (yd)', toMeter: 0.9144 },
+            mile:       { name: '英哩 (mi)', toMeter: 1609.344 },
+            // 其他
+            nauticalMile: { name: '海浬 (nmi)', toMeter: 1852 },
+            taiwaneseFoot:{ name: '台尺', toMeter: 10/33 },
         };
 
         const lengthContainer = document.getElementById('length-converter-container');
