@@ -27,8 +27,8 @@
         </div>
 
         <div class="calculator-section">
-            <h3 class="collapsible-header" data-target="weight-conversion-content" aria-expanded="true" aria-controls="weight-conversion-content">重量換算 (點擊以折疊/展開)</h3>
-            <div id="weight-conversion-content" class="collapsible-content expanded">
+            <h3 class="collapsible-header" data-target="weight-conversion-content" aria-expanded="false" aria-controls="weight-conversion-content">重量換算 (點擊以折疊/展開)</h3>
+            <div id="weight-conversion-content" class="collapsible-content">
             <div class="converter-controls">
                 <button id="resetWeightBtn" class="reset-btn">重設</button>
             </div>
@@ -37,8 +37,8 @@
         </div>
 
         <div class="calculator-section">
-            <h3 class="collapsible-header" data-target="area-conversion-content" aria-expanded="true" aria-controls="area-conversion-content">面積換算 (點擊以折疊/展開)</h3>
-            <div id="area-conversion-content" class="collapsible-content expanded">
+            <h3 class="collapsible-header" data-target="area-conversion-content" aria-expanded="false" aria-controls="area-conversion-content">面積換算 (點擊以折疊/展開)</h3>
+            <div id="area-conversion-content" class="collapsible-content">
             <div class="converter-controls">
                 <button id="resetAreaBtn" class="reset-btn">重設</button>
             </div>
@@ -47,8 +47,8 @@
         </div>
 
         <div class="calculator-section">
-            <h3 class="collapsible-header" data-target="temperature-conversion-content" aria-expanded="true" aria-controls="temperature-conversion-content">溫度換算 (點擊以折疊/展開)</h3>
-            <div id="temperature-conversion-content" class="collapsible-content expanded">
+            <h3 class="collapsible-header" data-target="temperature-conversion-content" aria-expanded="false" aria-controls="temperature-conversion-content">溫度換算 (點擊以折疊/展開)</h3>
+            <div id="temperature-conversion-content" class="collapsible-content">
             <div class="converter-controls">
                 <button id="resetTemperatureBtn" class="reset-btn">重設</button>
             </div>
@@ -286,27 +286,12 @@
             });
         });
 
-        // --- 初始化折疊功能 ---
-        function initializeCollapsibles() {
-            const expandedContents = document.querySelectorAll('.collapsible-content.expanded');
-            
-            function setMaxHeight() {
-                expandedContents.forEach(content => {
-                    // 只有在展開狀態下才重新計算
-                    if (content.classList.contains('expanded')) {
-                        content.style.maxHeight = content.scrollHeight + 'px';
-                    }
-                });
-            }
-
-            setMaxHeight(); // 頁面載入時立即設定一次
-
-            // 當視窗大小改變時重新計算 max-height，以適應響應式佈局
-            window.addEventListener('resize', setMaxHeight);
-        }
-
-        // 當 DOM 載入完成後，初始化折疊區塊
-        document.addEventListener('DOMContentLoaded', initializeCollapsibles);
+        // 頁面載入時，為所有已展開的內容設定正確的 max-height
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.collapsible-content.expanded').forEach(content => {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            });
+        });
     </script>
 </body>
 </html>
