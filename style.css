@@ -172,9 +172,26 @@ button {
 }
 
 .collapsible-content {
-    max-height: 1000px; /* 預設展開時足夠大的高度 */
+    max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease-out;
+    transition: max-height 0.3s ease-in-out;
+}
+
+.collapsible-content.expanded {
+    max-height: 1000px; /* 或使用足夠大的值 */
+}
+
+.collapsible-header {
+    cursor: pointer;
+    padding: 12px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    user-select: none;
+}
+
+.collapsible-header:hover {
+    background-color: #e0e0e0;
 }
 
 /* --- 單位換算器 (unitconv.html) 專用樣式 --- */
