@@ -177,6 +177,12 @@
                     input.value = '';
                 }
             });
+
+            // 在所有元素都生成後，設定初始展開高度
+            window.addEventListener('load', () => {
+                const content = container.parentElement;
+                content.style.maxHeight = content.scrollHeight + 'px';
+            });
         }
 
         function handleLengthConversion(event) {
@@ -286,12 +292,6 @@
             });
         });
 
-        // 頁面載入時，為所有已展開的內容設定正確的 max-height
-        window.addEventListener('load', () => {
-            document.querySelectorAll('.collapsible-content.expanded').forEach(content => {
-                content.style.maxHeight = content.scrollHeight + 'px';
-            });
-        });
     </script>
 </body>
 </html>
