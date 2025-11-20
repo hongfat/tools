@@ -27,13 +27,33 @@
         </div>
 
         <div class="calculator-section">
-            <h3>重量換算</h3>
-            <p>功能開發中...</p>
+            <h3 class="collapsible-header" data-target="weight-conversion-content" aria-expanded="false" aria-controls="weight-conversion-content">重量換算 (點擊以折疊/展開)</h3>
+            <div id="weight-conversion-content" class="collapsible-content">
+            <div class="converter-controls">
+                <button id="resetWeightBtn" class="reset-btn">重設</button>
+            </div>
+            <div id="weight-converter-container" class="unit-converter-grid"></div>
+            </div>
         </div>
 
         <div class="calculator-section">
-            <h3>溫度換算</h3>
-            <p>功能開發中...</p>
+            <h3 class="collapsible-header" data-target="area-conversion-content" aria-expanded="false" aria-controls="area-conversion-content">面積換算 (點擊以折疊/展開)</h3>
+            <div id="area-conversion-content" class="collapsible-content">
+            <div class="converter-controls">
+                <button id="resetAreaBtn" class="reset-btn">重設</button>
+            </div>
+            <div id="area-converter-container" class="unit-converter-grid"></div>
+            </div>
+        </div>
+
+        <div class="calculator-section">
+            <h3 class="collapsible-header" data-target="temperature-conversion-content" aria-expanded="false" aria-controls="temperature-conversion-content">溫度換算 (點擊以折疊/展開)</h3>
+            <div id="temperature-conversion-content" class="collapsible-content">
+            <div class="converter-controls">
+                <button id="resetTemperatureBtn" class="reset-btn">重設</button>
+            </div>
+            <div id="temperature-converter-container" class="unit-converter-grid"></div>
+            </div>
         </div>
 
     </div>
@@ -72,52 +92,176 @@
             lightYear:    { name: '光年 (ly)', toMeter: 9460730472580800 },
         };
 
-        const lengthContainer = document.getElementById('length-converter-container');
+        // --- 重量換算 ---
+        const weightUnits = {
+            // 公制
+            milligram:  { name: '毫克 (mg)', toKilogram: 1e-6 },
+            gram:       { name: '克 (g)', toKilogram: 0.001 },
+            kilogram:   { name: '公斤 (kg)', toKilogram: 1 },
+            metricTon:  { name: '公噸 (t)', toKilogram: 1000 },
+            // 英制
+            ounce:      { name: '盎司 (oz)', toKilogram: 0.0283495 },
+            pound:      { name: '磅 (lb)', toKilogram: 0.453592 },
+            stone:      { name: '英石 (st)', toKilogram: 6.35029 },
+            ton:        { name: '短噸 (US ton)', toKilogram: 907.185 },
+            // 其他
+            carat:      { name: '克拉 (ct)', toKilogram: 0.0002 },
+            taiwaneseJin: { name: '台斤', toKilogram: 0.6 },
+        };
 
-        // 動態生成輸入框
-        for (const unit in lengthUnits) {
-            const group = document.createElement('div');
-            group.className = 'unit-input-group';
-            
-            const label = document.createElement('label');
-            label.htmlFor = `length-input-${unit}`;
-            label.textContent = lengthUnits[unit].name;
-            
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.id = `length-input-${unit}`;
-            input.dataset.unit = unit; // 使用 data-* 屬性來儲存單位
-            
-            group.appendChild(label);
-            group.appendChild(input);
-            lengthContainer.appendChild(group);
-            
-            input.addEventListener('input', handleLengthConversion);
+        // --- 面積換算 ---
+        const areaUnits = {
+            // 公制
+            squareMillimeter: { name: '平方公釐 (mm²)', toSquareMeter: 1e-6 },
+            squareCentimeter: { name: '平方公分 (cm²)', toSquareMeter: 0.0001 },
+            squareMeter:      { name: '平方公尺 (m²)', toSquareMeter: 1 },
+            hectare:          { name: '公頃 (ha)', toSquareMeter: 10000 },
+            squareKilometer:  { name: '平方公里 (km²)', toSquareMeter: 1e6 },
+            // 英制
+            squareInch:       { name: '平方英吋 (in²)', toSquareMeter: 0.00064516 },
+            squareFoot:       { name: '平方英呎 (ft²)', toSquareMeter: 0.092903 },
+            squareYard:       { name: '平方碼 (yd²)', toSquareMeter: 0.836127 },
+            acre:             { name: '英畝 (ac)', toSquareMeter: 4046.86 },
+            squareMile:       { name: '平方英哩 (mi²)', toSquareMeter: 2.58999e6 },
+            // 其他
+            taiwaneseJia:     { name: '甲 (1甲=9699m²)', toSquareMeter: 9699 },
+        };
+
+        // --- 溫度換算 ---
+        const temperatureUnits = {
+            celsius:    { name: '攝氏度 (°C)', isLinear: false },
+            fahrenheit: { name: '華氏度 (°F)', isLinear: false },
+            kelvin:     { name: '克耳文 (K)', isLinear: false },
+        };
+
+        // 初始化各單位轉換器
+        initializeConverter('length', lengthUnits, 'length-converter-container', 'resetLengthBtn', handleLengthConversion);
+        initializeConverter('weight', weightUnits, 'weight-converter-container', 'resetWeightBtn', handleWeightConversion);
+        initializeConverter('area', areaUnits, 'area-converter-container', 'resetAreaBtn', handleAreaConversion);
+        initializeConverter('temperature', temperatureUnits, 'temperature-converter-container', 'resetTemperatureBtn', handleTemperatureConversion);
+
+        function initializeConverter(type, units, containerId, resetBtnId, conversionHandler) {
+            const container = document.getElementById(containerId);
+
+            // 動態生成輸入框
+            for (const unit in units) {
+                const group = document.createElement('div');
+                group.className = 'unit-input-group';
+                
+                const label = document.createElement('label');
+                label.htmlFor = `${type}-input-${unit}`;
+                label.textContent = units[unit].name;
+                
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = `${type}-input-${unit}`;
+                input.dataset.unit = unit;
+                
+                group.appendChild(label);
+                group.appendChild(input);
+                container.appendChild(group);
+                
+                input.addEventListener('input', (e) => conversionHandler(e, units, type));
+            }
+
+            // 重設按鈕
+            const resetBtn = document.getElementById(resetBtnId);
+            resetBtn.addEventListener('click', () => {
+                const inputs = container.getElementsByTagName('input');
+                for (const input of inputs) {
+                    input.value = '';
+                }
+            });
         }
 
         function handleLengthConversion(event) {
+            const units = lengthUnits;
+            const type = 'length';
             const sourceInput = event.target;
             const sourceUnit = sourceInput.dataset.unit;
             const sourceValue = parseFloat(sourceInput.value);
 
-            const valueInMeters = isNaN(sourceValue) ? 0 : sourceValue * lengthUnits[sourceUnit].toMeter;
+            const valueInMeter = isNaN(sourceValue) ? 0 : sourceValue * units[sourceUnit].toMeter;
 
-            for (const unit in lengthUnits) {
-                if (unit === sourceUnit) continue; // 跳過正在輸入的欄位
-                const targetInput = document.getElementById(`length-input-${unit}`);
-                const convertedValue = valueInMeters / lengthUnits[unit].toMeter;
+            for (const unit in units) {
+                if (unit === sourceUnit) continue;
+                const targetInput = document.getElementById(`${type}-input-${unit}`);
+                const convertedValue = valueInMeter / units[unit].toMeter;
                 targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
             }
         }
 
-        // --- 重設按鈕 ---
-        const resetLengthBtn = document.getElementById('resetLengthBtn');
-        resetLengthBtn.addEventListener('click', () => {
-            const inputs = lengthContainer.getElementsByTagName('input');
-            for (const input of inputs) {
-                input.value = '';
+        function handleWeightConversion(event, units, type) {
+            const sourceInput = event.target;
+            const sourceUnit = sourceInput.dataset.unit;
+            const sourceValue = parseFloat(sourceInput.value);
+
+            const valueInKilogram = isNaN(sourceValue) ? 0 : sourceValue * units[sourceUnit].toKilogram;
+
+            for (const unit in units) {
+                if (unit === sourceUnit) continue;
+                const targetInput = document.getElementById(`${type}-input-${unit}`);
+                const convertedValue = valueInKilogram / units[unit].toKilogram;
+                targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
             }
-        });
+        }
+
+        function handleAreaConversion(event, units, type) {
+            const sourceInput = event.target;
+            const sourceUnit = sourceInput.dataset.unit;
+            const sourceValue = parseFloat(sourceInput.value);
+
+            const valueInSquareMeter = isNaN(sourceValue) ? 0 : sourceValue * units[sourceUnit].toSquareMeter;
+
+            for (const unit in units) {
+                if (unit === sourceUnit) continue;
+                const targetInput = document.getElementById(`${type}-input-${unit}`);
+                const convertedValue = valueInSquareMeter / units[unit].toSquareMeter;
+                targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
+            }
+        }
+
+        function handleTemperatureConversion(event, units, type) {
+            const sourceInput = event.target;
+            const sourceUnit = sourceInput.dataset.unit;
+            const sourceValue = parseFloat(sourceInput.value);
+
+            if (isNaN(sourceValue) || sourceInput.value === '') {
+                // 清空所有欄位
+                for (const unit in units) {
+                    const targetInput = document.getElementById(`${type}-input-${unit}`);
+                    targetInput.value = '';
+                }
+                return;
+            }
+
+            // 溫度轉換邏輯（非線性，需要特殊處理）
+            let celsius;
+            if (sourceUnit === 'celsius') {
+                celsius = sourceValue;
+            } else if (sourceUnit === 'fahrenheit') {
+                celsius = (sourceValue - 32) * 5 / 9;
+            } else if (sourceUnit === 'kelvin') {
+                celsius = sourceValue - 273.15;
+            }
+
+            // 轉換為其他單位
+            for (const unit in units) {
+                if (unit === sourceUnit) continue;
+                const targetInput = document.getElementById(`${type}-input-${unit}`);
+                
+                let convertedValue;
+                if (unit === 'celsius') {
+                    convertedValue = celsius;
+                } else if (unit === 'fahrenheit') {
+                    convertedValue = celsius * 9 / 5 + 32;
+                } else if (unit === 'kelvin') {
+                    convertedValue = celsius + 273.15;
+                }
+                
+                targetInput.value = parseFloat(convertedValue.toPrecision(10));
+            }
+        }
 
         // --- 折疊功能 ---
         document.querySelectorAll('.collapsible-header').forEach(header => {
@@ -131,7 +275,7 @@
                     header.setAttribute('aria-expanded', 'false');
                 } else {
                     targetContent.classList.add('expanded');
-                    targetContent.style.maxHeight = targetContent.scrollHeight + 'px'; // 設定為實際高度以實現平滑展開
+                    targetContent.style.maxHeight = targetContent.scrollHeight + 'px';
                     header.setAttribute('aria-expanded', 'true');
                 }
             });
@@ -140,7 +284,6 @@
         // 頁面載入時，為所有已展開的內容設定正確的 max-height
         window.addEventListener('load', () => {
             document.querySelectorAll('.collapsible-content.expanded').forEach(content => {
-                // 設定為實際高度以避免內容被截斷
                 content.style.maxHeight = content.scrollHeight + 'px';
             });
         });
