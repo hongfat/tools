@@ -267,50 +267,68 @@
             }
         }
 
-        // --- 折疊功能 ---
+        // --- 折疊功能（改進版：展開後解除 max-height 鎖定，支援手機動態高度） ---
         document.querySelectorAll('.collapsible-header').forEach(header => {
-            header.addEventListener('click', () => {
-                const targetId = header.dataset.target;
-                const targetContent = document.getElementById(targetId);
+            const targetId = header.dataset.target;
+            const targetContent = document.getElementById(targetId);
 
+            // 在內容上監聽 transitionend：展開結束後解除 max-height 限制
+            targetContent.addEventListener('transitionend', (e) => {
+                if (e.propertyName !== 'max-height') return;
                 if (targetContent.classList.contains('expanded')) {
-                    targetContent.classList.remove('expanded');
-                    targetContent.style.maxHeight = '0';
-                    header.setAttribute('aria-expanded', 'false');
-                } else {
-                    targetContent.classList.add('expanded');
-                    // 使用 requestAnimationFrame 確保在下一次渲染前計算 scrollHeight
-                    // 這可以避免因瀏覽器渲染延遲導致的高度計算錯誤
+                    // 解除限制，讓內容可因換行或鍵盤彈出自動伸縮
+                    targetContent.style.maxHeight = 'none';
+                }
+            });
+
+            header.addEventListener('click', () => {
+                const isExpanded = targetContent.classList.contains('expanded');
+
+                if (isExpanded) {
+                    // 收合：先把 maxHeight 設為目前高度，強制重繪，然後設為 0 執行過渡動畫
+                    targetContent.style.maxHeight = targetContent.scrollHeight + 'px';
+                    // 需強制 layout，確保 transition 能從目前高度開始
+                    targetContent.getBoundingClientRect();
                     requestAnimationFrame(() => {
-                        targetContent.style.maxHeight = targetContent.scrollHeight + 'px';
+                        targetContent.style.maxHeight = '0';
+                        targetContent.classList.remove('expanded');
+                        header.setAttribute('aria-expanded', 'false');
                     });
+                } else {
+                    // 展開：先加入 class，計算 scrollHeight，然後設為該高度執行過渡
+                    targetContent.classList.add('expanded');
                     header.setAttribute('aria-expanded', 'true');
+                    // 若之前 maxHeight 是 'none'，需要先清掉才可正確讀取 scrollHeight
+                    targetContent.style.maxHeight = null;
+                    // 下一幀讀取 scrollHeight 並設定，觸發過渡
+                    requestAnimationFrame(() => {
+                        const h = targetContent.scrollHeight;
+                        targetContent.style.maxHeight = h + 'px';
+                    });
                 }
             });
         });
 
-        // --- 初始化並管理折疊區塊的響應式高度 ---
+        // --- 初始化並管理折疊區塊的響應式高度（保留原本的初始化，但改為展開後設定 maxHeight 為 none） ---
         function initializeCollapsibles() {
-            // 函數：為所有當前已展開的區塊設定正確的 max-height
             function setMaxHeightForExpanded() {
-                // 使用 requestAnimationFrame 保證在下一次繪製前計算 scrollHeight
                 requestAnimationFrame(() => {
                     document.querySelectorAll('.collapsible-content.expanded').forEach(content => {
-                        // 先清除舊的設定再重新計算
-                        content.style.maxHeight = null;
+                        // 先讓瀏覽器計算正確高度，再解除 maxHeight 限制
                         content.style.maxHeight = content.scrollHeight + 'px';
+                        // 在下一次 frame 或 transition 結束後把 maxHeight 設為 none
+                        // 直接設為 none 可能跳過過渡，因此用 timeout/raf 延遲
+                        requestAnimationFrame(() => {
+                            content.style.maxHeight = 'none';
+                        });
                     });
                 });
             }
 
-            // 頁面載入時，為預設展開的區塊設定高度
             setMaxHeightForExpanded();
-
-            // 當視窗大小改變時（例如手機旋轉），重新計算已展開區塊的高度
             window.addEventListener('resize', setMaxHeightForExpanded);
         }
 
-        // 如果 DOM 還沒載入就註冊事件，否則立即初始化（避免在 script 已在 body 結尾時漏掉）
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initializeCollapsibles);
         } else {
