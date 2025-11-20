@@ -286,14 +286,27 @@
             });
         });
 
-        // 頁面載入時，為所有已展開的內容設定正確的 max-height
-        window.addEventListener('load', () => {
-            document.querySelectorAll('.collapsible-content.expanded').forEach(content => {
-                setTimeout(() => {
-                    content.style.maxHeight = content.scrollHeight + 'px';
-                }, 100);
-            });
-        });
+        // --- 初始化折疊功能 ---
+        function initializeCollapsibles() {
+            const expandedContents = document.querySelectorAll('.collapsible-content.expanded');
+            
+            function setMaxHeight() {
+                expandedContents.forEach(content => {
+                    // 只有在展開狀態下才重新計算
+                    if (content.classList.contains('expanded')) {
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                    }
+                });
+            }
+
+            setMaxHeight(); // 頁面載入時立即設定一次
+
+            // 當視窗大小改變時重新計算 max-height，以適應響應式佈局
+            window.addEventListener('resize', setMaxHeight);
+        }
+
+        // 當 DOM 載入完成後，初始化折疊區塊
+        document.addEventListener('DOMContentLoaded', initializeCollapsibles);
     </script>
 </body>
 </html>
