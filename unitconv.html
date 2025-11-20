@@ -47,6 +47,16 @@
         </div>
 
         <div class="calculator-section">
+            <h3 class="collapsible-header" data-target="volume-conversion-content" aria-expanded="false" aria-controls="volume-conversion-content">容量換算 (點擊以折疊/展開)</h3>
+            <div id="volume-conversion-content" class="collapsible-content expanded">
+            <div class="converter-controls">
+                <button id="resetVolumeBtn" class="reset-btn">重設</button>
+            </div>
+            <div id="volume-converter-container" class="unit-converter-grid"></div>
+            </div>
+        </div>
+
+        <div class="calculator-section">
             <h3 class="collapsible-header" data-target="temperature-conversion-content" aria-expanded="false" aria-controls="temperature-conversion-content">溫度換算 (點擊以折疊/展開)</h3>
             <div id="temperature-conversion-content" class="collapsible-content expanded">
             <div class="converter-controls">
@@ -117,6 +127,7 @@
             squareMillimeter: { name: '平方公釐 (mm²)', toSquareMeter: 1e-6 },
             squareCentimeter: { name: '平方公分 (cm²)', toSquareMeter: 0.0001 },
             squareMeter:      { name: '平方公尺 (m²)', toSquareMeter: 1 },
+            are:              { name: '公畝 (a)', toSquareMeter: 100 },
             hectare:          { name: '公頃 (ha)', toSquareMeter: 10000 },
             squareKilometer:  { name: '平方公里 (km²)', toSquareMeter: 1e6 },
             // 英制
@@ -127,8 +138,24 @@
             squareMile:       { name: '平方英哩 (mi²)', toSquareMeter: 2.58999e6 },
             // 其他
             taiwaneseJia:     { name: '甲', toSquareMeter: 9699 },
+            taiwaneseFen:     { name: '分', toSquareMeter: 969.9 },
             ping:             { name: '坪', toSquareMeter: 3.305785 },
             tatami:           { name: '疊 (榻榻米)', toSquareMeter: 1.6562 },
+        };
+
+        // --- 容量換算 ---
+        const volumeUnits = {
+            // 公制
+            milliliter: { name: '毫升 (ml)', toLiter: 0.001 },
+            liter:      { name: '公升 (L)', toLiter: 1 },
+            cubicMeter: { name: '立方公尺 (m³)', toLiter: 1000 },
+            // 英制/美制
+            usFluidOunce: { name: '美制液盎司 (fl oz)', toLiter: 0.0295735 },
+            impFluidOunce:{ name: '英制液盎司 (fl oz)', toLiter: 0.0284131 },
+            usPint:       { name: '美制品脫 (pt)', toLiter: 0.473176 },
+            usQuart:      { name: '美制夸脫 (qt)', toLiter: 0.946353 },
+            usGallon:     { name: '美制加侖 (gal)', toLiter: 3.78541 },
+            impGallon:    { name: '英制加侖 (gal)', toLiter: 4.54609 },
         };
 
         // --- 溫度換算 ---
@@ -142,6 +169,7 @@
         initializeConverter('length', lengthUnits, 'length-converter-container', 'resetLengthBtn', handleLengthConversion);
         initializeConverter('weight', weightUnits, 'weight-converter-container', 'resetWeightBtn', handleWeightConversion);
         initializeConverter('area', areaUnits, 'area-converter-container', 'resetAreaBtn', handleAreaConversion);
+        initializeConverter('volume', volumeUnits, 'volume-converter-container', 'resetVolumeBtn', handleVolumeConversion);
         initializeConverter('temperature', temperatureUnits, 'temperature-converter-container', 'resetTemperatureBtn', handleTemperatureConversion);
 
         function initializeConverter(type, units, containerId, resetBtnId, conversionHandler) {
@@ -221,6 +249,22 @@
                 if (unit === sourceUnit) continue;
                 const targetInput = document.getElementById(`${type}-input-${unit}`);
                 const convertedValue = valueInSquareMeter / units[unit].toSquareMeter;
+                targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
+            }
+        }
+
+        function handleVolumeConversion(event, units, type) {
+            const sourceInput = event.target;
+            const sourceUnit = sourceInput.dataset.unit;
+            const sourceValue = parseFloat(sourceInput.value);
+
+            // 以公升為基礎單位進行換算
+            const valueInLiter = isNaN(sourceValue) ? 0 : sourceValue * units[sourceUnit].toLiter;
+
+            for (const unit in units) {
+                if (unit === sourceUnit) continue;
+                const targetInput = document.getElementById(`${type}-input-${unit}`);
+                const convertedValue = valueInLiter / units[unit].toLiter;
                 targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
             }
         }
