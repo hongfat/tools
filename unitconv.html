@@ -107,6 +107,9 @@
             // 其他
             carat:      { name: '克拉 (ct)', toKilogram: 0.0002 },
             taiwaneseJin: { name: '台斤', toKilogram: 0.6 },
+            taiwaneseTael: { name: '台兩 (1/16台斤)', toKilogram: 0.0375 },
+            goldMace:   { name: '黃金(錢)', toKilogram: 0.00375 },
+            goldTael:   { name: '黃金(兩)', toKilogram: 0.0375 },
         };
 
         // --- 面積換算 ---
@@ -125,6 +128,8 @@
             squareMile:       { name: '平方英哩 (mi²)', toSquareMeter: 2.58999e6 },
             // 其他
             taiwaneseJia:     { name: '甲 (1甲=9699m²)', toSquareMeter: 9699 },
+            ping:             { name: '坪', toSquareMeter: 3.305785 },
+            tatami:           { name: '疊 (榻榻米)', toSquareMeter: 1.6562 },
         };
 
         // --- 溫度換算 ---
@@ -281,12 +286,26 @@
             });
         });
 
-        // 頁面載入時，為所有已展開的內容設定正確的 max-height
-        window.addEventListener('load', () => {
-            document.querySelectorAll('.collapsible-content.expanded').forEach(content => {
-                content.style.maxHeight = content.scrollHeight + 'px';
-            });
-        });
+        // --- 初始化並管理折疊區塊的響應式高度 ---
+        function initializeCollapsibles() {
+            // 函數：為所有當前已展開的區塊設定正確的 max-height
+            function setMaxHeightForExpanded() {
+                document.querySelectorAll('.collapsible-content.expanded').forEach(content => {
+                    // 重設 max-height 以便重新計算 scrollHeight
+                    content.style.maxHeight = null; 
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                });
+            }
+
+            // 頁面載入時，為預設展開的區塊設定高度
+            setMaxHeightForExpanded();
+
+            // 當視窗大小改變時（例如手機旋轉），重新計算已展開區塊的高度
+            window.addEventListener('resize', setMaxHeightForExpanded);
+        }
+
+        // 當 DOM 載入完成後，初始化折疊區塊
+        document.addEventListener('DOMContentLoaded', initializeCollapsibles);
     </script>
 </body>
 </html>
