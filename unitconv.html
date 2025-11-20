@@ -102,14 +102,14 @@
             // 英制
             ounce:      { name: '盎司 (oz)', toKilogram: 0.0283495 },
             pound:      { name: '磅 (lb)', toKilogram: 0.453592 },
-            stone:      { name: '英石 (st)', toKilogram: 6.35029 },
-            ton:        { name: '短噸 (US ton)', toKilogram: 907.185 },
+            //ton:        { name: '短噸 (US ton)', toKilogram: 907.185 },
             // 其他
             carat:      { name: '克拉 (ct)', toKilogram: 0.0002 },
             taiwaneseJin: { name: '台斤', toKilogram: 0.6 },
-            taiwaneseTael: { name: '台兩 (1/16台斤)', toKilogram: 0.0375 },
+            taiwaneseTael: { name: '台兩', toKilogram: 0.0375 },
             goldMace:   { name: '黃金(錢)', toKilogram: 0.00375 },
             goldTael:   { name: '黃金(兩)', toKilogram: 0.0375 },
+            goldOunce:  { name: '黃金(盎司)', toKilogram: 0.0311035 },
         };
 
         // --- 面積換算 ---
@@ -127,7 +127,7 @@
             acre:             { name: '英畝 (ac)', toSquareMeter: 4046.86 },
             squareMile:       { name: '平方英哩 (mi²)', toSquareMeter: 2.58999e6 },
             // 其他
-            taiwaneseJia:     { name: '甲 (1甲=9699m²)', toSquareMeter: 9699 },
+            taiwaneseJia:     { name: '甲', toSquareMeter: 9699 },
             ping:             { name: '坪', toSquareMeter: 3.305785 },
             tatami:           { name: '疊 (榻榻米)', toSquareMeter: 1.6562 },
         };
@@ -280,7 +280,11 @@
                     header.setAttribute('aria-expanded', 'false');
                 } else {
                     targetContent.classList.add('expanded');
-                    targetContent.style.maxHeight = targetContent.scrollHeight + 'px';
+                    // 使用 requestAnimationFrame 確保在下一次渲染前計算 scrollHeight
+                    // 這可以避免因瀏覽器渲染延遲導致的高度計算錯誤
+                    requestAnimationFrame(() => {
+                        targetContent.style.maxHeight = targetContent.scrollHeight + 'px';
+                    });
                     header.setAttribute('aria-expanded', 'true');
                 }
             });
