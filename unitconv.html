@@ -102,11 +102,10 @@
             // 英制
             ounce:      { name: '盎司 (oz)', toKilogram: 0.0283495 },
             pound:      { name: '磅 (lb)', toKilogram: 0.453592 },
-            //ton:        { name: '短噸 (US ton)', toKilogram: 907.185 },
             // 其他
-            carat:      { name: '克拉 (ct)', toKilogram: 0.0002 },
             taiwaneseJin: { name: '台斤', toKilogram: 0.6 },
             taiwaneseTael: { name: '台兩', toKilogram: 0.0375 },
+            carat:      { name: '克拉 (ct)', toKilogram: 0.0002 },
             goldMace:   { name: '黃金(錢)', toKilogram: 0.00375 },
             goldTael:   { name: '黃金(兩)', toKilogram: 0.0375 },
             goldOunce:  { name: '黃金(盎司)', toKilogram: 0.0311035 },
@@ -294,10 +293,13 @@
         function initializeCollapsibles() {
             // 函數：為所有當前已展開的區塊設定正確的 max-height
             function setMaxHeightForExpanded() {
-                document.querySelectorAll('.collapsible-content.expanded').forEach(content => {
-                    // 重設 max-height 以便重新計算 scrollHeight
-                    content.style.maxHeight = null; 
-                    content.style.maxHeight = content.scrollHeight + 'px';
+                // 使用 requestAnimationFrame 保證在下一次繪製前計算 scrollHeight
+                requestAnimationFrame(() => {
+                    document.querySelectorAll('.collapsible-content.expanded').forEach(content => {
+                        // 先清除舊的設定再重新計算
+                        content.style.maxHeight = null;
+                        content.style.maxHeight = content.scrollHeight + 'px';
+                    });
                 });
             }
 
@@ -308,8 +310,12 @@
             window.addEventListener('resize', setMaxHeightForExpanded);
         }
 
-        // 當 DOM 載入完成後，初始化折疊區塊
-        document.addEventListener('DOMContentLoaded', initializeCollapsibles);
+        // 如果 DOM 還沒載入就註冊事件，否則立即初始化（避免在 script 已在 body 結尾時漏掉）
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeCollapsibles);
+        } else {
+            initializeCollapsibles();
+        }
     </script>
 </body>
 </html>
