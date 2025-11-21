@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>即時匯率換算 - UNCLE FAT'S TOOL BOX</title>
-    <link href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css" rel="stylesheet">
+    <title>即時匯率換算 - UNCLE FAT'S TOOL BOX</title>    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -129,11 +128,12 @@
 
                 const label = document.createElement('label');
                 label.htmlFor = `rate-input-${currency}`;
-                // 將貨幣代碼轉為小寫的國家代碼 (e.g., USD -> us)
-                // EUR 是特例，它的圖示是 eu
-                const countryCode = currency === 'EUR' ? 'eu' : currency.substring(0, 2).toLowerCase();
+                
+                // 取得國家代碼 (e.g., USD -> US)
+                const countryCode = currency === 'EUR' ? 'EU' : currency.substring(0, 2);
+                const flagImg = `<img src="https://flagsapi.com/${countryCode}/flat/64.png" alt="${currency}" class="flag-img">`;
 
-                label.innerHTML = `<span class="fi fis fi-${countryCode}"></span> ${currencyNames[currency] || currency} <span class="currency-code">(${currency})</span>`;
+                label.innerHTML = `${flagImg} ${currencyNames[currency] || currency} <span class="currency-code">(${currency})</span>`;
 
                 const input = document.createElement('input');
                 input.type = 'number';
