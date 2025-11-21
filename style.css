@@ -233,8 +233,9 @@ button {
     border-radius: 4px;
 }
 
-.unit-input-group .flag {
-    font-size: 1.5em; /* 放大國旗 */
+/* 調整 flag-icons 圖示的大小和對齊 */
+.unit-input-group .fi {
+    font-size: 1.2rem;
 }
 
 /* --- 密碼產生器 (passwordgen.html) 專用樣式 --- */

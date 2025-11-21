@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>匯率換算 - UNCLE FAT'S TOOL BOX</title>
+    <title>即時匯率換算 - UNCLE FAT'S TOOL BOX</title>
+    <link href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,7 +15,7 @@
     </nav>
 
     <div class="container">
-        <h2><center>匯率換算</center></h2>
+        <h2><center>即時匯率換算</center></h2>
 
         <div class="calculator-section">
             <h3>主要貨幣匯率</h3>
@@ -72,12 +73,6 @@
             VND: '越南盾',
             MYR: '馬來西亞令吉',
         };
-        const currencyFlags = {
-            USD: '🇺🇸', TWD: '🇹🇼', CNY: '🇨🇳', HKD: '🇭🇰', GBP: '🇬🇧',
-            AUD: '🇦🇺', CAD: '🇨🇦', SGD: '🇸🇬', CHF: '🇨🇭', JPY: '🇯🇵',
-            ZAR: '🇿🇦', SEK: '🇸🇪', NZD: '🇳🇿', THB: '🇹🇭', PHP: '🇵🇭',
-            IDR: '🇮🇩', EUR: '🇪🇺', KRW: '🇰🇷', VND: '🇻🇳', MYR: '🇲🇾',
-        };
 
         // 更新頁尾的資訊
         function updateInfoFooter(data) {
@@ -134,7 +129,11 @@
 
                 const label = document.createElement('label');
                 label.htmlFor = `rate-input-${currency}`;
-                label.innerHTML = `<span class="flag">${currencyFlags[currency] || '🏳️'}</span> ${currencyNames[currency] || currency} <span class="currency-code">(${currency})</span>`;
+                // 將貨幣代碼轉為小寫的國家代碼 (e.g., USD -> us)
+                // EUR 是特例，它的圖示是 eu
+                const countryCode = currency === 'EUR' ? 'eu' : currency.substring(0, 2).toLowerCase();
+
+                label.innerHTML = `<span class="fi fi-${countryCode}"></span> ${currencyNames[currency] || currency} <span class="currency-code">(${currency})</span>`;
 
                 const input = document.createElement('input');
                 input.type = 'number';
