@@ -67,6 +67,18 @@
                 <label for="iso8601Timestamp">ISO 8601 時間戳 (UTC)</label>
                 <input type="text" id="iso8601Timestamp">
             </div>
+            <div class="form-group">
+                <label for="unixTimestampMs">Unix 時間戳 (毫秒)</label>
+                <input type="number" id="unixTimestampMs">
+            </div>
+            <div class="form-group">
+                <label for="iso8601LocalTimestamp">ISO 8601 (本地時區)</label>
+                <input type="text" id="iso8601LocalTimestamp">
+            </div>
+            <div class="form-group">
+                <label for="iso8601BasicTimestamp">ISO 8601 基本格式 (UTC)</label>
+                <input type="text" id="iso8601BasicTimestamp">
+            </div>
             <button id="resetTimestampBtn">重設為現在時間</button>
         </div>
 
@@ -239,6 +251,9 @@
         const humanTimeEl = document.getElementById('humanReadableTime');
         const unixTimeEl = document.getElementById('unixTimestamp');
         const isoTimeEl = document.getElementById('iso8601Timestamp');
+        const unixTimeMsEl = document.getElementById('unixTimestampMs');
+        const isoLocalTimeEl = document.getElementById('iso8601LocalTimestamp');
+        const isoBasicTimeEl = document.getElementById('iso8601BasicTimestamp');
         const resetTimestampBtn = document.getElementById('resetTimestampBtn');
 
         // 將 Date 物件轉換為 YYYY-MM-DDTHH:MM:SS 格式以符合 datetime-local 的要求
@@ -248,11 +263,25 @@
             return localISOTime;
         }
 
+        // 取得帶有時區偏移量的本地 ISO 字串
+        function getLocalISOStringWithOffset(date) {
+            const tzOffset = -date.getTimezoneOffset();
+            const diff = tzOffset >= 0 ? '+' : '-';
+            const pad = (num) => String(Math.floor(Math.abs(num))).padStart(2, '0');
+
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+                   `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}` +
+                   `${diff}${pad(tzOffset / 60)}:${pad(tzOffset % 60)}`;
+        }
+
         function updateAllTimestamps(source, date) {
             if (isNaN(date.getTime())) { // 如果日期無效，清空所有欄位
                 if (source !== 'human') humanTimeEl.value = '';
                 if (source !== 'unix') unixTimeEl.value = '';
                 if (source !== 'iso') isoTimeEl.value = '';
+                if (source !== 'unix_ms') unixTimeMsEl.value = '';
+                if (source !== 'iso_local') isoLocalTimeEl.value = '';
+                if (source !== 'iso_basic') isoBasicTimeEl.value = '';
                 return;
             }
 
@@ -264,6 +293,15 @@
             }
             if (source !== 'iso') {
                 isoTimeEl.value = date.toISOString();
+            }
+            if (source !== 'unix_ms') {
+                unixTimeMsEl.value = date.getTime();
+            }
+            if (source !== 'iso_local') {
+                isoLocalTimeEl.value = getLocalISOStringWithOffset(new Date(date.getTime()));
+            }
+            if (source !== 'iso_basic') {
+                isoBasicTimeEl.value = date.toISOString().replace(/[-:.]/g, '');
             }
         }
 
@@ -292,6 +330,28 @@
         isoTimeEl.addEventListener('input', () => {
             const date = new Date(isoTimeEl.value);
             updateAllTimestamps('iso', date);
+        });
+
+        unixTimeMsEl.addEventListener('input', () => {
+            const unixMs = parseInt(unixTimeMsEl.value, 10);
+            if (!isNaN(unixMs)) {
+                const date = new Date(unixMs);
+                updateAllTimestamps('unix_ms', date);
+            }
+        });
+
+        isoLocalTimeEl.addEventListener('input', () => {
+            const date = new Date(isoLocalTimeEl.value);
+            updateAllTimestamps('iso_local', date);
+        });
+
+        isoBasicTimeEl.addEventListener('input', () => {
+            // 基本格式較難直接解析，這裡我們只做單向轉換，不監聽其輸入
+            // 如果需要雙向，需要更複雜的正規表示式解析
+            // 例如：YYYYMMDDTHHmmss.sssZ -> YYYY-MM-DDTHH:mm:ss.sssZ
+            const isoString = isoBasicTimeEl.value.replace(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})\.?(\d{3})?Z/, '$1-$2-$3T$4:$5:$6.$7Z');
+            const date = new Date(isoString);
+            updateAllTimestamps('iso_basic', date);
         });
 
         resetTimestampBtn.addEventListener('click', setTimestampsToNow);

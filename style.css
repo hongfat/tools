@@ -136,7 +136,9 @@ label {
 }
 
 input[type="date"],
-input[type="number"] {
+input[type="number"],
+input[type="text"],
+input[type="datetime-local"] {
     width: 100%;
     padding: 0.5rem;
     background-color: var(--bg-color);
