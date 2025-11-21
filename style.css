@@ -233,13 +233,14 @@ button {
     border-radius: 4px;
 }
 
-/* 為國旗圖片設定統一樣式 */
-.unit-input-group .flag-img {
-    width: 4rem; /* 將寬度調大 */
-    height: 3rem; /* 將高度調大 */
+/* 調整 flag-icons 圖示的大小和對齊 */
+.unit-input-group .fi {
+    width: 4rem; /* 設定一個固定的寬度 */
+    height: 3rem; /* 設定一個固定的高度，使其為正方形 */
     border-radius: 2px; /* 加上一點小圓角，讓邊緣更柔和 */
-    object-fit: cover; /* 關鍵屬性：裁切圖片以填滿容器，同時保持長寬比 */
-    background-color: #333; /* 如果圖片載入失敗，顯示一個底色 */
+    background-size: contain;/* 將 cover 改為 contain，確保整個國旗都能顯示出來 */
+    background-position: center; /* 讓國旗在容器內置中 */
+    background-repeat: no-repeat; /* 避免圖片重複 */
 }
 
 /* --- 密碼產生器 (passwordgen.html) 專用樣式 --- */
