@@ -18,11 +18,10 @@
 
         <div class="calculator-section">
             <h3>主要貨幣匯率</h3>
-            <div class="rate-table-controls">
-                <label for="baseCurrencySelect">基準貨幣:</label>
-                <select id="baseCurrencySelect"></select>
+            <div class="converter-controls">
+                <button id="resetRateTableBtn" class="reset-btn">重設</button>
             </div>
-            <div id="rateTableContainer"></div>
+            <div id="rateTableContainer" class="unit-converter-grid"></div>
         </div>
 
         <div class="calculator-section">
@@ -70,8 +69,8 @@
         const swapBtn = document.getElementById('swapBtn');
         const rateDisplayEl = document.getElementById('rateDisplay');
         const lastUpdatedEl = document.getElementById('lastUpdated');
-        const baseCurrencySelectEl = document.getElementById('baseCurrencySelect');
         const rateTableContainerEl = document.getElementById('rateTableContainer');
+        const resetRateTableBtn = document.getElementById('resetRateTableBtn');
 
         // 更換為支援更廣泛貨幣 (包含 TWD) 的 API
         const API_BASE_URL = 'https://open.er-api.com/v6/latest';
@@ -99,41 +98,64 @@
             MYR: '馬來西亞令吉',
         };
 
-        // 填充主要貨幣匯率表格
-        async function displayMajorRates(baseCurrency = 'USD') {
-            rateTableContainerEl.innerHTML = '<p>載入中...</p>';
+        // --- 主要貨幣換算表格 ---
+
+        // 處理表格中的換算邏輯
+        async function handleTableConversion(event) {
+            const sourceInput = event.target;
+            const sourceCurrency = sourceInput.dataset.currency;
+            const sourceValue = parseFloat(sourceInput.value);
+
+            // 如果輸入無效或為空，清空所有欄位
+            if (isNaN(sourceValue) || sourceInput.value === '') {
+                document.querySelectorAll('#rateTableContainer input').forEach(input => input.value = '');
+                return;
+            }
+
             try {
-                const response = await fetch(`${API_BASE_URL}/${baseCurrency}`);
+                const response = await fetch(`${API_BASE_URL}/${sourceCurrency}`);
                 const data = await response.json();
-                if (data.result !== 'success') {
-                    rateTableContainerEl.innerHTML = '<p>無法載入匯率資料。</p>';
-                    return;
-                }
+                if (data.result !== 'success') return;
 
                 const rates = data.rates;
-                let tableHTML = '<table class="rate-table"><thead><tr><th>貨幣</th><th>代碼</th><th>匯率</th></tr></thead><tbody>';
-
                 majorCurrencies.forEach(currency => {
-                    if (rates[currency]) {
-                        // 如果是基準貨幣，匯率顯示為 1
-                        const rate = (currency === baseCurrency) ? 1 : rates[currency];
-                        tableHTML += `
-                            <tr>
-                                <td>${currencyNames[currency] || currency}</td>
-                                <td class="currency-code">${currency}</td>
-                                <td>${parseFloat(rate.toPrecision(6))}</td>
-                            </tr>
-                        `;
+                    if (currency === sourceCurrency) return; // 跳過來源欄位
+                    const targetInput = document.getElementById(`rate-input-${currency}`);
+                    if (targetInput && rates[currency]) {
+                        const convertedValue = sourceValue * rates[currency];
+                        targetInput.value = parseFloat(convertedValue.toPrecision(8));
                     }
                 });
-
-                tableHTML += '</tbody></table>';
-                rateTableContainerEl.innerHTML = tableHTML;
-
             } catch (error) {
-                console.error('無法獲取主要匯率:', error);
-                rateTableContainerEl.innerHTML = '<p>匯率資料載入失敗。</p>';
+                console.error('表格匯率換算錯誤:', error);
             }
+        }
+
+        // 初始化並生成表格
+        function initializeRateTable() {
+            majorCurrencies.forEach(currency => {
+                const group = document.createElement('div');
+                group.className = 'unit-input-group';
+
+                const label = document.createElement('label');
+                label.htmlFor = `rate-input-${currency}`;
+                label.textContent = `${currencyNames[currency] || currency} (${currency})`;
+
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = `rate-input-${currency}`;
+                input.dataset.currency = currency;
+
+                group.appendChild(label);
+                group.appendChild(input);
+                rateTableContainerEl.appendChild(group);
+
+                input.addEventListener('input', handleTableConversion);
+            });
+
+            resetRateTableBtn.addEventListener('click', () => {
+                document.querySelectorAll('#rateTableContainer input').forEach(input => input.value = '');
+            });
         }
 
         // 填充貨幣選項
@@ -147,16 +169,13 @@
                 for (const code of currencies) {
                     const option1 = new Option(code, code);
                     const option2 = new Option(code, code);
-                    const baseOption = new Option(code, code);
                     fromCurrencyEl.add(option1);
                     toCurrencyEl.add(option2);
-                    baseCurrencySelectEl.add(baseOption);
                 }
 
                 // 設定預設選項
                 fromCurrencyEl.value = 'USD'; // 美元
                 toCurrencyEl.value = 'TWD';   // 新台幣
-                baseCurrencySelectEl.value = 'USD';
 
                 calculate();
             } catch (error) {
@@ -214,12 +233,11 @@
         fromAmountEl.addEventListener('input', calculate);
         toCurrencyEl.addEventListener('change', calculate);
         swapBtn.addEventListener('click', swapCurrencies);
-        baseCurrencySelectEl.addEventListener('change', (e) => displayMajorRates(e.target.value));
 
         // 初始化
         async function initializePage() {
+            initializeRateTable();
             await populateCurrencies();
-            await displayMajorRates();
         }
 
         document.addEventListener('DOMContentLoaded', initializePage);
