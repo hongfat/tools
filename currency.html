@@ -14,10 +14,9 @@
     </nav>
 
     <div class="container">
-        <h2><center>即時匯率換算</center></h2>
+        <h2><center>貨幣匯率換算</center></h2>
 
         <div class="calculator-section">
-            <h3>主要貨幣匯率</h3>
             <div class="converter-controls">
                 <button id="resetRateTableBtn" class="reset-btn">重設</button>
             </div>
@@ -129,9 +128,16 @@
                 const label = document.createElement('label');
                 label.htmlFor = `rate-input-${currency}`;
                 
-                // 取得國家代碼 (e.g., USD -> US)
-                const countryCode = currency === 'EUR' ? 'EU' : currency.substring(0, 2);
-                const flagImg = `<img src="https://flagsapi.com/${countryCode}/flat/64.png" alt="${currency}" class="flag-img">`;
+                let flagImgSrc;
+                if (currency === 'EUR') {
+                    // 針對歐元(EUR)使用特例的歐盟(EU)國旗圖片
+                    flagImgSrc = 'https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/flags/4x3/eu.svg';
+                } else {
+                    // 其他貨幣使用國家代碼
+                    const countryCode = currency.substring(0, 2);
+                    flagImgSrc = `https://flagsapi.com/${countryCode}/flat/64.png`;
+                }
+                const flagImg = `<img src="${flagImgSrc}" alt="${currency}" class="flag-img">`;
 
                 label.innerHTML = `${flagImg} ${currencyNames[currency] || currency} <span class="currency-code">(${currency})</span>`;
 
