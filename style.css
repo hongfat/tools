@@ -4,7 +4,7 @@
     --surface-color: #1e1e1e;
     --primary-text-color: #e0e0e0;
     --secondary-text-color: #a0a0a0;
-    --accent-color: #bb86fc;
+    --accent-color: #bc88fc;
     --card-border-color: #333;
 }
 
@@ -138,7 +138,8 @@ label {
 input[type="date"],
 input[type="number"],
 input[type="text"],
-input[type="datetime-local"] {
+input[type="datetime-local"],
+select {
     width: 100%;
     padding: 0.5rem;
     background-color: var(--bg-color);
@@ -264,6 +265,46 @@ button {
     display: flex;
     align-items: center;
 }
+
+/* --- 匯率換算器 (currency.html) 專用樣式 --- */
+.currency-converter-controls {
+    display: flex;
+    align-items: flex-end; /* 讓元素底部對齊 */
+    gap: 1rem;
+}
+
+.currency-group {
+    flex: 1; /* 讓兩側的貨幣區塊等寬 */
+}
+
+.swap-rate-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 1rem; /* 為了與 form-group 的 margin-bottom 對齊 */
+}
+
+#swapBtn {
+    font-size: 1.5rem;
+    padding: 0.25rem 0.75rem;
+    line-height: 1;
+}
+
+#rateDisplay {
+    font-size: 0.9rem;
+    color: var(--secondary-text-color);
+    white-space: nowrap; /* 避免換行 */
+}
+
+.last-updated-info {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--secondary-text-color);
+    margin-top: 1.5rem;
+}
+
+
 /* --- 響應式設計 --- */
 @media (max-width: 768px) {
     .hero h1 {
@@ -277,5 +318,14 @@ button {
 
     .nav-links {
         margin-top: 1rem;
+    }
+
+    .currency-converter-controls {
+        flex-direction: column;
+        align-items: stretch; /* 在小螢幕上垂直排列並拉伸 */
+    }
+
+    .swap-rate-container {
+        flex-direction: row-reverse; /* 交換按鈕和匯率顯示的位置 */
     }
 }

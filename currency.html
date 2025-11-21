@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>即時匯率換算 - UNCLE FAT'S TOOL BOX</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
+        <div id="datetime-display" class="nav-links"></div>
+    </nav>
+
+    <div class="container">
+        <h2><center>即時匯率換算</center></h2>
+
+        <div class="calculator-section">
+            <div id="currency-converter-app">
+                <div class="currency-converter-controls">
+                    <div class="form-group currency-group">
+                        <select id="fromCurrency"></select>
+                        <input type="number" id="fromAmount" value="1" min="0">
+                    </div>
+                    <div class="swap-rate-container">
+                        <button id="swapBtn" title="交換貨幣">⇄</button>
+                        <div id="rateDisplay"></div>
+                    </div>
+                    <div class="form-group currency-group">
+                        <select id="toCurrency"></select>
+                        <input type="number" id="toAmount" readonly>
+                    </div>
+                </div>
+                <p id="lastUpdated" class="last-updated-info"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 導覽列時間更新 ---
+        function updateDateTime() {
+            const now = new Date();
+            const dateTimeString = now.toLocaleString('sv-SE').replace('T', ' '); // YYYY-MM-DD HH:MM:SS
+            
+            const displayElement = document.getElementById('datetime-display');
+            if (displayElement) {
+                displayElement.textContent = dateTimeString;
+            }
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        // --- 匯率換算邏輯 ---
+        const fromCurrencyEl = document.getElementById('fromCurrency');
+        const fromAmountEl = document.getElementById('fromAmount');
+        const toCurrencyEl = document.getElementById('toCurrency');
+        const toAmountEl = document.getElementById('toAmount');
+        const swapBtn = document.getElementById('swapBtn');
+        const rateDisplayEl = document.getElementById('rateDisplay');
+        const lastUpdatedEl = document.getElementById('lastUpdated');
+
+        const API_URL = 'https://api.frankfurter.app';
+
+        // 填充貨幣選項
+        async function populateCurrencies() {
+            try {
+                const response = await fetch(`${API_URL}/currencies`);
+                const currencies = await response.json();
+
+                for (const code in currencies) {
+                    const option1 = new Option(`${code} - ${currencies[code]}`, code);
+                    const option2 = new Option(`${code} - ${currencies[code]}`, code);
+                    fromCurrencyEl.add(option1);
+                    toCurrencyEl.add(option2);
+                }
+
+                // 設定預設選項
+                fromCurrencyEl.value = 'USD'; // 美元
+                toCurrencyEl.value = 'TWD';   // 新台幣
+
+                calculate();
+            } catch (error) {
+                console.error('無法獲取貨幣列表:', error);
+                rateDisplayEl.textContent = '無法載入貨幣資料';
+            }
+        }
+
+        // 計算匯率
+        async function calculate() {
+            const fromCurrency = fromCurrencyEl.value;
+            const toCurrency = toCurrencyEl.value;
+            const fromAmount = parseFloat(fromAmountEl.value);
+
+            if (!fromCurrency || !toCurrency || isNaN(fromAmount)) {
+                return;
+            }
+
+            rateDisplayEl.textContent = '計算中...';
+
+            try {
+                const response = await fetch(`${API_URL}/latest?amount=${fromAmount}&from=${fromCurrency}&to=${toCurrency}`);
+                const data = await response.json();
+
+                if (data.rates && data.rates[toCurrency]) {
+                    const toAmount = data.rates[toCurrency];
+                    toAmountEl.value = parseFloat(toAmount.toPrecision(6));
+
+                    // 計算單一匯率
+                    const singleRateResponse = await fetch(`${API_URL}/latest?from=${fromCurrency}&to=${toCurrency}`);
+                    const singleRateData = await singleRateResponse.json();
+                    const rate = singleRateData.rates[toCurrency];
+                    rateDisplayEl.textContent = `1 ${fromCurrency} = ${rate.toPrecision(6)} ${toCurrency}`;
+                    lastUpdatedEl.textContent = `匯率更新時間: ${data.date}`;
+                } else {
+                    rateDisplayEl.textContent = '無法取得匯率';
+                }
+            } catch (error) {
+                console.error('匯率計算錯誤:', error);
+                rateDisplayEl.textContent = '匯率查詢失敗';
+            }
+        }
+
+        // 交換貨幣
+        function swapCurrencies() {
+            [fromCurrencyEl.value, toCurrencyEl.value] = [toCurrencyEl.value, fromCurrencyEl.value];
+            calculate();
+        }
+
+        // 事件監聽
+        fromCurrencyEl.addEventListener('change', calculate);
+        fromAmountEl.addEventListener('input', calculate);
+        toCurrencyEl.addEventListener('change', calculate);
+        swapBtn.addEventListener('click', swapCurrencies);
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', populateCurrencies);
+
+    </script>
+</body>
+</html>
