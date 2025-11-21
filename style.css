@@ -235,8 +235,8 @@ button {
 
 /* 為國旗圖片設定統一樣式 */
 .unit-input-group .flag-img {
-    width: 1.75rem; /* 設定一個固定的寬度 */
-    height: 1.25rem; /* 設定一個固定的高度 */
+    width: 4rem; /* 將寬度調大 */
+    height: 3rem; /* 將高度調大 */
     border-radius: 2px; /* 加上一點小圓角，讓邊緣更柔和 */
     object-fit: cover; /* 關鍵屬性：裁切圖片以填滿容器，同時保持長寬比 */
     background-color: #333; /* 如果圖片載入失敗，顯示一個底色 */
