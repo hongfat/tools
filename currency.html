@@ -17,6 +17,15 @@
         <h2><center>匯率換算</center></h2>
 
         <div class="calculator-section">
+            <h3>主要貨幣匯率</h3>
+            <div class="rate-table-controls">
+                <label for="baseCurrencySelect">基準貨幣:</label>
+                <select id="baseCurrencySelect"></select>
+            </div>
+            <div id="rateTableContainer"></div>
+        </div>
+
+        <div class="calculator-section">
             <div id="currency-converter-app">
                 <div class="currency-converter-controls">
                     <div class="form-group currency-group">
@@ -61,11 +70,48 @@
         const swapBtn = document.getElementById('swapBtn');
         const rateDisplayEl = document.getElementById('rateDisplay');
         const lastUpdatedEl = document.getElementById('lastUpdated');
+        const baseCurrencySelectEl = document.getElementById('baseCurrencySelect');
+        const rateTableContainerEl = document.getElementById('rateTableContainer');
 
         // 更換為支援更廣泛貨幣 (包含 TWD) 的 API
         const API_BASE_URL = 'https://open.er-api.com/v6/latest';
+        const majorCurrencies = ['USD', 'TWD', 'EUR', 'JPY', 'KRW', 'HKD', 'THB', 'SGD', 'AUD', 'CNY'];
 
-        let currencyRates = {}; // 用於儲存匯率數據
+        // 填充主要貨幣匯率表格
+        async function displayMajorRates(baseCurrency = 'USD') {
+            rateTableContainerEl.innerHTML = '<p>載入中...</p>';
+            try {
+                const response = await fetch(`${API_BASE_URL}/${baseCurrency}`);
+                const data = await response.json();
+                if (data.result !== 'success') {
+                    rateTableContainerEl.innerHTML = '<p>無法載入匯率資料。</p>';
+                    return;
+                }
+
+                const rates = data.rates;
+                let tableHTML = '<table class="rate-table"><thead><tr><th>貨幣</th><th>匯率</th></tr></thead><tbody>';
+
+                majorCurrencies.forEach(currency => {
+                    if (rates[currency]) {
+                        // 如果是基準貨幣，匯率顯示為 1
+                        const rate = (currency === baseCurrency) ? 1 : rates[currency];
+                        tableHTML += `
+                            <tr>
+                                <td>${currency}</td>
+                                <td>${parseFloat(rate.toPrecision(6))}</td>
+                            </tr>
+                        `;
+                    }
+                });
+
+                tableHTML += '</tbody></table>';
+                rateTableContainerEl.innerHTML = tableHTML;
+
+            } catch (error) {
+                console.error('無法獲取主要匯率:', error);
+                rateTableContainerEl.innerHTML = '<p>匯率資料載入失敗。</p>';
+            }
+        }
 
         // 填充貨幣選項
         async function populateCurrencies() {
@@ -78,13 +124,16 @@
                 for (const code of currencies) {
                     const option1 = new Option(code, code);
                     const option2 = new Option(code, code);
+                    const baseOption = new Option(code, code);
                     fromCurrencyEl.add(option1);
                     toCurrencyEl.add(option2);
+                    baseCurrencySelectEl.add(baseOption);
                 }
 
                 // 設定預設選項
                 fromCurrencyEl.value = 'USD'; // 美元
                 toCurrencyEl.value = 'TWD';   // 新台幣
+                baseCurrencySelectEl.value = 'USD';
 
                 calculate();
             } catch (error) {
@@ -142,9 +191,15 @@
         fromAmountEl.addEventListener('input', calculate);
         toCurrencyEl.addEventListener('change', calculate);
         swapBtn.addEventListener('click', swapCurrencies);
+        baseCurrencySelectEl.addEventListener('change', (e) => displayMajorRates(e.target.value));
 
         // 初始化
-        document.addEventListener('DOMContentLoaded', populateCurrencies);
+        async function initializePage() {
+            await populateCurrencies();
+            await displayMajorRates();
+        }
+
+        document.addEventListener('DOMContentLoaded', initializePage);
 
     </script>
 </body>

@@ -266,6 +266,39 @@ button {
     align-items: center;
 }
 
+/* --- 匯率表格 (currency.html) 專用樣式 --- */
+.rate-table-controls {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rate-table-controls select {
+    width: auto; /* 讓 select 寬度自適應內容 */
+    min-width: 100px;
+}
+
+.rate-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.rate-table th, .rate-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--card-border-color);
+}
+
+.rate-table th {
+    color: var(--accent-color);
+}
+
+.rate-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
 /* --- 匯率換算器 (currency.html) 專用樣式 --- */
 .currency-converter-controls {
     display: flex;
