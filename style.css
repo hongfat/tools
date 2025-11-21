@@ -304,6 +304,19 @@ button {
     margin-top: 1.5rem;
 }
 
+.disclaimer-info {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--secondary-text-color);
+    margin-top: 0.5rem;
+}
+
+.disclaimer-info a {
+    color: var(--secondary-text-color);
+    text-decoration: underline;
+}
+
+
 
 /* --- 響應式設計 --- */
 @media (max-width: 768px) {
