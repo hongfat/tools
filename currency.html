@@ -60,17 +60,22 @@
         const rateDisplayEl = document.getElementById('rateDisplay');
         const lastUpdatedEl = document.getElementById('lastUpdated');
 
-        const API_URL = 'https://api.frankfurter.app';
+        // 更換為支援更廣泛貨幣 (包含 TWD) 的 API
+        const API_BASE_URL = 'https://open.er-api.com/v6/latest';
+
+        let currencyRates = {}; // 用於儲存匯率數據
 
         // 填充貨幣選項
         async function populateCurrencies() {
             try {
-                const response = await fetch(`${API_URL}/currencies`);
-                const currencies = await response.json();
+                // 獲取以美元為基礎的匯率表，從中提取所有支援的貨幣代碼
+                const response = await fetch(`${API_BASE_URL}/USD`);
+                const data = await response.json();
+                const currencies = Object.keys(data.rates);
 
-                for (const code in currencies) {
-                    const option1 = new Option(`${code} - ${currencies[code]}`, code);
-                    const option2 = new Option(`${code} - ${currencies[code]}`, code);
+                for (const code of currencies) {
+                    const option1 = new Option(code, code);
+                    const option2 = new Option(code, code);
                     fromCurrencyEl.add(option1);
                     toCurrencyEl.add(option2);
                 }
@@ -81,7 +86,7 @@
 
                 calculate();
             } catch (error) {
-                console.error('無法獲取貨幣列表:', error);
+                console.error('無法載入貨幣列表:', error);
                 rateDisplayEl.textContent = '無法載入貨幣資料';
             }
         }
@@ -98,20 +103,18 @@
 
             rateDisplayEl.textContent = '計算中...';
 
+            // 為了減少 API 請求，我們先獲取基礎貨幣的所有匯率
             try {
-                const response = await fetch(`${API_URL}/latest?amount=${fromAmount}&from=${fromCurrency}&to=${toCurrency}`);
+                const response = await fetch(`${API_BASE_URL}/${fromCurrency}`);
                 const data = await response.json();
 
-                if (data.rates && data.rates[toCurrency]) {
-                    const toAmount = data.rates[toCurrency];
-                    toAmountEl.value = parseFloat(toAmount.toPrecision(6));
-
-                    // 計算單一匯率
-                    const singleRateResponse = await fetch(`${API_URL}/latest?from=${fromCurrency}&to=${toCurrency}`);
-                    const singleRateData = await singleRateResponse.json();
-                    const rate = singleRateData.rates[toCurrency];
+                if (data.result === 'success' && data.rates[toCurrency]) {
+                    const rate = data.rates[toCurrency];
+                    const toAmount = fromAmount * rate;
+                    
+                    toAmountEl.value = parseFloat(toAmount.toPrecision(8));
                     rateDisplayEl.textContent = `1 ${fromCurrency} = ${rate.toPrecision(6)} ${toCurrency}`;
-                    lastUpdatedEl.textContent = `匯率更新時間: ${data.date}`;
+                    lastUpdatedEl.textContent = `匯率更新時間 (UTC): ${new Date(data.time_last_update_utc).toLocaleString('sv-SE')}`;
                 } else {
                     rateDisplayEl.textContent = '無法取得匯率';
                 }
