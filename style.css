@@ -231,6 +231,7 @@ button {
 
 #passwordDisplay {
     flex-grow: 1; /* 佔滿可用空間 */
+    width: auto; /* 覆寫行動裝置上的預設寬度，確保 flex-grow 生效 */
     padding: 0.75rem;
     background-color: var(--bg-color);
     border: 1px solid var(--card-border-color);
