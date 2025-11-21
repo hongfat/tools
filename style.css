@@ -235,7 +235,10 @@ button {
 
 /* 調整 flag-icons 圖示的大小和對齊 */
 .unit-input-group .fi {
-    font-size: 1.2rem;
+    width: 1.75rem; /* 設定一個固定的寬度 */
+    height: 1.25rem; /* 設定一個固定的高度 */
+    border-radius: 2px; /* 加上一點小圓角，讓邊緣更柔和 */
+    background-size: cover; /* 確保圖片填滿容器，對於不同比例的國旗效果更好 */
 }
 
 /* --- 密碼產生器 (passwordgen.html) 專用樣式 --- */
