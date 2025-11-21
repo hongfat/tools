@@ -223,6 +223,42 @@ button {
     border-radius: 4px;
 }
 
+/* --- 密碼產生器 (passwordgen.html) 專用樣式 --- */
+.password-display-container {
+    display: flex;
+    margin-bottom: 1.5rem;
+}
+
+#passwordDisplay {
+    flex-grow: 1; /* 佔滿可用空間 */
+    padding: 0.75rem;
+    background-color: var(--bg-color);
+    border: 1px solid var(--card-border-color);
+    color: var(--primary-text-color);
+    font-size: 1.2rem;
+    font-family: 'Courier New', Courier, monospace; /* 等寬字體更適合顯示密碼 */
+    border-radius: 4px 0 0 4px; /* 左側圓角 */
+    border-right: none; /* 移除右邊框，與按鈕無縫連接 */
+}
+
+#passwordDisplay::placeholder {
+    color: var(--secondary-text-color);
+    font-size: 1rem;
+    font-family: sans-serif;
+}
+
+#copyBtn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 0 4px 4px 0; /* 右側圓角 */
+    border: 1px solid var(--accent-color); /* 與主按鈕風格一致 */
+    transition: background-color 0.2s;
+}
+
+.form-group-checkbox {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
 /* --- 響應式設計 --- */
 @media (max-width: 768px) {
     .hero h1 {
