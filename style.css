@@ -287,12 +287,17 @@ button {
 
 .rate-table th, .rate-table td {
     padding: 0.75rem;
-    text-align: left;
     border-bottom: 1px solid var(--card-border-color);
+    text-align: left; /* 預設靠左 */
 }
 
 .rate-table th {
     color: var(--accent-color);
+}
+
+.rate-table th:not(:first-child),
+.rate-table td:not(:first-child) {
+    text-align: right; /* 除了第一欄（貨幣名稱）外，其他都靠右對齊 */
 }
 
 .rate-table tbody tr:last-child td {

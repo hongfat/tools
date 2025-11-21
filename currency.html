@@ -75,7 +75,29 @@
 
         // 更換為支援更廣泛貨幣 (包含 TWD) 的 API
         const API_BASE_URL = 'https://open.er-api.com/v6/latest';
-        const majorCurrencies = ['USD', 'TWD', 'EUR', 'JPY', 'KRW', 'HKD', 'THB', 'SGD', 'AUD', 'CNY'];
+        const majorCurrencies = ['USD', 'TWD', 'CNY', 'HKD', 'GBP', 'AUD', 'CAD', 'SGD', 'CHF', 'JPY', 'ZAR', 'SEK', 'NZD', 'THB', 'PHP', 'IDR', 'EUR', 'KRW', 'VND', 'MYR'];
+        const currencyNames = {
+            USD: '美元',
+            TWD: '新台幣',
+            CNY: '人民幣',
+            HKD: '港幣',
+            GBP: '英鎊',
+            AUD: '澳幣',
+            CAD: '加拿大幣',
+            SGD: '新加坡幣',
+            CHF: '瑞士法郎',
+            JPY: '日圓',
+            ZAR: '南非幣',
+            SEK: '瑞典克朗',
+            NZD: '紐西蘭幣',
+            THB: '泰銖',
+            PHP: '菲律賓披索',
+            IDR: '印尼盾',
+            EUR: '歐元',
+            KRW: '韓元',
+            VND: '越南盾',
+            MYR: '馬來西亞令吉',
+        };
 
         // 填充主要貨幣匯率表格
         async function displayMajorRates(baseCurrency = 'USD') {
@@ -89,7 +111,7 @@
                 }
 
                 const rates = data.rates;
-                let tableHTML = '<table class="rate-table"><thead><tr><th>貨幣</th><th>匯率</th></tr></thead><tbody>';
+                let tableHTML = '<table class="rate-table"><thead><tr><th>貨幣</th><th>代碼</th><th>匯率</th></tr></thead><tbody>';
 
                 majorCurrencies.forEach(currency => {
                     if (rates[currency]) {
@@ -97,7 +119,8 @@
                         const rate = (currency === baseCurrency) ? 1 : rates[currency];
                         tableHTML += `
                             <tr>
-                                <td>${currency}</td>
+                                <td>${currencyNames[currency] || currency}</td>
+                                <td class="currency-code">${currency}</td>
                                 <td>${parseFloat(rate.toPrecision(6))}</td>
                             </tr>
                         `;
