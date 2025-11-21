@@ -238,7 +238,9 @@ button {
     width: 1.75rem; /* 設定一個固定的寬度 */
     height: 1.25rem; /* 設定一個固定的高度 */
     border-radius: 2px; /* 加上一點小圓角，讓邊緣更柔和 */
-    background-size: cover; /* 確保圖片填滿容器，對於不同比例的國旗效果更好 */
+    background-size: contain;/* 將 cover 改為 contain，確保整個國旗都能顯示出來 */
+    background-position: center; /* 讓國旗在容器內置中 */
+    background-repeat: no-repeat; /* 避免圖片重複 */
 }
 
 /* --- 密碼產生器 (passwordgen.html) 專用樣式 --- */
