@@ -22,27 +22,9 @@
                 <button id="resetRateTableBtn" class="reset-btn">重設</button>
             </div>
             <div id="rateTableContainer" class="unit-converter-grid"></div>
-        </div>
-
-        <div class="calculator-section">
-            <div id="currency-converter-app">
-                <div class="currency-converter-controls">
-                    <div class="form-group currency-group">
-                        <select id="fromCurrency"></select>
-                        <input type="number" id="fromAmount" value="1" min="0">
-                    </div>
-                    <div class="swap-rate-container">
-                        <button id="swapBtn" title="交換貨幣">⇄</button>
-                        <div id="rateDisplay"></div>
-                    </div>
-                    <div class="form-group currency-group">
-                        <select id="toCurrency"></select>
-                        <input type="number" id="toAmount" readonly>
-                    </div>
-                </div>
+            <div class="info-footer">
                 <p id="lastUpdated" class="last-updated-info"></p>
-                <center><p class="disclaimer-info">匯率資料來源為ExchangeRate-API</p></center>
-                <center><p class="disclaimer-info">換算結果僅供參考，實際交易匯率以銀行公告為準。</p></center>
+                <p class="disclaimer-info">匯率資料來源為 <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">ExchangeRate-API</a>。本換算結果僅供參考，實際交易匯率以銀行公告為準。</p>
             </div>
         </div>
     </div>
@@ -62,41 +44,52 @@
         setInterval(updateDateTime, 1000);
 
         // --- 匯率換算邏輯 ---
-        const fromCurrencyEl = document.getElementById('fromCurrency');
-        const fromAmountEl = document.getElementById('fromAmount');
-        const toCurrencyEl = document.getElementById('toCurrency');
-        const toAmountEl = document.getElementById('toAmount');
-        const swapBtn = document.getElementById('swapBtn');
-        const rateDisplayEl = document.getElementById('rateDisplay');
         const lastUpdatedEl = document.getElementById('lastUpdated');
         const rateTableContainerEl = document.getElementById('rateTableContainer');
         const resetRateTableBtn = document.getElementById('resetRateTableBtn');
 
-        // 更換為支援更廣泛貨幣 (包含 TWD) 的 API
         const API_BASE_URL = 'https://open.er-api.com/v6/latest';
         const majorCurrencies = ['USD', 'TWD', 'CNY', 'HKD', 'GBP', 'AUD', 'CAD', 'SGD', 'CHF', 'JPY', 'ZAR', 'SEK', 'NZD', 'THB', 'PHP', 'IDR', 'EUR', 'KRW', 'VND', 'MYR'];
         const currencyNames = {
-            USD: '美元',
             TWD: '新台幣',
+            USD: '美元',
+            EUR: '歐元',
+            JPY: '日圓',
+            KRW: '韓元',
             CNY: '人民幣',
             HKD: '港幣',
+            SGD: '新加坡幣',
+            THB: '泰銖',
             GBP: '英鎊',
             AUD: '澳幣',
             CAD: '加拿大幣',
-            SGD: '新加坡幣',
             CHF: '瑞士法郎',
-            JPY: '日圓',
             ZAR: '南非幣',
             SEK: '瑞典克朗',
             NZD: '紐西蘭幣',
-            THB: '泰銖',
             PHP: '菲律賓披索',
             IDR: '印尼盾',
-            EUR: '歐元',
-            KRW: '韓元',
             VND: '越南盾',
             MYR: '馬來西亞令吉',
         };
+        const currencyFlags = {
+            USD: '🇺🇸', TWD: '🇹🇼', CNY: '🇨🇳', HKD: '🇭🇰', GBP: '🇬🇧',
+            AUD: '🇦🇺', CAD: '🇨🇦', SGD: '🇸🇬', CHF: '🇨🇭', JPY: '🇯🇵',
+            ZAR: '🇿🇦', SEK: '🇸🇪', NZD: '🇳🇿', THB: '🇹🇭', PHP: '🇵🇭',
+            IDR: '🇮🇩', EUR: '🇪🇺', KRW: '🇰🇷', VND: '🇻🇳', MYR: '🇲🇾',
+        };
+
+        // 更新頁尾的資訊
+        function updateInfoFooter(data) {
+            if (!data || !data.time_last_update_utc) {
+                lastUpdatedEl.textContent = '';
+                return;
+            }
+            const updateDate = new Date(data.time_last_update_utc);
+            const utcTime = updateDate.toISOString().substring(0, 19).replace('T', ' ');
+            const localTime = updateDate.toLocaleString('sv-SE');
+            lastUpdatedEl.textContent = `匯率更新時間: ${localTime} (當地) / ${utcTime} (UTC)`;
+        }
 
         // --- 主要貨幣換算表格 ---
 
@@ -126,6 +119,8 @@
                         targetInput.value = parseFloat(convertedValue.toPrecision(8));
                     }
                 });
+
+                updateInfoFooter(data);
             } catch (error) {
                 console.error('表格匯率換算錯誤:', error);
             }
@@ -139,7 +134,7 @@
 
                 const label = document.createElement('label');
                 label.htmlFor = `rate-input-${currency}`;
-                label.textContent = `${currencyNames[currency] || currency} (${currency})`;
+                label.innerHTML = `<span class="flag">${currencyFlags[currency] || '🏳️'}</span> ${currencyNames[currency] || currency} <span class="currency-code">(${currency})</span>`;
 
                 const input = document.createElement('input');
                 input.type = 'number';
@@ -158,86 +153,21 @@
             });
         }
 
-        // 填充貨幣選項
-        async function populateCurrencies() {
-            try {
-                // 獲取以美元為基礎的匯率表，從中提取所有支援的貨幣代碼
-                const response = await fetch(`${API_BASE_URL}/USD`);
-                const data = await response.json();
-                const currencies = Object.keys(data.rates);
+        // 頁面載入時設定預設值 (1 美元)
+        async function setDefaultValue() {
+            const usdInput = document.getElementById('rate-input-USD');
+            if (!usdInput) return;
 
-                for (const code of currencies) {
-                    const option1 = new Option(code, code);
-                    const option2 = new Option(code, code);
-                    fromCurrencyEl.add(option1);
-                    toCurrencyEl.add(option2);
-                }
-
-                // 設定預設選項
-                fromCurrencyEl.value = 'USD'; // 美元
-                toCurrencyEl.value = 'TWD';   // 新台幣
-
-                calculate();
-            } catch (error) {
-                console.error('無法載入貨幣列表:', error);
-                rateDisplayEl.textContent = '無法載入貨幣資料';
-            }
+            usdInput.value = 1;
+            // 建立一個模擬的事件對象來觸發換算
+            const event = new Event('input', { bubbles: true, cancelable: true });
+            usdInput.dispatchEvent(event);
         }
-
-        // 計算匯率
-        async function calculate() {
-            const fromCurrency = fromCurrencyEl.value;
-            const toCurrency = toCurrencyEl.value;
-            const fromAmount = parseFloat(fromAmountEl.value);
-
-            if (!fromCurrency || !toCurrency || isNaN(fromAmount)) {
-                return;
-            }
-
-            rateDisplayEl.textContent = '計算中...';
-
-            // 為了減少 API 請求，我們先獲取基礎貨幣的所有匯率
-            try {
-                const response = await fetch(`${API_BASE_URL}/${fromCurrency}`);
-                const data = await response.json();
-
-                if (data.result === 'success' && data.rates[toCurrency]) {
-                    const rate = data.rates[toCurrency];
-                    const toAmount = fromAmount * rate;
-                    
-                    toAmountEl.value = parseFloat(toAmount.toPrecision(8));
-                    rateDisplayEl.textContent = `1 ${fromCurrency} = ${rate.toPrecision(6)} ${toCurrency}`;
-
-                    const updateDate = new Date(data.time_last_update_utc);
-                    const utcTime = updateDate.toISOString().substring(0, 19).replace('T', ' ');
-                    const localTime = updateDate.toLocaleString('sv-SE');
-
-                    lastUpdatedEl.textContent = `匯率更新時間: ${localTime} (當地) / ${utcTime} (UTC)`;
-                } else {
-                    rateDisplayEl.textContent = '無法取得匯率';
-                }
-            } catch (error) {
-                console.error('匯率計算錯誤:', error);
-                rateDisplayEl.textContent = '匯率查詢失敗';
-            }
-        }
-
-        // 交換貨幣
-        function swapCurrencies() {
-            [fromCurrencyEl.value, toCurrencyEl.value] = [toCurrencyEl.value, fromCurrencyEl.value];
-            calculate();
-        }
-
-        // 事件監聽
-        fromCurrencyEl.addEventListener('change', calculate);
-        fromAmountEl.addEventListener('input', calculate);
-        toCurrencyEl.addEventListener('change', calculate);
-        swapBtn.addEventListener('click', swapCurrencies);
 
         // 初始化
         async function initializePage() {
             initializeRateTable();
-            await populateCurrencies();
+            await setDefaultValue();
         }
 
         document.addEventListener('DOMContentLoaded', initializePage);

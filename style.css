@@ -211,21 +211,30 @@ button {
 
 .unit-input-group {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    align-items: center; /* 垂直置中 */
+    gap: 1rem; /* 增加標籤和輸入框之間的間距 */
 }
 
 .unit-input-group label {
     color: var(--secondary-text-color);
+    flex-basis: 50%; /* 標籤佔據約一半寬度 */
+    margin-bottom: 0; /* 覆寫預設的 margin */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .unit-input-group input {
-    width: 100%;
+    flex-grow: 1; /* 輸入框填滿剩餘空間 */
     padding: 0.5rem;
     background-color: var(--bg-color);
     border: 1px solid var(--card-border-color);
     color: var(--primary-text-color);
     border-radius: 4px;
+}
+
+.unit-input-group .flag {
+    font-size: 1.5em; /* 放大國旗 */
 }
 
 /* --- 密碼產生器 (passwordgen.html) 專用樣式 --- */
@@ -264,6 +273,11 @@ button {
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
+}
+
+/* --- 匯率換算器頁尾資訊 --- */
+.info-footer {
+    margin-top: 2rem;
 }
 
 /* --- 匯率換算器 (currency.html) 專用樣式 --- */
@@ -306,13 +320,13 @@ button {
 
 .disclaimer-info {
     text-align: center;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: var(--secondary-text-color);
     margin-top: 0.5rem;
 }
 
 .disclaimer-info a {
-    color: var(--secondary-text-color);
+    color: var(--accent-color);
     text-decoration: underline;
 }
 
