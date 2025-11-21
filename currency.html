@@ -114,7 +114,12 @@
                     
                     toAmountEl.value = parseFloat(toAmount.toPrecision(8));
                     rateDisplayEl.textContent = `1 ${fromCurrency} = ${rate.toPrecision(6)} ${toCurrency}`;
-                    lastUpdatedEl.textContent = `匯率更新時間 (UTC): ${new Date(data.time_last_update_utc).toLocaleString('sv-SE')}`;
+
+                    const updateDate = new Date(data.time_last_update_utc);
+                    const utcTime = updateDate.toISOString().substring(0, 19).replace('T', ' ');
+                    const localTime = updateDate.toLocaleString('sv-SE');
+
+                    lastUpdatedEl.textContent = `匯率更新時間: ${localTime} (當地) / ${utcTime} (UTC)`;
                 } else {
                     rateDisplayEl.textContent = '無法取得匯率';
                 }
