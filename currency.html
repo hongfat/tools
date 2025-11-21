@@ -133,7 +133,7 @@
                 // EUR 是特例，它的圖示是 eu
                 const countryCode = currency === 'EUR' ? 'eu' : currency.substring(0, 2).toLowerCase();
 
-                label.innerHTML = `<span class="fi fi-${countryCode}"></span> ${currencyNames[currency] || currency} <span class="currency-code">(${currency})</span>`;
+                label.innerHTML = `<span class="fi fis fi-${countryCode}"></span> ${currencyNames[currency] || currency} <span class="currency-code">(${currency})</span>`;
 
                 const input = document.createElement('input');
                 input.type = 'number';
