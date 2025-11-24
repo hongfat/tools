@@ -26,6 +26,12 @@ body {
     border-bottom: 1px solid var(--card-border-color);
 }
 
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* 在圖示和標題之間增加一些間距 */
+}
+
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: bold;
@@ -344,10 +350,9 @@ button {
     }
 
     .navbar {
-        flex-direction: column;
         padding: 1rem;
     }
-
+    
     .nav-links {
         margin-top: 1rem;
     }

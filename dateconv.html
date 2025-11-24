@@ -8,8 +8,17 @@
 </head>
 <body>
 
+    <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <a href="unitconv.html">單位換算</a>
+        <a href="dateconv.html">日期時間換算</a>
+        <a href="currency.html">貨幣匯率換算</a>
+        <a href="passwordgen.html">密碼產生器</a>
+    </div>
+
     <nav class="navbar">
-        <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
+        <span class="openbtn" onclick="openNav()">&#9776;</span>
+        <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a> <!-- 保持連結到首頁 -->
         <div id="datetime-display" class="nav-links"></div>
     </nav>
 
@@ -395,6 +404,17 @@
         // 立即執行一次時間更新，然後每秒更新
         updateDateTime();
         setInterval(updateDateTime, 1000);
+
+        /* Sidebar Functions */
+        function openNav() {
+            document.getElementById("mySidebar").style.width = "250px";
+        }
+
+        function closeNav() {
+            document.getElementById("mySidebar").style.width = "0";
+        }
+        window.openNav = openNav; // 將函式附加到 window 物件
+        window.closeNav = closeNav; // 將函式附加到 window 物件
 
     </script>
 </body>
