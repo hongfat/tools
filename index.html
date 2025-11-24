@@ -18,7 +18,7 @@
     <div id="main-content">
         <nav class="navbar">
             <div class="navbar-left">
-                <span class="openbtn" onclick="toggleNav()">&#9776;</span>
+                <span class="openbtn" onclick="toggleNav(event)">&#9776;</span>
             </div>
             <div class="navbar-right">
                 <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
@@ -82,7 +82,8 @@
         const mainContent = document.getElementById("main-content");
 
         /* Toggle between showing and hiding the sidebar */
-        function toggleNav() {
+        function toggleNav(event) {
+            event.stopPropagation(); // 阻止事件冒泡到 main-content
             if (sidebar.style.width === "250px") {
                 closeNav();
             } else {
