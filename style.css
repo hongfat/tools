@@ -5,8 +5,8 @@
     --primary-text-color: #e0e0e0;
     --secondary-text-color: #a0a0a0;
     --accent-color: #bc88fc;
-    --card-border-color: #333;
-    --navbar-height: calc(2.4rem + 2rem + 1px); /* (font-size * line-height) + padding-top/bottom + border */
+    --card-border-color: #333;    
+    --navbar-height: 5rem; /* 導覽列的固定高度 */
 }
 
 body {
@@ -27,7 +27,9 @@ body {
     border-bottom: 1px solid var(--card-border-color);
     position: sticky; /* 固定在頂部 */
     top: 0;
-    z-index: 50; /* 確保在主內容之上 */
+    z-index: 50; /* 確保在主內容之上 */    
+    min-height: var(--navbar-height); /* 設定最小高度 */
+    box-sizing: border-box; /* 確保 padding 和 border 包含在高度計算內 */
 }
 
 .navbar-left {
@@ -356,10 +358,6 @@ button {
 
 /* --- 響應式設計 --- */
 @media (max-width: 768px) {
-    .hero h1 {
-        font-size: 2.5rem;
-    }
-
     .navbar {
         padding: 1rem;
     }
