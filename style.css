@@ -6,7 +6,7 @@
     --secondary-text-color: #a0a0a0;
     --accent-color: #bc88fc;
     --card-border-color: #333;
-    --navbar-height: calc(1.5rem + 2rem + 1px); /* font-size + padding-top/bottom + border */
+    --navbar-height: calc(2.4rem + 2rem + 1px); /* (font-size * line-height) + padding-top/bottom + border */
 }
 
 body {
@@ -38,6 +38,13 @@ body {
     font-weight: bold;
     color: var(--accent-color);
     text-decoration: none;
+}
+
+.navbar-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
 }
 
 /* --- 首頁 (index.html) 專用樣式 --- */
@@ -378,7 +385,7 @@ button {
     left: 0;
     background-color: var(--surface-color); /* 與導覽列顏色一致 */
     overflow-x: hidden;
-    transition: 0.5s; /* 恢復滑動動畫 */
+    transition: 0s; /* 恢復滑動動畫 */
     padding-top: 20px; /* 調整頂部間距 */
 }
 
