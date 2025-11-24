@@ -9,7 +9,6 @@
 <body>
 
     <div id="mySidebar" class="sidebar">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
         <a href="index.html">首頁</a>
         <a href="unitconv.html">單位換算</a>
         <a href="dateconv.html">日期時間換算</a>
@@ -19,13 +18,15 @@
 
     <nav class="navbar">
         <div class="navbar-left">
-            <span class="openbtn" onclick="openNav()">&#9776;</span>
+            <span class="openbtn" onclick="toggleNav()">&#9776;</span>
             <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
         </div>
         <div id="datetime-display" class="nav-links"></div>
     </nav>
 
-    <div class="container">
+    <div id="main-content">
+
+    <div class="container" style="margin-top: 0;">
         <h2><center>日期換算</center></h2>
 
         <h3>西元轉農曆</h3>
@@ -94,6 +95,7 @@
             <button id="resetTimestampBtn">重設為現在時間</button>
         </div>
 
+    </div>
     </div>
 
     <script type="module">
@@ -408,16 +410,25 @@
         updateDateTime();
         setInterval(updateDateTime, 1000);
 
-        /* Sidebar Functions */
+        const sidebar = document.getElementById("mySidebar");
+        const mainContent = document.getElementById("main-content");
+
+        function toggleNav() {
+            if (sidebar.style.width === "250px") {
+                closeNav();
+            } else {
+                openNav();
+            }
+        }
+
         function openNav() {
-            document.getElementById("mySidebar").style.width = "250px";
+            sidebar.style.width = "250px";
         }
 
         function closeNav() {
-            document.getElementById("mySidebar").style.width = "0";
+            sidebar.style.width = "0";
         }
-        window.openNav = openNav; // 將函式附加到 window 物件
-        window.closeNav = closeNav; // 將函式附加到 window 物件
+        mainContent.addEventListener('click', closeNav);
 
     </script>
 </body>

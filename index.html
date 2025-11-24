@@ -78,18 +78,27 @@
         updateDateTime();
         setInterval(updateDateTime, 1000);
 
-        /* Toggle between showing and hiding the sidebar, and pushing the main content */
+        const sidebar = document.getElementById("mySidebar");
+        const mainContent = document.getElementById("main-content");
+
+        /* Toggle between showing and hiding the sidebar */
         function toggleNav() {
-            const sidebar = document.getElementById("mySidebar");
-            const mainContent = document.getElementById("main-content");
             if (sidebar.style.width === "250px") {
-                sidebar.style.width = "0";
-                mainContent.style.marginLeft = "0";
+                closeNav();
             } else {
-                sidebar.style.width = "250px";
-                mainContent.style.marginLeft = "250px";
+                openNav();
             }
         }
+
+        function openNav() {
+            sidebar.style.width = "250px";
+        }
+
+        function closeNav() {
+            sidebar.style.width = "0";
+        }
+
+        mainContent.addEventListener('click', closeNav);
     </script>
 </body>
 </html>
