@@ -386,15 +386,12 @@ button {
     z-index: 100;
     top: var(--navbar-height); /* 從導覽列下方開始 */
     left: 0;
-    background-color: #1e1e1e; /* 使用一個稍微不同的顏色以區分層級 */
+    background-color: rgba(30, 30, 30, 0.85); /* 帶有透明度的背景 */
+    backdrop-filter: blur(5px); /* 毛玻璃/模糊效果 */
+    -webkit-backdrop-filter: blur(5px); /* 針對 Safari 的相容性 */
     overflow-x: hidden;
     transition: width 0.3s ease; /* 恢復滑動動畫 */
     padding-top: 20px; /* 調整頂部間距 */
-}
-
-.main-content-shifted {
-    transform: translateX(250px);
-    transition: transform 0.3s ease;
 }
 
 .sidebar a {

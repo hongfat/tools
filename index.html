@@ -15,17 +15,17 @@
         <a href="passwordgen.html">密碼產生器</a>
     </div>
 
+    <nav class="navbar">
+        <div class="navbar-left">
+            <span class="openbtn" onclick="toggleNav(event)">&#9776;</span>
+        </div>
+        <div class="navbar-right">
+            <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
+            <div id="datetime-display" class="nav-links"></div>
+        </div>
+    </nav>
+
     <div id="main-content">
-        <nav class="navbar">
-            <div class="navbar-left">
-                <span class="openbtn" onclick="toggleNav(event)">&#9776;</span>
-            </div>
-            <div class="navbar-right">
-                <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
-                <div id="datetime-display" class="nav-links"></div>
-            </div>
-        </nav>
-        
         <header class="hero">
         <h1>UNCLE FAT'S TOOL BOX</h1>
         <p>純前端、安全的常用工具網站</p>
@@ -93,12 +93,10 @@
 
         function openNav() {
             sidebar.style.width = "250px";
-            mainContent.classList.add("main-content-shifted");
         }
 
         function closeNav() {
             sidebar.style.width = "0";
-            mainContent.classList.remove("main-content-shifted");
         }
 
         mainContent.addEventListener('click', closeNav);

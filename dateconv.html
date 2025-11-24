@@ -16,8 +16,6 @@
         <a href="passwordgen.html">密碼產生器</a>
     </div>
 
-    <div id="main-content">
-
     <nav class="navbar">
         <div class="navbar-left">
             <span class="openbtn" onclick="toggleNav(event)">&#9776;</span>
@@ -25,6 +23,8 @@
         </div>
         <div id="datetime-display" class="nav-links"></div>
     </nav>
+
+    <div id="main-content">
 
     <div class="container">
         <h2><center>日期換算</center></h2>
@@ -424,12 +424,10 @@
 
         function openNav() {
             sidebar.style.width = "250px";
-            mainContent.classList.add("main-content-shifted");
         }
 
         function closeNav() {
             sidebar.style.width = "0";
-            mainContent.classList.remove("main-content-shifted");
         }
         mainContent.addEventListener('click', closeNav);
 
