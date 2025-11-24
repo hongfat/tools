@@ -366,3 +366,44 @@ button {
         flex-direction: row-reverse; /* 交換按鈕和匯率顯示的位置 */
     }
 }
+
+/* --- 側邊欄 (Sidebar) --- */
+.sidebar {
+    height: 100%;
+    width: 0; /* 初始隱藏 */
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0s; /* 移除動畫 */
+    padding-top: 60px;
+}
+
+.sidebar a {
+    padding: 10px 15px 10px 32px;
+    text-decoration: none;
+    font-size: 22px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    color: #f1f1f1;
+}
+
+.sidebar .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+.openbtn {
+    font-size: 24px;
+    cursor: pointer;
+    color: white;
+}
