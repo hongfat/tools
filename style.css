@@ -6,6 +6,7 @@
     --secondary-text-color: #a0a0a0;
     --accent-color: #bc88fc;
     --card-border-color: #333;
+    --navbar-height: calc(1.5rem + 2rem + 1px); /* font-size + padding-top/bottom + border */
 }
 
 body {
@@ -369,41 +370,41 @@ button {
 
 /* --- 側邊欄 (Sidebar) --- */
 .sidebar {
-    height: 100%;
+    height: calc(100% - var(--navbar-height)); /* 計算剩餘高度 */
     width: 0; /* 初始隱藏 */
     position: fixed;
     z-index: 100;
-    top: 0;
+    top: var(--navbar-height); /* 從導覽列下方開始 */
     left: 0;
-    background-color: #111;
+    background-color: var(--surface-color); /* 與導覽列顏色一致 */
     overflow-x: hidden;
-    transition: 0s; /* 移除動畫 */
-    padding-top: 60px;
+    transition: 0.5s; /* 恢復滑動動畫 */
+    padding-top: 20px; /* 調整頂部間距 */
 }
 
 .sidebar a {
     padding: 10px 15px 10px 32px;
     text-decoration: none;
-    font-size: 22px;
-    color: #818181;
+    font-size: 1.25rem; /* 調整字體大小 */
+    color: var(--secondary-text-color); /* 使用變數 */
     display: block;
     transition: 0.3s;
 }
 
 .sidebar a:hover {
-    color: #f1f1f1;
+    color: var(--accent-color); /* 滑鼠懸停時使用強調色 */
 }
 
 .sidebar .closebtn {
     position: absolute;
-    top: 0;
+    top: 0; /* 調整位置 */
     right: 25px;
     font-size: 36px;
-    margin-left: 50px;
+    color: var(--secondary-text-color); /* 統一顏色 */
 }
 
 .openbtn {
     font-size: 24px;
     cursor: pointer;
-    color: white;
+    color: var(--primary-text-color); /* 使用變數 */
 }
