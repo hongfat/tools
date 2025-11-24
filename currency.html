@@ -128,15 +128,10 @@
                 const label = document.createElement('label');
                 label.htmlFor = `rate-input-${currency}`;
                 
-                let flagImgSrc;
-                if (currency === 'EUR') {
-                    // 針對歐元(EUR)使用特例的歐盟(EU)國旗圖片
-                    flagImgSrc = 'https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/flags/4x3/eu.svg';
-                } else {
-                    // 其他貨幣使用國家代碼
-                    const countryCode = currency.substring(0, 2);
-                    flagImgSrc = `https://flagsapi.com/${countryCode}/flat/64.png`;
-                }
+                // 根據貨幣代碼取得對應的國家/地區代碼
+                const countryCode = (currency === 'EUR' ? 'eu' : currency.substring(0, 2)).toLowerCase();
+                const flagImgSrc = `https://flagcdn.com/${countryCode}.svg`;
+
                 const flagImg = `<img src="${flagImgSrc}" alt="${currency}" class="flag-img">`;
 
                 label.innerHTML = `${flagImg} ${currencyNames[currency] || currency} <span class="currency-code">(${currency})</span>`;
