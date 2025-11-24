@@ -5,10 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UNCLE FAT'S TOOL BOX</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Sidebar styles */
+        .sidebar {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+        }
+
+        .sidebar a {
+            padding: 10px 15px 10px 32px;
+            text-decoration: none;
+            font-size: 22px;
+            color: #818181;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            color: #f1f1f1;
+        }
+
+        .sidebar .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+
+        .openbtn {
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            padding: 0 15px;
+            border: none;
+            background: none;
+        }
+    </style>
 </head>
 <body>
+    <div id="mySidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <a href="unitconv.html">單位換算</a>
+        <a href="dateconv.html">日期時間換算</a>
+        <a href="currency.html">貨幣匯率換算</a>
+        <a href="passwordgen.html">密碼產生器</a>
+    </div>
 
     <nav class="navbar">
+        <span class="openbtn" onclick="openNav()">&#9776;</span>
         <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
         <div id="datetime-display" class="nav-links"></div>
     </nav>
@@ -63,6 +116,16 @@
         // 立即執行一次，然後每秒更新
         updateDateTime();
         setInterval(updateDateTime, 1000);
+
+        /* Set the width of the sidebar to 250px and the left margin of the page content to 250px */
+        function openNav() {
+            document.getElementById("mySidebar").style.width = "250px";
+        }
+
+        /* Set the width of the sidebar to 0 and the left margin of the page content to 0 */
+        function closeNav() {
+            document.getElementById("mySidebar").style.width = "0";
+        }
     </script>
 </body>
 </html>
