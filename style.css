@@ -154,18 +154,15 @@ label {
     color: var(--secondary-text-color);
 }
 
-input[type="date"],
-input[type="number"],
-input[type="text"],
-input[type="datetime-local"],
-select {
+/* 通用表單輸入框樣式 */
+.form-input {
     width: 100%;
     padding: 0.5rem;
     background-color: var(--bg-color);
     border: 1px solid var(--card-border-color);
     color: var(--primary-text-color);
     border-radius: 4px;
-    box-sizing: border-box; /* 確保 padding 不會影響寬度計算 */
+    box-sizing: border-box;
 }
 
 button {
@@ -177,6 +174,7 @@ button {
     font-weight: bold;
     cursor: pointer;
     font-size: 1rem;
+    transition: background-color 0.2s; /* 為所有按鈕增加過渡效果 */
 }
 
 #result, #lunar-date {
@@ -243,15 +241,6 @@ button {
     gap: 0.5rem;
 }
 
-.unit-input-group input {
-    flex-grow: 1; /* 輸入框填滿剩餘空間 */
-    padding: 0.5rem;
-    background-color: var(--bg-color);
-    border: 1px solid var(--card-border-color);
-    color: var(--primary-text-color);
-    border-radius: 4px;
-}
-
 /* --- 密碼產生器 (passwordgen.html) 專用樣式 --- */
 .password-display-container {
     display: flex;
@@ -259,12 +248,8 @@ button {
 }
 
 #passwordDisplay {
-    flex-grow: 1; /* 佔滿可用空間 */
-    width: auto; /* 覆寫行動裝置上的預設寬度，確保 flex-grow 生效 */
+    flex-grow: 1;
     padding: 0.75rem;
-    background-color: var(--bg-color);
-    border: 1px solid var(--card-border-color);
-    color: var(--primary-text-color);
     font-size: 1.2rem;
     font-family: 'Courier New', Courier, monospace; /* 等寬字體更適合顯示密碼 */
     border-radius: 4px 0 0 4px; /* 左側圓角 */
@@ -281,7 +266,6 @@ button {
     padding: 0.75rem 1.5rem;
     border-radius: 0 4px 4px 0; /* 右側圓角 */
     border: 1px solid var(--accent-color); /* 與主按鈕風格一致 */
-    transition: background-color 0.2s;
 }
 
 .form-group-checkbox {
@@ -388,7 +372,6 @@ button {
     backdrop-filter: blur(5px); /* 毛玻璃/模糊效果 */
     -webkit-backdrop-filter: blur(5px); /* 針對 Safari 的相容性 */
     overflow-x: hidden;
-    /* transition: width 0.3s ease; */ /* 移除滑動動畫 */
     padding-top: 20px; /* 調整頂部間距 */
 }
 

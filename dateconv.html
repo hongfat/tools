@@ -28,12 +28,12 @@
     <div id="main-content">
 
     <div class="container">
-        <h2><center>日期換算</center></h2>
+        <h2><center>日期時間換算</center></h2>
 
         <h3>西元轉農曆</h3>
         <div class="form-group">
             <label for="lunarQueryDate">選擇西元日期</label>
-            <input type="date" id="lunarQueryDate">
+            <input type="date" id="lunarQueryDate" class="form-input">
             <p id="lunarQueryResult" style="margin-top: 10px;"></p><br>
         </div>
 
@@ -42,11 +42,11 @@
             <h3>日期天數計算</h3>
             <div class="form-group">
                 <label for="startDate">開始日期</label>
-                <input type="date" id="startDate">
+                <input type="date" id="startDate" class="form-input">
             </div>
             <div class="form-group">
                 <label for="endDate">結束日期</label>
-                <input type="date" id="endDate">
+                <input type="date" id="endDate" class="form-input">
             </div>
             <button id="calculateBtn">計算</button>
             <p id="result"></p><br>
@@ -56,11 +56,11 @@
             <h3>日期加減計算</h3>
             <div class="form-group">
                 <label for="baseDate">基準日期</label>
-                <input type="date" id="baseDate">
+                <input type="date" id="baseDate" class="form-input">
             </div>
             <div class="form-group">
                 <label for="daysToAddOrSubtract">增減天數</label>
-                <input type="number" id="daysToAddOrSubtract" value="1" min="0">
+                <input type="number" id="daysToAddOrSubtract" value="1" min="0" class="form-input">
             </div>
             <button id="addDaysBtn">加 N 天</button>
             <button id="subtractDaysBtn">減 N 天</button>
@@ -71,27 +71,27 @@
             <h3>Timestamp轉換 (UNIX / ISO 8601)</h3>
             <div class="form-group">
                 <label for="humanReadableTime">標準時間</label>
-                <input type="datetime-local" id="humanReadableTime" step="1">
+                <input type="datetime-local" id="humanReadableTime" step="1" class="form-input">
             </div>
             <div class="form-group">
                 <label for="unixTimestamp">UNIX 時間 (秒)</label>
-                <input type="number" id="unixTimestamp">
+                <input type="number" id="unixTimestamp" class="form-input">
             </div>
             <div class="form-group">
                 <label for="unixTimestampMs">UNIX 時間 (毫秒)</label>
-                <input type="number" id="unixTimestampMs">
+                <input type="number" id="unixTimestampMs" class="form-input">
             </div>
             <div class="form-group">
                 <label for="iso8601Timestamp">ISO 8601 (UTC)</label>
-                <input type="text" id="iso8601Timestamp">
+                <input type="text" id="iso8601Timestamp" class="form-input">
             </div>
             <div class="form-group">
                 <label for="iso8601LocalTimestamp">ISO 8601 (本地時區)</label>
-                <input type="text" id="iso8601LocalTimestamp">
+                <input type="text" id="iso8601LocalTimestamp" class="form-input">
             </div>
             <div class="form-group">
                 <label for="iso8601BasicTimestamp">ISO 8601 基本格式</label>
-                <input type="text" id="iso8601BasicTimestamp">
+                <input type="text" id="iso8601BasicTimestamp" class="form-input">
             </div>
             <button id="resetTimestampBtn">重設為現在時間</button>
         </div>
