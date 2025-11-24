@@ -25,6 +25,9 @@ body {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--card-border-color);
+    position: sticky; /* 固定在頂部 */
+    top: 0;
+    z-index: 50; /* 確保在主內容之上 */
 }
 
 .navbar-left {
@@ -383,10 +386,15 @@ button {
     z-index: 100;
     top: var(--navbar-height); /* 從導覽列下方開始 */
     left: 0;
-    background-color: var(--surface-color); /* 與導覽列顏色一致 */
+    background-color: #1e1e1e; /* 使用一個稍微不同的顏色以區分層級 */
     overflow-x: hidden;
-    transition: 0s; /* 恢復滑動動畫 */
+    transition: width 0.3s ease; /* 恢復滑動動畫 */
     padding-top: 20px; /* 調整頂部間距 */
+}
+
+.main-content-shifted {
+    transform: translateX(250px);
+    transition: transform 0.3s ease;
 }
 
 .sidebar a {
