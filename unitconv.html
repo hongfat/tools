@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div id="mySidebar" class="sidebar">
         <a href="index.html">首頁</a>
         <a href="unitconv.html">單位換算</a>
@@ -19,9 +18,11 @@
     <nav class="navbar">
         <div class="navbar-left">
             <span class="openbtn" onclick="toggleNav(event)">&#9776;</span>
-            <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
         </div>
-        <div id="datetime-display" class="nav-links"></div>
+        <div class="navbar-right">
+            <a href="index.html" class="navbar-brand">UNCLE FAT'S TOOL BOX</a>
+            <div id="datetime-display" class="nav-links"></div>
+        </div>
     </nav>
 
     <div id="main-content">
@@ -82,41 +83,8 @@
     </div>
     </div>
 
+    <script src="main.js"></script>
     <script type="module">
-        function updateDateTime() {
-            const now = new Date();
-            const dateTimeString = now.toLocaleString('sv-SE').replace('T', ' '); // YYYY-MM-DD HH:MM:SS
-            
-            const displayElement = document.getElementById('datetime-display');
-            if (displayElement) {
-                displayElement.textContent = dateTimeString;
-            }
-        }
-        // 立即執行一次，然後每秒更新
-        updateDateTime();
-        setInterval(updateDateTime, 1000);
-
-        const sidebar = document.getElementById("mySidebar");
-        const mainContent = document.getElementById("main-content");
-
-        function toggleNav(event) {
-            event.stopPropagation(); // 阻止事件冒泡到 main-content
-            if (sidebar.style.width === "250px") {
-                closeNav();
-            } else {
-                openNav();
-            }
-        }
-
-        function openNav() {
-            sidebar.style.width = "250px";
-        }
-
-        function closeNav() {
-            sidebar.style.width = "0";
-        }
-        mainContent.addEventListener('click', closeNav);
-
         // --- 長度換算 ---
         const lengthUnits = {
             // 公制

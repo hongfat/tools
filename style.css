@@ -388,7 +388,7 @@ button {
     backdrop-filter: blur(5px); /* 毛玻璃/模糊效果 */
     -webkit-backdrop-filter: blur(5px); /* 針對 Safari 的相容性 */
     overflow-x: hidden;
-    transition: width 0.3s ease; /* 恢復滑動動畫 */
+    /* transition: width 0.3s ease; */ /* 移除滑動動畫 */
     padding-top: 20px; /* 調整頂部間距 */
 }
 
