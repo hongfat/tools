@@ -235,8 +235,8 @@ button {
 
 /* 調整 flag-icons 圖示的大小和對齊 */
 .unit-input-group .fi {
-    width: 64px; /* 設定一個固定的寬度 */
-    height: 48px; /* 設定一個固定的高度 */
+    width: 3rem; /* 設定一個固定的寬度 */
+    height: 3rem; /* 設定一個固定的高度 */
     border-radius: 2px; /* 加上一點小圓角，讓邊緣更柔和 */
     background-size: contain;/* 將 cover 改為 contain，確保整個國旗都能顯示出來 */
     background-position: center; /* 讓國旗在容器內置中 */
@@ -334,6 +334,16 @@ button {
 .disclaimer-info a {
     color: var(--accent-color);
     text-decoration: underline;
+}
+
+/* --- 匯率換算器 (currency.html) 國旗圖示專用樣式 --- */
+.currency-group .currency-flag {
+    width: 30px;
+    height: 22px; /* 根據常見國旗比例調整，避免變形 */
+    margin-right: 0.5rem;
+    vertical-align: middle; /* 確保與下拉選單垂直對齊 */
+    border-radius: 3px;
+    object-fit: cover; /* 確保圖片填滿容器且不變形 */
 }
 
 
