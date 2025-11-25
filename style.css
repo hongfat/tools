@@ -2,6 +2,7 @@
 :root {
     --bg-color: #121212;
     --surface-color: #1e1e1e;
+    --title-text-color: #FFCC00;
     --primary-text-color: #e0e0e0;
     --secondary-text-color: #a0a0a0;
     /* --accent-color: #bc88fc; */
@@ -67,6 +68,7 @@ body {
 
 .hero h1 {
     font-size: 3rem;
+    color: var(--title-text-color);
     margin-bottom: 1rem;
 }
 
