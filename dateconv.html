@@ -114,19 +114,22 @@
             const endDate = document.getElementById('endDate').value;
 
             if (startDate && endDate) {
-                const start = new Date(startDate);
-                const end = new Date(endDate);
+                let start = new Date(startDate);
+                let end = new Date(endDate);
 
                 // 確保 start 是較早的日期
                 if (start > end) {
                     [start, end] = [end, start];
                 }
 
-                const timeDiff = end.getTime() - start.getTime();
+                const timeDiff = Math.abs(end.getTime() - start.getTime());
                 const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
                 let resultText = `兩個日期之間相差 ${dayDiff} 天。`;
                 
+                // 重新從 Date 物件取得年、月、日，確保使用的是交換後的正確日期
+                let endYear = end.getFullYear(), endMonth = end.getMonth(), endDate = end.getDate();
+                let startYear = start.getFullYear(), startMonth = start.getMonth(), startDate = start.getDate();
                 // 優化：提供更精確的 "X年X月X天" 的差異計算
                 if (dayDiff > 0) {
                     let years = end.getFullYear() - start.getFullYear();
@@ -136,8 +139,7 @@
                     if (days < 0) {
                         months--;
                         // 取得上一個月的總天數來補足天數
-                        const lastMonth = new Date(end.getFullYear(), end.getMonth(), 0);
-                        days += lastMonth.getDate();
+                        days += new Date(end.getFullYear(), end.getMonth(), 0).getDate();
                     }
 
                     if (months < 0) {
