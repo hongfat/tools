@@ -404,3 +404,352 @@ button {
     cursor: pointer;
     color: var(--primary-text-color); /* 使用變數 */
 }
+
+/* --- 網路連線與 DNS 測試工具 (nettest.html) 專用樣式 --- */
+
+/* 頁籤系統 */
+.tabs-container {
+    display: flex;
+    border-bottom: 1px solid var(--card-border-color);
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+}
+
+.tabs-container::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+}
+
+.tab-btn {
+    padding: 1rem 1.5rem;
+    background: transparent;
+    color: var(--secondary-text-color);
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+    white-space: nowrap;
+    border-radius: 0;
+}
+
+.tab-btn:hover {
+    color: var(--primary-text-color);
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.tab-btn.active {
+    color: var(--accent-color);
+    border-bottom: 2px solid var(--accent-color);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 連線狀態指示燈 */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-dot.online {
+    background-color: #2ec4b6;
+    box-shadow: 0 0 8px #2ec4b6;
+}
+
+.status-dot.offline {
+    background-color: #e71d36;
+    box-shadow: 0 0 8px #e71d36;
+}
+
+.status-dot.testing {
+    background-color: #ff9f1c;
+    box-shadow: 0 0 8px #ff9f1c;
+    animation: status-pulse 1s infinite alternate;
+}
+
+@keyframes status-pulse {
+    from { transform: scale(0.9); opacity: 0.6; }
+    to { transform: scale(1.1); opacity: 1; }
+}
+
+/* 連線測試控制區 */
+.test-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.test-controls .form-input {
+    flex: 1;
+    min-width: 250px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    color: var(--primary-text-color);
+}
+
+.checkbox-label input {
+    cursor: pointer;
+}
+
+/* 數據總覽儀表板 */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--card-border-color);
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.metric-card .metric-label {
+    font-size: 0.9rem;
+    color: var(--secondary-text-color);
+    margin-bottom: 0.5rem;
+}
+
+.metric-card .metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-text-color);
+    font-family: 'Courier New', Courier, monospace;
+}
+
+/* 即時 SVG 折線圖 */
+.chart-container {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border-color);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.chart-title {
+    font-size: 1rem;
+    color: var(--secondary-text-color);
+    margin-bottom: 1rem;
+}
+
+.chart-svg {
+    width: 100%;
+    height: 200px;
+    display: block;
+}
+
+.chart-grid-line {
+    stroke: rgba(255, 255, 255, 0.05);
+    stroke-width: 1;
+}
+
+.chart-axis-label {
+    fill: var(--secondary-text-color);
+    font-size: 10px;
+    font-family: sans-serif;
+}
+
+.chart-line {
+    fill: none;
+    stroke: var(--accent-color);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.chart-area {
+    fill: rgba(255, 204, 0, 0.1);
+}
+
+.chart-dot {
+    fill: var(--bg-color);
+    stroke: var(--accent-color);
+    stroke-width: 2;
+    cursor: pointer;
+    transition: r 0.2s;
+}
+
+.chart-dot:hover {
+    r: 6;
+}
+
+/* 常用網站批次檢測 */
+.batch-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.batch-table th, .batch-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--card-border-color);
+}
+
+.batch-table th {
+    color: var(--secondary-text-color);
+    font-weight: 500;
+}
+
+.batch-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.01);
+}
+
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.badge.success {
+    background-color: rgba(46, 196, 182, 0.15);
+    color: #2ec4b6;
+    border: 1px solid rgba(46, 196, 182, 0.3);
+}
+
+.badge.danger {
+    background-color: rgba(231, 29, 54, 0.15);
+    color: #e71d36;
+    border: 1px solid rgba(231, 29, 54, 0.3);
+}
+
+.badge.warning {
+    background-color: rgba(255, 159, 28, 0.15);
+    color: #ff9f1c;
+    border: 1px solid rgba(255, 159, 28, 0.3);
+}
+
+/* DNS 查詢區 */
+.dns-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.dns-form .form-input {
+    flex: 2;
+    min-width: 200px;
+}
+
+.dns-form select {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.5rem;
+    background-color: var(--bg-color);
+    border: 1px solid var(--card-border-color);
+    color: var(--primary-text-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.dns-results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.dns-results-table th, .dns-results-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--card-border-color);
+}
+
+.dns-results-table th {
+    color: var(--secondary-text-color);
+    font-weight: 500;
+}
+
+/* 本機網路資訊 */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.info-card {
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--card-border-color);
+    border-radius: 6px;
+    padding: 1.5rem;
+}
+
+.info-card h3 {
+    margin-top: 0;
+    color: var(--accent-color);
+    border-bottom: 1px solid var(--card-border-color);
+    padding-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: var(--secondary-text-color);
+}
+
+.info-value {
+    font-weight: 500;
+    text-align: right;
+    word-break: break-all;
+}
+
+.maps-link {
+    color: var(--accent-color);
+    text-decoration: underline;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
