@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>網路連線與 DNS 測試工具 - UNCLE FAT'S TOOL BOX</title>
     <link rel="stylesheet" href="style.css">
     <!-- Google tag (gtag.js) -->
-     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
-     <script>
-     window.dataLayer = window.dataLayer || [];
-     function gtag(){dataLayer.push(arguments);}
-     gtag('js', new Date());
-     
-     gtag('config', 'G-9HCQRB0034');
-     </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-9HCQRB0034');
+    </script>
 </head>
+
 <body>
     <div id="mySidebar" class="sidebar">
         <a href="index.html">首頁</a>
         <a href="unitconv.html">單位換算</a>
         <a href="dateconv.html">日期時間換算</a>
         <a href="currency.html">貨幣匯率換算</a>
-        <a href="passwordgen.html">密碼產生器</a>
         <a href="nettest.html">網路連線測試</a>
+        <a href="passwordgen.html">密碼產生器</a>
     </div>
 
     <nav class="navbar">
@@ -37,8 +39,10 @@
 
     <div id="main-content">
         <div class="container">
-            <h2><center>網路連線與 DNS 測試工具</center></h2>
-            
+            <h2>
+                <center>網路連線與 DNS 測試工具</center>
+            </h2>
+
             <div class="tabs-container">
                 <button class="tab-btn active" onclick="switchTab('ping-tab')">網站連線測試</button>
                 <button class="tab-btn" onclick="switchTab('batch-tab')">常用網站檢測</button>
@@ -49,7 +53,8 @@
             <!-- 1. 網站連線測試 (Ping) -->
             <div id="ping-tab" class="tab-content active">
                 <div class="test-controls">
-                    <input type="text" id="targetUrl" class="form-input" placeholder="請輸入網址或 IP（例如：www.google.com）" value="www.google.com">
+                    <input type="text" id="targetUrl" class="form-input" placeholder="請輸入網址或 IP（例如：www.google.com）"
+                        value="www.google.com">
                     <label class="checkbox-label">
                         <input type="checkbox" id="continuousPing" checked> 持續測試 (每 2 秒)
                     </label>
@@ -84,7 +89,8 @@
                 </div>
 
                 <h3>連線紀錄</h3>
-                <div style="max-height: 250px; overflow-y: auto; border: 1px solid var(--card-border-color); border-radius: 4px;">
+                <div
+                    style="max-height: 250px; overflow-y: auto; border: 1px solid var(--card-border-color); border-radius: 4px;">
                     <table class="batch-table" style="margin-top: 0;">
                         <thead>
                             <tr>
@@ -96,7 +102,8 @@
                         </thead>
                         <tbody id="pingLogBody">
                             <tr>
-                                <td colspan="4" style="text-align: center; color: var(--secondary-text-color);">尚無測試紀錄，請點擊「開始測試」</td>
+                                <td colspan="4" style="text-align: center; color: var(--secondary-text-color);">
+                                    尚無測試紀錄，請點擊「開始測試」</td>
                             </tr>
                         </tbody>
                     </table>
@@ -126,7 +133,8 @@
             <!-- 3. DNS 查詢 -->
             <div id="dns-tab" class="tab-content">
                 <div class="dns-form">
-                    <input type="text" id="dnsDomain" class="form-input" placeholder="請輸入網域（例如：google.com）" value="google.com">
+                    <input type="text" id="dnsDomain" class="form-input" placeholder="請輸入網域（例如：google.com）"
+                        value="google.com">
                     <select id="dnsType">
                         <option value="A">A (IPv4 地址)</option>
                         <option value="AAAA">AAAA (IPv6 地址)</option>
@@ -221,7 +229,7 @@
                     </div>
                 </div>
             </div>
-            
+
         </div>
     </div>
 
@@ -240,7 +248,7 @@
                 content.classList.remove('active');
             });
             document.getElementById(tabId).classList.add('active');
-            
+
             // 如果切換到 IP 資訊，且尚未載入，則進行載入
             if (tabId === 'ip-tab' && !ipLoaded) {
                 fetchIpInfo();
@@ -251,7 +259,7 @@
         let pingIntervalId = null;
         let isPinging = false;
         const pingHistory = []; // 儲存 { success: bool, latency: number, time: string }
-        
+
         function prepareUrl(inputUrl) {
             let url = inputUrl.trim();
             if (!url) return null;
@@ -315,7 +323,7 @@
             if (total > 0) {
                 const lossRate = Math.round(((total - successes) / total) * 100);
                 lossEl.textContent = `${lossRate}%`;
-                
+
                 const lastPing = pingHistory[total - 1];
                 if (lastPing.success) {
                     currentEl.textContent = `${lastPing.latency} ms`;
@@ -352,11 +360,11 @@
             for (let i = pingHistory.length - 1; i >= 0; i--) {
                 const record = pingHistory[i];
                 const index = i + 1;
-                const statusBadge = record.success 
-                    ? '<span class="badge success">成功</span>' 
+                const statusBadge = record.success
+                    ? '<span class="badge success">成功</span>'
                     : `<span class="badge danger">${record.error || '失敗'}</span>`;
                 const latencyText = record.success ? `${record.latency} ms` : '-';
-                
+
                 html += `
                     <tr>
                         <td>${index}</td>
@@ -427,8 +435,8 @@
             subset.forEach((p, idx) => {
                 const x = padding.left + idx * stepX;
                 // 若連線失敗，點降至底部
-                const y = p.success 
-                    ? padding.top + chartHeight - (p.latency / maxVal) * chartHeight 
+                const y = p.success
+                    ? padding.top + chartHeight - (p.latency / maxVal) * chartHeight
                     : padding.top + chartHeight;
                 points.push({ x, y, latency: p.latency, success: p.success, index: pingHistory.length - subset.length + idx + 1 });
             });
@@ -486,7 +494,7 @@
                     circle.setAttribute('cy', pt.y);
                     circle.setAttribute('r', '4');
                     circle.setAttribute('class', 'chart-dot');
-                    
+
                     if (!pt.success) {
                         circle.setAttribute('stroke', '#e71d36');
                         circle.setAttribute('fill', '#e71d36');
@@ -681,7 +689,7 @@
                     }
                 });
                 const data = await response.json();
-                
+
                 resultBody.innerHTML = '';
 
                 if (data.Status !== 0) {
@@ -729,10 +737,10 @@
             const userAgentInfoEl = document.getElementById('userAgentInfo');
 
             // 1. 本地資訊
-            browserOnlineEl.innerHTML = navigator.onLine 
-                ? '<span class="badge success">已連線</span>' 
+            browserOnlineEl.innerHTML = navigator.onLine
+                ? '<span class="badge success">已連線</span>'
                 : '<span class="badge danger">離線</span>';
-            
+
             const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
             connectionTypeEl.textContent = conn ? `${conn.effectiveType || '未知'} (${conn.type || '未指定'})` : '瀏覽器不支援';
             userAgentInfoEl.textContent = navigator.userAgent;
@@ -751,7 +759,7 @@
                 clientAsnEl.textContent = data.asn || '-';
                 clientCountryEl.textContent = `${data.country_name || ''} (${data.country || ''})`;
                 clientCityEl.textContent = `${data.region || ''} ${data.city || ''}`;
-                
+
                 if (data.latitude && data.longitude) {
                     const latLon = `${data.latitude}, ${data.longitude}`;
                     clientGeoEl.innerHTML = `${latLon} <a href="https://www.google.com/maps?q=${latLon}" target="_blank" rel="noopener" class="maps-link">Google 地圖 ↗</a>`;
@@ -762,7 +770,7 @@
                 ipLoaded = true;
             } catch (error) {
                 console.error('IP 資訊獲取錯誤:', error);
-                
+
                 // 降級方案：僅獲取 IP
                 try {
                     const fallbackRes = await fetch('https://api.ipify.org?format=json');
@@ -788,4 +796,5 @@
         });
     </script>
 </body>
+
 </html>

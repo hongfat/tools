@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>單位換算 - UNCLE FAT'S TOOL BOX</title>    
+    <title>單位換算 - UNCLE FAT'S TOOL BOX</title>
     <link rel="stylesheet" href="style.css">
     <!-- Google tag (gtag.js) -->
-     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
-     <script>
-     window.dataLayer = window.dataLayer || [];
-     function gtag(){dataLayer.push(arguments);}
-     gtag('js', new Date());
-     
-     gtag('config', 'G-9HCQRB0034');
-     </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-9HCQRB0034');
+    </script>
 </head>
+
 <body>
     <div id="mySidebar" class="sidebar">
         <a href="index.html">首頁</a>
         <a href="unitconv.html">單位換算</a>
         <a href="dateconv.html">日期時間換算</a>
         <a href="currency.html">貨幣匯率換算</a>
-        <a href="passwordgen.html">密碼產生器</a>
         <a href="nettest.html">網路連線測試</a>
+        <a href="passwordgen.html">密碼產生器</a>
     </div>
 
     <nav class="navbar">
@@ -37,60 +39,67 @@
 
     <div id="main-content">
 
-    <div class="container">
-        <h2><center>單位換算</center></h2>
+        <div class="container">
+            <h2>
+                <center>單位換算</center>
+            </h2>
 
-        <div class="calculator-section">
-            <h3 class="collapsible-header" data-target="length-conversion-content" aria-expanded="true" aria-controls="length-conversion-content">長度換算 (點擊折疊/展開)</h3>
-            <div id="length-conversion-content" class="collapsible-content expanded">
-            <div class="converter-controls">
-                <button id="resetLengthBtn" class="reset-btn">重設</button>
+            <div class="calculator-section">
+                <h3 class="collapsible-header" data-target="length-conversion-content" aria-expanded="true"
+                    aria-controls="length-conversion-content">長度換算 (點擊折疊/展開)</h3>
+                <div id="length-conversion-content" class="collapsible-content expanded">
+                    <div class="converter-controls">
+                        <button id="resetLengthBtn" class="reset-btn">重設</button>
+                    </div>
+                    <div id="length-converter-container" class="unit-converter-grid"></div>
+                </div>
             </div>
-            <div id="length-converter-container" class="unit-converter-grid"></div>
+
+            <div class="calculator-section">
+                <h3 class="collapsible-header" data-target="weight-conversion-content" aria-expanded="false"
+                    aria-controls="weight-conversion-content">重量換算 (點擊折疊/展開)</h3>
+                <div id="weight-conversion-content" class="collapsible-content expanded">
+                    <div class="converter-controls">
+                        <button id="resetWeightBtn" class="reset-btn">重設</button>
+                    </div>
+                    <div id="weight-converter-container" class="unit-converter-grid"></div>
+                </div>
             </div>
+
+            <div class="calculator-section">
+                <h3 class="collapsible-header" data-target="area-conversion-content" aria-expanded="false"
+                    aria-controls="area-conversion-content">面積換算 (點擊折疊/展開)</h3>
+                <div id="area-conversion-content" class="collapsible-content expanded">
+                    <div class="converter-controls">
+                        <button id="resetAreaBtn" class="reset-btn">重設</button>
+                    </div>
+                    <div id="area-converter-container" class="unit-converter-grid"></div>
+                </div>
+            </div>
+
+            <div class="calculator-section">
+                <h3 class="collapsible-header" data-target="volume-conversion-content" aria-expanded="false"
+                    aria-controls="volume-conversion-content">容量換算 (點擊折疊/展開)</h3>
+                <div id="volume-conversion-content" class="collapsible-content expanded">
+                    <div class="converter-controls">
+                        <button id="resetVolumeBtn" class="reset-btn">重設</button>
+                    </div>
+                    <div id="volume-converter-container" class="unit-converter-grid"></div>
+                </div>
+            </div>
+
+            <div class="calculator-section">
+                <h3 class="collapsible-header" data-target="temperature-conversion-content" aria-expanded="false"
+                    aria-controls="temperature-conversion-content">溫度換算 (點擊折疊/展開)</h3>
+                <div id="temperature-conversion-content" class="collapsible-content expanded">
+                    <div class="converter-controls">
+                        <button id="resetTemperatureBtn" class="reset-btn">重設</button>
+                    </div>
+                    <div id="temperature-converter-container" class="unit-converter-grid"></div>
+                </div>
+            </div>
+
         </div>
-
-        <div class="calculator-section">
-            <h3 class="collapsible-header" data-target="weight-conversion-content" aria-expanded="false" aria-controls="weight-conversion-content">重量換算 (點擊折疊/展開)</h3>
-            <div id="weight-conversion-content" class="collapsible-content expanded">
-            <div class="converter-controls">
-                <button id="resetWeightBtn" class="reset-btn">重設</button>
-            </div>
-            <div id="weight-converter-container" class="unit-converter-grid"></div>
-            </div>
-        </div>
-
-        <div class="calculator-section">
-            <h3 class="collapsible-header" data-target="area-conversion-content" aria-expanded="false" aria-controls="area-conversion-content">面積換算 (點擊折疊/展開)</h3>
-            <div id="area-conversion-content" class="collapsible-content expanded">
-            <div class="converter-controls">
-                <button id="resetAreaBtn" class="reset-btn">重設</button>
-            </div>
-            <div id="area-converter-container" class="unit-converter-grid"></div>
-            </div>
-        </div>
-
-        <div class="calculator-section">
-            <h3 class="collapsible-header" data-target="volume-conversion-content" aria-expanded="false" aria-controls="volume-conversion-content">容量換算 (點擊折疊/展開)</h3>
-            <div id="volume-conversion-content" class="collapsible-content expanded">
-            <div class="converter-controls">
-                <button id="resetVolumeBtn" class="reset-btn">重設</button>
-            </div>
-            <div id="volume-converter-container" class="unit-converter-grid"></div>
-            </div>
-        </div>
-
-        <div class="calculator-section">
-            <h3 class="collapsible-header" data-target="temperature-conversion-content" aria-expanded="false" aria-controls="temperature-conversion-content">溫度換算 (點擊折疊/展開)</h3>
-            <div id="temperature-conversion-content" class="collapsible-content expanded">
-            <div class="converter-controls">
-                <button id="resetTemperatureBtn" class="reset-btn">重設</button>
-            </div>
-            <div id="temperature-converter-container" class="unit-converter-grid"></div>
-            </div>
-        </div>
-
-    </div>
     </div>
 
     <script src="main.js"></script>
@@ -99,39 +108,39 @@
         const lengthUnits = {
             // 公制
             centimeter: { name: '公分 (cm)', toMeter: 0.01 },
-            meter:      { name: '公尺 (m)', toMeter: 1 },
-            kilometer:  { name: '公里 (km)', toMeter: 1000 },
+            meter: { name: '公尺 (m)', toMeter: 1 },
+            kilometer: { name: '公里 (km)', toMeter: 1000 },
             millimeter: { name: '公釐 (mm)', toMeter: 0.001 },
             micrometer: { name: '微米 (μm)', toMeter: 1e-6 },
-            nanometer:  { name: '奈米 (nm)', toMeter: 1e-9 },
+            nanometer: { name: '奈米 (nm)', toMeter: 1e-9 },
             // 英制
-            inch:       { name: '英吋 (in)', toMeter: 0.0254 },
-            foot:       { name: '英呎 (ft)', toMeter: 0.3048 },
-            yard:       { name: '碼 (yd)', toMeter: 0.9144 },
-            mile:       { name: '英哩 (mi)', toMeter: 1609.344 },
+            inch: { name: '英吋 (in)', toMeter: 0.0254 },
+            foot: { name: '英呎 (ft)', toMeter: 0.3048 },
+            yard: { name: '碼 (yd)', toMeter: 0.9144 },
+            mile: { name: '英哩 (mi)', toMeter: 1609.344 },
             // 其他
             nauticalMile: { name: '海浬 (nmi)', toMeter: 1852 },
-            taiwaneseFoot:{ name: '台尺', toMeter: 10/33 },
-            lightYear:    { name: '光年 (ly)', toMeter: 9460730472580800 },
+            taiwaneseFoot: { name: '台尺', toMeter: 10 / 33 },
+            lightYear: { name: '光年 (ly)', toMeter: 9460730472580800 },
         };
 
         // --- 重量換算 ---
         const weightUnits = {
             // 公制
-            milligram:  { name: '毫克 (mg)', toKilogram: 1e-6 },
-            gram:       { name: '克 (g)', toKilogram: 0.001 },
-            kilogram:   { name: '公斤 (kg)', toKilogram: 1 },
-            metricTon:  { name: '公噸 (t)', toKilogram: 1000 },
+            milligram: { name: '毫克 (mg)', toKilogram: 1e-6 },
+            gram: { name: '克 (g)', toKilogram: 0.001 },
+            kilogram: { name: '公斤 (kg)', toKilogram: 1 },
+            metricTon: { name: '公噸 (t)', toKilogram: 1000 },
             // 英制
-            ounce:      { name: '盎司 (oz)', toKilogram: 0.0283495 },
-            pound:      { name: '磅 (lb)', toKilogram: 0.453592 },
+            ounce: { name: '盎司 (oz)', toKilogram: 0.0283495 },
+            pound: { name: '磅 (lb)', toKilogram: 0.453592 },
             // 其他
             taiwaneseJin: { name: '台斤', toKilogram: 0.6 },
             taiwaneseTael: { name: '台兩', toKilogram: 0.0375 },
-            carat:      { name: '克拉 (ct)', toKilogram: 0.0002 },
-            goldMace:   { name: '黃金(錢)', toKilogram: 0.00375 },
-            goldTael:   { name: '黃金(兩)', toKilogram: 0.0375 },
-            goldOunce:  { name: '黃金(盎司)', toKilogram: 0.0311035 },
+            carat: { name: '克拉 (ct)', toKilogram: 0.0002 },
+            goldMace: { name: '黃金(錢)', toKilogram: 0.00375 },
+            goldTael: { name: '黃金(兩)', toKilogram: 0.0375 },
+            goldOunce: { name: '黃金(盎司)', toKilogram: 0.0311035 },
         };
 
         // --- 面積換算 ---
@@ -139,43 +148,43 @@
             // 公制
             squareMillimeter: { name: '平方公釐 (mm²)', toSquareMeter: 1e-6 },
             squareCentimeter: { name: '平方公分 (cm²)', toSquareMeter: 0.0001 },
-            squareMeter:      { name: '平方公尺 (m²)', toSquareMeter: 1 },
-            are:              { name: '公畝 (a)', toSquareMeter: 100 },
-            hectare:          { name: '公頃 (ha)', toSquareMeter: 10000 },
-            squareKilometer:  { name: '平方公里 (km²)', toSquareMeter: 1e6 },
+            squareMeter: { name: '平方公尺 (m²)', toSquareMeter: 1 },
+            are: { name: '公畝 (a)', toSquareMeter: 100 },
+            hectare: { name: '公頃 (ha)', toSquareMeter: 10000 },
+            squareKilometer: { name: '平方公里 (km²)', toSquareMeter: 1e6 },
             // 英制
-            squareInch:       { name: '平方英吋 (in²)', toSquareMeter: 0.00064516 },
-            squareFoot:       { name: '平方英呎 (ft²)', toSquareMeter: 0.092903 },
-            squareYard:       { name: '平方碼 (yd²)', toSquareMeter: 0.836127 },
-            acre:             { name: '英畝 (ac)', toSquareMeter: 4046.86 },
-            squareMile:       { name: '平方英哩 (mi²)', toSquareMeter: 2.58999e6 },
+            squareInch: { name: '平方英吋 (in²)', toSquareMeter: 0.00064516 },
+            squareFoot: { name: '平方英呎 (ft²)', toSquareMeter: 0.092903 },
+            squareYard: { name: '平方碼 (yd²)', toSquareMeter: 0.836127 },
+            acre: { name: '英畝 (ac)', toSquareMeter: 4046.86 },
+            squareMile: { name: '平方英哩 (mi²)', toSquareMeter: 2.58999e6 },
             // 其他
-            taiwaneseJia:     { name: '甲', toSquareMeter: 9699 },
-            taiwaneseFen:     { name: '分', toSquareMeter: 969.9 },
-            ping:             { name: '坪', toSquareMeter: 3.305785 },
-            tatami:           { name: '疊 (榻榻米)', toSquareMeter: 1.6562 },
+            taiwaneseJia: { name: '甲', toSquareMeter: 9699 },
+            taiwaneseFen: { name: '分', toSquareMeter: 969.9 },
+            ping: { name: '坪', toSquareMeter: 3.305785 },
+            tatami: { name: '疊 (榻榻米)', toSquareMeter: 1.6562 },
         };
 
         // --- 容量換算 ---
         const volumeUnits = {
             // 公制
             milliliter: { name: '毫升 (ml)', toLiter: 0.001 },
-            liter:      { name: '公升 (L)', toLiter: 1 },
+            liter: { name: '公升 (L)', toLiter: 1 },
             cubicMeter: { name: '立方公尺 (m³)', toLiter: 1000 },
             // 英制/美制
             usFluidOunce: { name: '美制液盎司 (fl oz)', toLiter: 0.0295735 },
-            impFluidOunce:{ name: '英制液盎司 (fl oz)', toLiter: 0.0284131 },
-            usPint:       { name: '美制品脫 (pt)', toLiter: 0.473176 },
-            usQuart:      { name: '美制夸脫 (qt)', toLiter: 0.946353 },
-            usGallon:     { name: '美制加侖 (gal)', toLiter: 3.78541 },
-            impGallon:    { name: '英制加侖 (gal)', toLiter: 4.54609 },
+            impFluidOunce: { name: '英制液盎司 (fl oz)', toLiter: 0.0284131 },
+            usPint: { name: '美制品脫 (pt)', toLiter: 0.473176 },
+            usQuart: { name: '美制夸脫 (qt)', toLiter: 0.946353 },
+            usGallon: { name: '美制加侖 (gal)', toLiter: 3.78541 },
+            impGallon: { name: '英制加侖 (gal)', toLiter: 4.54609 },
         };
 
         // --- 溫度換算 ---
         const temperatureUnits = {
-            celsius:    { name: '攝氏度 (°C)', isLinear: false },
+            celsius: { name: '攝氏度 (°C)', isLinear: false },
             fahrenheit: { name: '華氏度 (°F)', isLinear: false },
-            kelvin:     { name: '克耳文 (K)', isLinear: false },
+            kelvin: { name: '克耳文 (K)', isLinear: false },
         };
 
         // 初始化各單位轉換器
@@ -192,21 +201,21 @@
             for (const unit in units) {
                 const group = document.createElement('div');
                 group.className = 'unit-input-group';
-                
+
                 const label = document.createElement('label');
                 label.htmlFor = `${type}-input-${unit}`;
                 label.textContent = units[unit].name;
-                
+
                 const input = document.createElement('input');
                 input.type = 'number';
                 input.id = `${type}-input-${unit}`;
                 input.dataset.unit = unit;
                 input.className = 'form-input';
-                
+
                 group.appendChild(label);
                 group.appendChild(input);
                 container.appendChild(group);
-                
+
                 input.addEventListener('input', (e) => conversionHandler(e, units, type));
             }
 
@@ -311,7 +320,7 @@
             for (const unit in units) {
                 if (unit === sourceUnit) continue;
                 const targetInput = document.getElementById(`${type}-input-${unit}`);
-                
+
                 let convertedValue;
                 if (unit === 'celsius') {
                     convertedValue = celsius;
@@ -320,7 +329,7 @@
                 } else if (unit === 'kelvin') {
                     convertedValue = celsius + 273.15;
                 }
-                
+
                 targetInput.value = parseFloat(convertedValue.toPrecision(10));
             }
         }
@@ -365,4 +374,5 @@
         }
     </script>
 </body>
+
 </html>

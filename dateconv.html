@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日期換算 - UNCLE FAT'S TOOL BOX</title>    
+    <title>日期換算 - UNCLE FAT'S TOOL BOX</title>
     <link rel="stylesheet" href="style.css">
     <!-- Google tag (gtag.js) -->
-     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
-     <script>
-     window.dataLayer = window.dataLayer || [];
-     function gtag(){dataLayer.push(arguments);}
-     gtag('js', new Date());
-     
-     gtag('config', 'G-9HCQRB0034');
-     </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-9HCQRB0034');
+    </script>
 </head>
+
 <body>
     <div id="mySidebar" class="sidebar">
         <a href="index.html">首頁</a>
         <a href="unitconv.html">單位換算</a>
         <a href="dateconv.html">日期時間換算</a>
         <a href="currency.html">貨幣匯率換算</a>
-        <a href="passwordgen.html">密碼產生器</a>
         <a href="nettest.html">網路連線測試</a>
+        <a href="passwordgen.html">密碼產生器</a>
     </div>
 
     <nav class="navbar">
@@ -34,79 +36,81 @@
             <div id="datetime-display" class="nav-links"></div>
         </div>
     </nav>
-    
+
     <div id="main-content">
 
-    <div class="container">
-        <h2><center>日期時間換算</center></h2>
+        <div class="container">
+            <h2>
+                <center>日期時間換算</center>
+            </h2>
 
-        <h3>西元轉農曆</h3>
-        <div class="form-group">
-            <label for="lunarQueryDate">選擇西元日期</label>
-            <input type="date" id="lunarQueryDate" class="form-input">
-            <p id="lunarQueryResult" style="margin-top: 10px;"></p><br>
+            <h3>西元轉農曆</h3>
+            <div class="form-group">
+                <label for="lunarQueryDate">選擇西元日期</label>
+                <input type="date" id="lunarQueryDate" class="form-input">
+                <p id="lunarQueryResult" style="margin-top: 10px;"></p><br>
+            </div>
+
+
+            <div class="calculator-section">
+                <h3>日期天數計算</h3>
+                <div class="form-group">
+                    <label for="startDate">開始日期</label>
+                    <input type="date" id="startDate" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">結束日期</label>
+                    <input type="date" id="endDate" class="form-input">
+                </div>
+                <button id="calculateBtn">計算</button>
+                <p id="result"></p><br>
+            </div>
+
+            <div class="calculator-section">
+                <h3>日期加減計算</h3>
+                <div class="form-group">
+                    <label for="baseDate">基準日期</label>
+                    <input type="date" id="baseDate" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="daysToAddOrSubtract">增減天數</label>
+                    <input type="number" id="daysToAddOrSubtract" value="1" min="0" class="form-input">
+                </div>
+                <button id="addDaysBtn">加 N 天</button>
+                <button id="subtractDaysBtn">減 N 天</button>
+                <p id="dateCalcResult"></p>
+            </div>
+
+            <div class="calculator-section">
+                <h3>Timestamp轉換 (UNIX / ISO 8601)</h3>
+                <div class="form-group">
+                    <label for="humanReadableTime">標準時間</label>
+                    <input type="datetime-local" id="humanReadableTime" step="1" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="unixTimestamp">UNIX 時間 (秒)</label>
+                    <input type="number" id="unixTimestamp" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="unixTimestampMs">UNIX 時間 (毫秒)</label>
+                    <input type="number" id="unixTimestampMs" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="iso8601Timestamp">ISO 8601 (UTC)</label>
+                    <input type="text" id="iso8601Timestamp" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="iso8601LocalTimestamp">ISO 8601 (本地時區)</label>
+                    <input type="text" id="iso8601LocalTimestamp" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="iso8601BasicTimestamp">ISO 8601 基本格式</label>
+                    <input type="text" id="iso8601BasicTimestamp" class="form-input">
+                </div>
+                <button id="resetTimestampBtn">重設為現在時間</button>
+            </div>
+
         </div>
-
-
-        <div class="calculator-section">
-            <h3>日期天數計算</h3>
-            <div class="form-group">
-                <label for="startDate">開始日期</label>
-                <input type="date" id="startDate" class="form-input">
-            </div>
-            <div class="form-group">
-                <label for="endDate">結束日期</label>
-                <input type="date" id="endDate" class="form-input">
-            </div>
-            <button id="calculateBtn">計算</button>
-            <p id="result"></p><br>
-        </div>
-
-        <div class="calculator-section">
-            <h3>日期加減計算</h3>
-            <div class="form-group">
-                <label for="baseDate">基準日期</label>
-                <input type="date" id="baseDate" class="form-input">
-            </div>
-            <div class="form-group">
-                <label for="daysToAddOrSubtract">增減天數</label>
-                <input type="number" id="daysToAddOrSubtract" value="1" min="0" class="form-input">
-            </div>
-            <button id="addDaysBtn">加 N 天</button>
-            <button id="subtractDaysBtn">減 N 天</button>
-            <p id="dateCalcResult"></p>
-        </div>
-
-        <div class="calculator-section">
-            <h3>Timestamp轉換 (UNIX / ISO 8601)</h3>
-            <div class="form-group">
-                <label for="humanReadableTime">標準時間</label>
-                <input type="datetime-local" id="humanReadableTime" step="1" class="form-input">
-            </div>
-            <div class="form-group">
-                <label for="unixTimestamp">UNIX 時間 (秒)</label>
-                <input type="number" id="unixTimestamp" class="form-input">
-            </div>
-            <div class="form-group">
-                <label for="unixTimestampMs">UNIX 時間 (毫秒)</label>
-                <input type="number" id="unixTimestampMs" class="form-input">
-            </div>
-            <div class="form-group">
-                <label for="iso8601Timestamp">ISO 8601 (UTC)</label>
-                <input type="text" id="iso8601Timestamp" class="form-input">
-            </div>
-            <div class="form-group">
-                <label for="iso8601LocalTimestamp">ISO 8601 (本地時區)</label>
-                <input type="text" id="iso8601LocalTimestamp" class="form-input">
-            </div>
-            <div class="form-group">
-                <label for="iso8601BasicTimestamp">ISO 8601 基本格式</label>
-                <input type="text" id="iso8601BasicTimestamp" class="form-input">
-            </div>
-            <button id="resetTimestampBtn">重設為現在時間</button>
-        </div>
-
-    </div>
     </div>
 
     <script src="main.js"></script>
@@ -136,7 +140,7 @@
                 const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
                 let resultText = `兩個日期之間相差 ${dayDiff} 天。`;
-                
+
                 // 優化：提供更精確的 "X年X月X天" 的差異計算
                 if (dayDiff > 0) {
                     let years = end.getFullYear() - start.getFullYear();
@@ -153,9 +157,9 @@
                         years--;
                         months += 12;
                     }
-                    
+
                     if (years > 0 || months > 0) {
-                         resultText += `<br>詳細計算：${years} 年 ${months} 個月又 ${days} 天。`;
+                        resultText += `<br>詳細計算：${years} 年 ${months} 個月又 ${days} 天。`;
                     }
                 }
 
@@ -198,10 +202,10 @@
             const newDateStr = `${yyyy}年${mm}月${dd}日 (週${dayOfWeek})`;
 
             const lunarDateFullStr = getLunarString(baseDate);
-            
+
             dateCalcResultEl.innerHTML = `結果：<br>西元 ${newDateStr}<br>${lunarDateFullStr}`;
         }
-        
+
         // --- 農曆換算 (使用 traditional-chinese-calendar-database) ---
         const lunarQueryDateEl = document.getElementById('lunarQueryDate');
         const lunarQueryResultEl = document.getElementById('lunarQueryResult');
@@ -277,8 +281,8 @@
             const pad = (num) => String(Math.floor(Math.abs(num))).padStart(2, '0');
 
             return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
-                   `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}` +
-                   `${diff}${pad(tzOffset / 60)}:${pad(tzOffset % 60)}`;
+                `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}` +
+                `${diff}${pad(tzOffset / 60)}:${pad(tzOffset % 60)}`;
         }
 
         function updateAllTimestamps(source, date) {
@@ -366,9 +370,9 @@
         database.load('./lunar/database/all.bin').then(() => {
             // 先檢查 database 的可用方法
             console.log('Database methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(database)));
-            
+
             const now = new Date();
-            
+
             const todayString = getTodayString();
             // 1. 設定查詢欄位的預設值為今天，並顯示結果
             lunarQueryDateEl.value = todayString;
@@ -401,4 +405,5 @@
 
     </script>
 </body>
+
 </html>

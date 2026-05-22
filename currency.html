@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>即時匯率換算 - UNCLE FAT'S TOOL BOX</title>    
+    <title>即時匯率換算 - UNCLE FAT'S TOOL BOX</title>
     <link rel="stylesheet" href="style.css">
     <!-- Google tag (gtag.js) -->
-     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
-     <script>
-     window.dataLayer = window.dataLayer || [];
-     function gtag(){dataLayer.push(arguments);}
-     gtag('js', new Date());
-     
-     gtag('config', 'G-9HCQRB0034');
-     </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-9HCQRB0034');
+    </script>
 </head>
+
 <body>
     <div id="mySidebar" class="sidebar">
         <a href="index.html">首頁</a>
         <a href="unitconv.html">單位換算</a>
         <a href="dateconv.html">日期時間換算</a>
         <a href="currency.html">貨幣匯率換算</a>
-        <a href="passwordgen.html">密碼產生器</a>
         <a href="nettest.html">網路連線測試</a>
+        <a href="passwordgen.html">密碼產生器</a>
     </div>
 
     <nav class="navbar">
@@ -36,7 +38,9 @@
     </nav>
 
     <div class="container">
-        <h2><center>貨幣匯率換算</center></h2>
+        <h2>
+            <center>貨幣匯率換算</center>
+        </h2>
 
         <div class="calculator-section">
             <div class="converter-controls">
@@ -45,7 +49,8 @@
             <div id="rateTableContainer" class="unit-converter-grid"></div>
             <div class="info-footer">
                 <p id="lastUpdated" class="last-updated-info"></p>
-                <p class="disclaimer-info">匯率資料來源為 <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">ExchangeRate-API</a>。本換算結果僅供參考，實際交易匯率以銀行公告為準。</p>
+                <p class="disclaimer-info">匯率資料來源為 <a href="https://www.exchangerate-api.com" target="_blank"
+                        rel="noopener">ExchangeRate-API</a>。本換算結果僅供參考，實際交易匯率以銀行公告為準。</p>
             </div>
         </div>
     </div>
@@ -138,7 +143,7 @@
 
                 const label = document.createElement('label');
                 label.htmlFor = `rate-input-${currency}`;
-                
+
                 // 根據貨幣代碼取得對應的國家/地區代碼
                 const countryCode = (currency === 'EUR' ? 'eu' : currency.substring(0, 2)).toLowerCase();
                 const flagImgSrc = `https://flagcdn.com/${countryCode}.svg`;
@@ -184,4 +189,5 @@
 
     </script>
 </body>
+
 </html>
