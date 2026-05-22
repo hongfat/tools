@@ -353,6 +353,12 @@ button {
         margin-top: 1rem;
     }
 
+    .container {
+        padding: 1rem;
+        margin: 1rem auto;
+        border-radius: 6px;
+    }
+
     .currency-converter-controls {
         flex-direction: column;
         align-items: stretch; /* 在小螢幕上垂直排列並拉伸 */
@@ -360,6 +366,40 @@ button {
 
     .swap-rate-container {
         flex-direction: row-reverse; /* 交換按鈕和匯率顯示的位置 */
+    }
+}
+
+@media (max-width: 600px) {
+    /* 表格響應式優化：改為可水平滑動的區塊，防止文字擠壓換行 */
+    .batch-table, .dns-results-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .batch-table th, .batch-table td,
+    .dns-results-table th, .dns-results-table td {
+        white-space: nowrap; /* 確保內容在一行內完整顯示 */
+        padding: 0.5rem 0.75rem; /* 稍微縮小內距 */
+        font-size: 0.85rem; /* 稍微縮小字型 */
+    }
+
+    /* 連線測試控制區與 DNS 表單改為滿寬垂直排列，便於手機觸控點擊 */
+    .test-controls, .dns-form {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .test-controls .form-input, .test-controls button,
+    .dns-form .form-input, .dns-form select, .dns-form button {
+        width: 100%;
+        flex: none;
+    }
+
+    .checkbox-label {
+        justify-content: center; /* 行動端將持續測試選項置中 */
     }
 }
 
@@ -634,6 +674,7 @@ button {
     border-radius: 4px;
     font-size: 0.8rem;
     font-weight: bold;
+    white-space: nowrap; /* 確保狀態徽章在手機上不折行 */
 }
 
 .badge.success {
