@@ -662,17 +662,17 @@
             }
 
             try {
-                // 使用 freeipapi.com 作為 IP 地理位置查詢服務（支援 CORS，每小時限制 600 次請求，免註冊且支援 HTTPS）
-                const response = await fetch(`https://freeipapi.com/api/json/${ip}`);
+                // 使用 api.ip.sb 作為 IP 地理位置查詢服務（完全支援 CORS 與 Origin: null，免註冊且支援 HTTPS）
+                const response = await fetch(`https://api.ip.sb/geoip/${ip}`);
                 const data = await response.json();
                 if (data) {
-                    const country = data.countryName || '';
-                    const city = data.cityName || '';
-                    const isp = data.asnOrganization || '';
+                    const country = data.country || '';
+                    const city = data.city || '';
+                    const isp = data.isp || '';
                     let locationParts = [];
                     if (country) locationParts.push(country);
-                    if (city && city !== '-') locationParts.push(city);
-                    if (isp && isp !== '-') locationParts.push(isp);
+                    if (city) locationParts.push(city);
+                    if (isp) locationParts.push(isp);
                     const locationResult = locationParts.join(' - ') || '無位置資訊';
 
                     // 寫入快取
@@ -800,19 +800,19 @@
             userAgentInfoEl.textContent = navigator.userAgent;
 
             try {
-                // 使用 freeipapi.com (支援 HTTPS，支援 CORS，免註冊)
-                const response = await fetch('https://freeipapi.com/api/json');
+                // 使用 api.ip.sb (支援 HTTPS 與 CORS，免註冊，穩定度高)
+                const response = await fetch('https://api.ip.sb/geoip');
                 const data = await response.json();
 
                 if (!data) {
                     throw new Error('IP 資訊查詢失敗');
                 }
 
-                clientIpEl.textContent = data.ipAddress || '-';
-                clientIspEl.textContent = data.asnOrganization || '-';
+                clientIpEl.textContent = data.ip || '-';
+                clientIspEl.textContent = data.isp || '-';
                 clientAsnEl.textContent = data.asn || '-';
-                clientCountryEl.textContent = `${data.countryName || ''} (${data.countryCode || ''})`;
-                clientCityEl.textContent = `${data.regionName || ''} ${data.cityName || ''}`;
+                clientCountryEl.textContent = `${data.country || ''} (${data.country_code || ''})`;
+                clientCityEl.textContent = `${data.region || ''} ${data.city || ''}`;
 
                 if (data.latitude && data.longitude) {
                     const latLon = `${data.latitude}, ${data.longitude}`;
