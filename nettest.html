@@ -640,15 +640,32 @@
 
         async function queryDns() {
             const domainInput = document.getElementById('dnsDomain');
-            const domain = domainInput.value.trim();
+            let domain = domainInput.value.trim();
+
+            if (!domain) return;
+
+            // 自動過濾輸入內容以擷取純網網域
+            if (/^https?:\/\//i.test(domain)) {
+                try {
+                    const urlObj = new URL(domain);
+                    domain = urlObj.hostname;
+                } catch (e) {
+                    domain = domain.replace(/^https?:\/\//i, '').split('/')[0];
+                }
+            } else {
+                domain = domain.split('/')[0];
+            }
+            domain = domain.split(':')[0]; // 移除可能包含的埠號 (port)
+
+            // 將清理後的純網域回填至輸入框，告知使用者實際查詢的網域
+            domainInput.value = domain;
+
             const typeSelect = document.getElementById('dnsType');
             const type = typeSelect.value;
             const queryBtn = document.getElementById('queryDnsBtn');
             const loader = document.getElementById('dnsLoader');
             const resultSection = document.getElementById('dnsResultSection');
             const resultBody = document.getElementById('dnsResultBody');
-
-            if (!domain) return;
 
             // 顯示載入中
             queryBtn.disabled = true;
