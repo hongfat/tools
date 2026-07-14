@@ -96,11 +96,20 @@ body {
     padding: 1.5rem;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .tool-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.tool-card p {
+    flex: 1;
+    margin-bottom: 1.5rem;
 }
 
 .tool-card h3 {
@@ -110,13 +119,14 @@ body {
 
 .card-link {
     display: inline-block;
-    margin-top: 1rem;
+    margin-top: auto;
     padding: 0.5rem 1rem;
     background-color: var(--accent-color);
     color: var(--bg-color);
     text-decoration: none;
     border-radius: 4px;
     font-weight: bold;
+    align-self: center;
 }
 
 /* --- 日期計算器 (date-calculator.html) 專用樣式 --- */
@@ -794,3 +804,379 @@ button {
     align-items: center;
     gap: 0.25rem;
 }
+
+/* --- 世界時間 (worldtime.html) 專用樣式 --- */
+.worldtime-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--card-border-color);
+}
+
+.worldtime-header-section h2 {
+    margin: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.timezone-add-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.timezone-add-controls select {
+    padding: 0.5rem;
+    background-color: var(--bg-color);
+    border: 1px solid var(--card-border-color);
+    color: var(--primary-text-color);
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 180px;
+}
+
+.timezone-add-controls button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* 時間控制看板 */
+.time-dashboard-banner {
+    background: linear-gradient(135deg, rgba(255, 204, 0, 0.1) 0%, rgba(255, 204, 0, 0.02) 100%);
+    border: 1px solid rgba(255, 204, 0, 0.3);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.dashboard-main-info {
+    flex: 1;
+    text-align: center;
+    border-right: 1px solid rgba(255, 204, 0, 0.2);
+    padding-right: 2rem;
+}
+
+.dashboard-controls {
+    flex: 1.5;
+}
+
+.controls-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.time-dashboard-banner .label {
+    font-size: 0.9rem;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.time-dashboard-banner .time {
+    font-size: 2.5rem;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+}
+
+.time-dashboard-banner .date {
+    font-size: 1.1rem;
+    color: var(--secondary-text-color);
+}
+
+/* 時區時鐘網格與卡片 */
+.worldtime-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.clock-card {
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--card-border-color);
+    border-radius: 6px;
+    padding: 1rem;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.clock-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 204, 0, 0.4);
+}
+
+.clock-card.local-highlight {
+    border-color: var(--accent-color);
+    background: linear-gradient(to bottom, rgba(255, 204, 0, 0.03), rgba(255, 204, 0, 0));
+}
+
+.clock-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.clock-card .city-info {
+    display: flex;
+    flex-direction: column;
+    max-width: 85%;
+}
+
+.clock-card .city-name {
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.timezone-flag {
+    width: 20px;
+    height: 14px;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.clock-card .region-name {
+    font-size: 0.75rem;
+    color: var(--secondary-text-color);
+    margin-top: 0.15rem;
+}
+
+.clock-card .remove-btn {
+    background: none;
+    border: none;
+    color: var(--secondary-text-color);
+    font-size: 1.2rem;
+    padding: 0;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+    font-weight: normal;
+}
+
+.clock-card .remove-btn:hover {
+    color: #ff4d4d;
+    background: none;
+}
+
+.clock-card .time-display {
+    font-size: 1.65rem;
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace;
+    color: var(--accent-color);
+    margin-bottom: 0.25rem;
+}
+
+.clock-card .date-display {
+    font-size: 0.85rem;
+    color: var(--primary-text-color);
+    margin-bottom: 0.15rem;
+}
+
+.clock-card .relative-info {
+    font-size: 0.8rem;
+    color: var(--secondary-text-color);
+}
+
+.clock-card .relative-info span {
+    display: inline-block;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.05);
+    margin-right: 0.25rem;
+}
+
+.clock-card .relative-info .time-diff.fast {
+    color: #2ec4b6;
+    background-color: rgba(46, 196, 182, 0.1);
+}
+
+.clock-card .relative-info .time-diff.slow {
+    color: #e71d36;
+    background-color: rgba(231, 29, 54, 0.1);
+}
+
+/* 跨時區對照區背景 */
+.dashboard-controls .slider-controls-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.slider-controls-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.slider-controls-group .control-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.slider-controls-group label {
+    font-size: 0.85rem;
+    margin-bottom: 0;
+}
+
+.slider-controls-group select, .slider-controls-group input[type="date"] {
+    padding: 0.5rem;
+    background-color: var(--bg-color);
+    border: 1px solid var(--card-border-color);
+    color: var(--primary-text-color);
+    border-radius: 4px;
+}
+
+.slider-container {
+    padding: 1rem 0;
+}
+
+.slider-time-label-container {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--secondary-text-color);
+    margin-top: 0.5rem;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.range-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--card-border-color);
+    outline: none;
+    margin: 1rem 0;
+}
+
+.range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.range-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent-color);
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s;
+}
+
+.range-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+}
+
+.current-slider-val {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--accent-color);
+    text-align: center;
+    margin-top: 0.5rem;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+/* 窄螢幕雙欄自適應與響應式優化 */
+@media (max-width: 600px) {
+    .container {
+        padding: 1rem;
+        margin: 1rem auto;
+    }
+
+    .time-dashboard-banner {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+        padding: 1.25rem;
+    }
+
+    .dashboard-main-info {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 204, 0, 0.2);
+        padding-right: 0;
+        padding-bottom: 1.25rem;
+    }
+
+    .worldtime-header-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .worldtime-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .clock-card {
+        padding: 0.75rem;
+    }
+    
+    .clock-card .city-name {
+        font-size: 0.95rem;
+        gap: 0.25rem;
+    }
+    
+    .timezone-flag {
+        width: 16px;
+        height: 11px;
+    }
+    
+    .clock-card .region-name {
+        font-size: 0.7rem;
+    }
+    
+    .clock-card .time-display {
+        font-size: 1.35rem;
+    }
+    
+    .clock-card .date-display {
+        font-size: 0.75rem;
+    }
+    
+    .clock-card .relative-info {
+        font-size: 0.7rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+    
+    .clock-card .relative-info span {
+        margin-right: 0;
+        display: inline-block;
+        text-align: center;
+    }
+}

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>世界時間 - SCITL TOOL BOX</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-9HCQRB0034');
+    </script>
+</head>
+
+<body>
+    <div id="mySidebar" class="sidebar">
+        <a href="index.html">首頁</a>
+        <a href="unitconv.html">單位換算</a>
+        <a href="dateconv.html">日期時間換算</a>
+        <a href="worldtime.html">世界時間</a>
+        <a href="currency.html">貨幣匯率換算</a>
+        <a href="nettest.html">網路連線測試</a>
+        <a href="passwordgen.html">密碼產生器</a>
+    </div>
+
+    <nav class="navbar">
+        <div class="navbar-left">
+            <span class="openbtn" onclick="toggleNav(event)">&#9776;</span>
+        </div>
+        <div class="navbar-right">
+            <a href="index.html" class="navbar-brand">SCITL TOOL BOX</a>
+            <div id="datetime-display" class="nav-links"></div>
+        </div>
+    </nav>
+
+    <div id="main-content">
+        <div class="container" style="margin-top: 0; max-width: 1000px;">
+            <div class="worldtime-header-section">
+                <h2>世界時間與時區轉換</h2>
+                <div class="timezone-add-controls">
+                    <select id="timezoneSelect">
+                        <option value="">-- 選擇並新增城市 --</option>
+                    </select>
+                    <button id="addTimezoneBtn">新增城市</button>
+                </div>
+            </div>
+
+            <!-- 時間控制看板 -->
+            <div class="time-dashboard-banner">
+                <div class="dashboard-main-info">
+                    <div class="label" id="localTimeLabel">本機目前時間</div>
+                    <div class="time" id="localTimeDisplay">0000-00-00 00:00:00</div>
+                    <div class="date" id="localDateDisplay">載入中...</div>
+                </div>
+
+                <div class="dashboard-controls">
+                    <div class="controls-header">
+                        <span style="font-weight: bold; color: var(--accent-color);">跨時區自訂時間對照</span>
+                        <button id="resetLiveBtn" style="display: none; padding: 0.3rem 0.8rem; font-size: 0.8rem;">
+                            返回實時時鐘
+                        </button>
+                    </div>
+
+                    <div class="slider-controls-group" style="margin-bottom: 1rem; gap: 0.75rem;">
+                        <div class="control-item">
+                            <label for="baseTzSelect">基準城市</label>
+                            <select id="baseTzSelect"></select>
+                        </div>
+                        <div class="control-item">
+                            <label for="baseDateSelect">基準日期</label>
+                            <input type="date" id="baseDateSelect">
+                        </div>
+                    </div>
+
+                    <div class="slider-container">
+                        <input type="range" id="timeSlider" class="range-slider" min="0" max="95" value="0"
+                            style="margin: 0.5rem 0;">
+                        <div class="slider-time-label-container">
+                            <span>00:00</span>
+                            <span>04:00</span>
+                            <span>08:00</span>
+                            <span>12:00</span>
+                            <span>16:00</span>
+                            <span>20:00</span>
+                            <span>24:00</span>
+                        </div>
+                        <div class="current-slider-val" id="sliderValDisplay">00:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 世界時間網格 -->
+            <div class="worldtime-grid" id="clockGrid">
+                <!-- 這裡會動態產生時區卡片 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        // 可選時區與城市對照表（依時區 UTC 偏移量由東向西排序）
+        const allTimezones = [
+            { name: "奧克蘭 (Auckland)", cityName: "奧克蘭", timezone: "Pacific/Auckland", code: "nz" },
+            { name: "雪梨 (Sydney)", cityName: "雪梨", timezone: "Australia/Sydney", code: "au" },
+            { name: "東京 (Tokyo)", cityName: "東京", timezone: "Asia/Tokyo", code: "jp" },
+            { name: "首爾 (Seoul)", cityName: "首爾", timezone: "Asia/Seoul", code: "kr" },
+            { name: "台北 (Taipei)", cityName: "台北", timezone: "Asia/Taipei", code: "tw" },
+            { name: "北京 (Beijing)", cityName: "北京", timezone: "Asia/Shanghai", code: "cn" },
+            { name: "新加坡 (Singapore)", cityName: "新加坡", timezone: "Asia/Singapore", code: "sg" },
+            { name: "曼谷 (Bangkok)", cityName: "曼谷", timezone: "Asia/Bangkok", code: "th" },
+            { name: "新德里 (New Delhi)", cityName: "新德里", timezone: "Asia/Kolkata", code: "in" },
+            { name: "杜拜 (Dubai)", cityName: "杜拜", timezone: "Asia/Dubai", code: "ae" },
+            { name: "莫斯科 (Moscow)", cityName: "莫斯科", timezone: "Europe/Moscow", code: "ru" },
+            { name: "伊斯坦堡 (Istanbul)", cityName: "伊斯坦堡", timezone: "Europe/Istanbul", code: "tr" },
+            { name: "奈洛比 (Nairobi)", cityName: "奈洛比", timezone: "Africa/Nairobi", code: "ke" },
+            { name: "耶路撒冷 (Jerusalem)", cityName: "耶路撒冷", timezone: "Asia/Jerusalem", code: "il" },
+            { name: "基輔 (Kyiv)", cityName: "基輔", timezone: "Europe/Kyiv", code: "ua" },
+            { name: "雅典 (Athens)", cityName: "雅典", timezone: "Europe/Athens", code: "gr" },
+            { name: "開羅 (Cairo)", cityName: "開羅", timezone: "Africa/Cairo", code: "eg" },
+            { name: "約翰尼斯堡 (Johannesburg)", cityName: "約翰尼斯堡", timezone: "Africa/Johannesburg", code: "za" },
+            { name: "斯德哥爾摩 (Stockholm)", cityName: "斯德哥爾摩", timezone: "Europe/Stockholm", code: "se" },
+            { name: "羅馬 (Rome)", cityName: "羅馬", timezone: "Europe/Rome", code: "it" },
+            { name: "柏林 (Berlin)", cityName: "柏林", timezone: "Europe/Berlin", code: "de" },
+            { name: "巴黎 (Paris)", cityName: "巴黎", timezone: "Europe/Paris", code: "fr" },
+            { name: "馬德里 (Madrid)", cityName: "馬德里", timezone: "Europe/Madrid", code: "es" },
+            { name: "阿爾及爾 (Algiers)", cityName: "阿爾及爾", timezone: "Africa/Algiers", code: "dz" },
+            { name: "拉哥斯 (Lagos)", cityName: "拉哥斯", timezone: "Africa/Lagos", code: "ng" },
+            { name: "里斯本 (Lisbon)", cityName: "里斯本", timezone: "Europe/Lisbon", code: "pt" },
+            { name: "倫敦 (London)", cityName: "倫敦", timezone: "Europe/London", code: "gb" },
+            { name: "雷克雅維克 (Reykjavik)", cityName: "雷克雅維克", timezone: "Atlantic/Reykjavik", code: "is" },
+            { name: "聖保羅 (São Paulo)", cityName: "聖保羅", timezone: "America/Sao_Paulo", code: "br" },
+            { name: "布宜諾斯艾利斯 (Buenos Aires)", cityName: "布宜諾斯艾利斯", timezone: "America/Argentina/Buenos_Aires", code: "ar" },
+            { name: "聖地牙哥 (Santiago)", cityName: "聖地牙哥", timezone: "America/Santiago", code: "cl" },
+            { name: "多倫多 (Toronto)", cityName: "多倫多", timezone: "America/Toronto", code: "ca" },
+            { name: "紐約 (New York)", cityName: "紐約", timezone: "America/New_York", code: "us" },
+            { name: "利馬 (Lima)", cityName: "利馬", timezone: "America/Lima", code: "pe" },
+            { name: "墨西哥城 (Mexico City)", cityName: "墨西哥城", timezone: "America/Mexico_City", code: "mx" },
+            { name: "芝加哥 (Chicago)", cityName: "芝加哥", timezone: "America/Chicago", code: "us" },
+            { name: "丹佛 (Denver)", cityName: "丹佛", timezone: "America/Denver", code: "us" },
+            { name: "溫哥華 (Vancouver)", cityName: "溫哥華", timezone: "America/Vancouver", code: "ca" },
+            { name: "洛杉磯 (Los Angeles)", cityName: "洛杉磯", timezone: "America/Los_Angeles", code: "us" },
+            { name: "阿拉斯加 (Alaska)", cityName: "阿拉斯加", timezone: "America/Anchorage", code: "us" },
+            { name: "檀香山 (Honolulu)", cityName: "檀香山", timezone: "Pacific/Honolulu", code: "us" }
+        ];
+
+        // 預設時區清單
+        const defaultTimezones = [
+            "Asia/Taipei",
+            "Asia/Tokyo",
+            "Australia/Sydney",
+            "Asia/Kolkata",
+            "Asia/Dubai",
+            "Europe/Paris",
+            "Europe/London",
+            "America/New_York",
+            "America/Chicago",
+            "America/Denver",
+            "America/Los_Angeles"
+        ];
+
+        // 全域變數
+        let selectedTimezones = [];
+        let isLiveMode = true;
+        let activeTimer = null;
+        let baseDateObject = new Date(); // 在對照模式下儲存計算出來的基準 UTC 時間
+
+        // DOM 元素
+        const timezoneSelect = document.getElementById('timezoneSelect');
+        const addTimezoneBtn = document.getElementById('addTimezoneBtn');
+        const clockGrid = document.getElementById('clockGrid');
+        const localTimeDisplay = document.getElementById('localTimeDisplay');
+        const localDateDisplay = document.getElementById('localDateDisplay');
+        const localTimeLabel = document.getElementById('localTimeLabel');
+
+        const baseTzSelect = document.getElementById('baseTzSelect');
+        const baseDateSelect = document.getElementById('baseDateSelect');
+        const timeSlider = document.getElementById('timeSlider');
+        const sliderValDisplay = document.getElementById('sliderValDisplay');
+        const resetLiveBtn = document.getElementById('resetLiveBtn');
+
+        // 初始化
+        function init() {
+            // 載入 localStorage 或設定預設
+            const stored = localStorage.getItem('scitl_world_timezones');
+            if (stored) {
+                try {
+                    selectedTimezones = JSON.parse(stored);
+                } catch (e) {
+                    selectedTimezones = [...defaultTimezones];
+                }
+            } else {
+                selectedTimezones = [...defaultTimezones];
+            }
+
+            // 初始化時區下拉選單
+            allTimezones.forEach(tz => {
+                const opt = document.createElement('option');
+                opt.value = tz.timezone;
+                opt.textContent = tz.name;
+                timezoneSelect.appendChild(opt);
+
+                const optBase = document.createElement('option');
+                optBase.value = tz.timezone;
+                optBase.textContent = tz.name;
+                baseTzSelect.appendChild(optBase);
+            });
+
+            // 預設對照的基準時區為本機時區（若不在列表中則用第一個）
+            const localTzName = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (allTimezones.some(tz => tz.timezone === localTzName)) {
+                baseTzSelect.value = localTzName;
+            } else {
+                baseTzSelect.value = "Asia/Taipei";
+            }
+
+            // 預設日期為今天
+            const todayStr = new Date().toISOString().substring(0, 10);
+            baseDateSelect.value = todayStr;
+
+            // 綁定事件
+            addTimezoneBtn.addEventListener('click', addCity);
+            timeSlider.addEventListener('input', onSliderMove);
+            baseTzSelect.addEventListener('change', enterCompareMode);
+            baseDateSelect.addEventListener('change', enterCompareMode);
+            resetLiveBtn.addEventListener('click', exitCompareMode);
+
+            // 開始時鐘循環
+            startClock();
+        }
+
+        // 開始計時器
+        function startClock() {
+            if (activeTimer) clearInterval(activeTimer);
+
+            updateClocks();
+            activeTimer = setInterval(() => {
+                if (isLiveMode) {
+                    updateClocks();
+                }
+            }, 1000);
+        }
+
+        // 精確取得某時區在給定日期下的領先 UTC 小時數 (時差)
+        function getTzOffset(date, tz) {
+            try {
+                const tzParts = new Intl.DateTimeFormat('en-US', {
+                    timeZone: tz,
+                    year: 'numeric', month: 'numeric', day: 'numeric',
+                    hour: 'numeric', minute: 'numeric', second: 'numeric',
+                    hour12: false
+                }).formatToParts(date);
+
+                const utcParts = new Intl.DateTimeFormat('en-US', {
+                    timeZone: 'UTC',
+                    year: 'numeric', month: 'numeric', day: 'numeric',
+                    hour: 'numeric', minute: 'numeric', second: 'numeric',
+                    hour12: false
+                }).formatToParts(date);
+
+                const tzMap = {};
+                tzParts.forEach(p => tzMap[p.type] = parseInt(p.value, 10));
+
+                const utcMap = {};
+                utcParts.forEach(p => utcMap[p.type] = parseInt(p.value, 10));
+
+                const tzD = new Date(tzMap.year, tzMap.month - 1, tzMap.day, tzMap.hour, tzMap.minute, tzMap.second);
+                const utcD = new Date(utcMap.year, utcMap.month - 1, utcMap.day, utcMap.hour, utcMap.minute, utcMap.second);
+
+                return (tzD - utcD) / (1000 * 60 * 60);
+            } catch (e) {
+                console.error(e);
+                return 0;
+            }
+        }
+
+        // 取得格式化時間與日期
+        function getTzDateTime(date, tz) {
+            try {
+                const formatter = new Intl.DateTimeFormat('en-US', {
+                    timeZone: tz,
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+                const parts = formatter.formatToParts(date);
+                const p = {};
+                parts.forEach(part => p[part.type] = part.value);
+
+                // 取得星期
+                const dayFormatter = new Intl.DateTimeFormat('zh-TW', {
+                    timeZone: tz,
+                    weekday: 'short'
+                });
+                const weekday = dayFormatter.format(date);
+
+                return {
+                    dateStr: `${p.year}-${p.month}-${p.day}`,
+                    timeStr: `${p.hour}:${p.minute}:${p.second}`,
+                    timeNoSecStr: `${p.hour}:${p.minute}`,
+                    weekday: weekday
+                };
+            } catch (e) {
+                console.error(e);
+                return { dateStr: '0000-00-00', timeStr: '00:00:00', timeNoSecStr: '00:00', weekday: '' };
+            }
+        }
+
+        // 更新 UI 上的所有時鐘
+        function updateClocks() {
+            const targetDate = isLiveMode ? new Date() : baseDateObject;
+            const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+            // 1. 更新本機時間看板
+            const localInfo = getTzDateTime(targetDate, localTz);
+            const localOffset = getTzOffset(targetDate, localTz);
+            const localOffsetSign = localOffset >= 0 ? `+${localOffset}` : `${localOffset}`;
+
+            if (isLiveMode) {
+                localTimeLabel.textContent = "本機目前時間";
+                localTimeDisplay.textContent = localInfo.timeStr;
+            } else {
+                localTimeLabel.textContent = "對照模式 - 基準時間";
+                localTimeDisplay.textContent = localInfo.timeNoSecStr;
+            }
+            localDateDisplay.textContent = `${localInfo.dateStr} (${localInfo.weekday}) UTC${localOffsetSign} — ${localTz}`;
+
+            // 當前滑桿值同步更新（在實時模式下，滑桿同步本機目前時間）
+            if (isLiveMode) {
+                const hour = targetDate.getHours();
+                const minute = targetDate.getMinutes();
+                const sliderVal = Math.floor((hour * 60 + minute) / 15);
+                timeSlider.value = sliderVal;
+                sliderValDisplay.textContent = `${String(hour).padStart(2, '0')}:${String(Math.floor(minute / 15) * 15).padStart(2, '0')}`;
+            }
+
+            // 2. 渲染時區網格
+            clockGrid.innerHTML = '';
+            selectedTimezones.forEach(tz => {
+                const tzInfo = getTzDateTime(targetDate, tz);
+                const tzOffset = getTzOffset(targetDate, tz);
+                const tzOffsetSign = tzOffset >= 0 ? `+${tzOffset}` : `${tzOffset}`;
+
+                // 計算相對於本機的時差
+                const offsetDiff = tzOffset - localOffset;
+                let diffText = '';
+                let diffClass = '';
+                if (offsetDiff > 0) {
+                    diffText = `快 ${offsetDiff} 小時`;
+                    diffClass = 'fast';
+                } else if (offsetDiff < 0) {
+                    diffText = `慢 ${Math.abs(offsetDiff)} 小時`;
+                    diffClass = 'slow';
+                } else {
+                    diffText = '相同時間';
+                }
+
+                // 計算相對日期 (今天/明天/昨天)
+                const localDateParts = getTzDateTime(targetDate, localTz).dateStr.split('-');
+                const tzDateParts = tzInfo.dateStr.split('-');
+                const localD = new Date(localDateParts[0], localDateParts[1] - 1, localDateParts[2]);
+                const tzD = new Date(tzDateParts[0], tzDateParts[1] - 1, tzDateParts[2]);
+                const dayDiff = Math.round((tzD - localD) / (1000 * 60 * 60 * 24));
+
+                let relativeDay = '今天';
+                if (dayDiff === 1) {
+                    relativeDay = '明天';
+                } else if (dayDiff === -1) {
+                    relativeDay = '昨天';
+                }
+
+                // 城市簡稱與區域名稱處理
+                const cityParts = tz.split('/');
+                const cityName = cityParts[cityParts.length - 1].replace('_', ' ');
+                const regionName = cityParts.slice(0, cityParts.length - 1).join(' / ');
+
+                // 取得對應時區的國家代碼
+                const tzObj = allTimezones.find(item => item.timezone === tz);
+                const flagCode = tzObj ? tzObj.code : '';
+                const flagImg = flagCode ? `<img src="https://flagcdn.com/${flagCode}.svg" class="timezone-flag" alt="${cityName}">` : '';
+
+                // 產生卡片 HTML
+                const card = document.createElement('div');
+                card.className = `clock-card ${tz === localTz ? 'local-highlight' : ''}`;
+
+                const isDefault = defaultTimezones.includes(tz) && selectedTimezones.indexOf(tz) < 6;
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="city-info">
+                            <span class="city-name">
+                                ${flagImg}
+                                ${tzObj ? tzObj.cityName : cityName}
+                            </span>
+                            <span class="region-name">${regionName}</span>
+                        </div>
+                        <button class="remove-btn" onclick="removeCity('${tz}')" title="移除此時區">&times;</button>
+                    </div>
+                    <div class="time-display">${isLiveMode ? tzInfo.timeStr : tzInfo.timeNoSecStr}</div>
+                    <div class="date-display">${tzInfo.dateStr} (${tzInfo.weekday})</div>
+                    <div class="relative-info">
+                        <span>${relativeDay}</span>
+                        <span class="time-diff ${diffClass}">UTC${tzOffsetSign} (${diffText})</span>
+                    </div>
+                `;
+                clockGrid.appendChild(card);
+            });
+        }
+
+        // 新增時區城市
+        function addCity() {
+            const tz = timezoneSelect.value;
+            if (!tz) return;
+
+            if (selectedTimezones.includes(tz)) {
+                alert('此城市已在時區列表中！');
+                return;
+            }
+
+            selectedTimezones.push(tz);
+            localStorage.setItem('scitl_world_timezones', JSON.stringify(selectedTimezones));
+            timezoneSelect.value = ''; // 重設選擇器
+            updateClocks();
+        }
+
+        // 移除時區城市
+        window.removeCity = function (tz) {
+            selectedTimezones = selectedTimezones.filter(item => item !== tz);
+            localStorage.setItem('scitl_world_timezones', JSON.stringify(selectedTimezones));
+            updateClocks();
+        };
+
+        // 進入對照轉換模式
+        function enterCompareMode() {
+            isLiveMode = false;
+            resetLiveBtn.style.display = 'inline-block';
+            calculateBaseTime();
+        }
+
+        // 離開對照模式，返回實時模式
+        function exitCompareMode() {
+            isLiveMode = true;
+            resetLiveBtn.style.display = 'none';
+            // 恢復滑動軸日期為今天
+            const todayStr = new Date().toISOString().substring(0, 10);
+            baseDateSelect.value = todayStr;
+            updateClocks();
+        }
+
+        // 當拖動滑桿時的處理
+        function onSliderMove() {
+            if (isLiveMode) {
+                enterCompareMode();
+            } else {
+                calculateBaseTime();
+            }
+        }
+
+        // 根據基準城市、日期和滑桿時間，計算出基準 UTC 時間
+        function calculateBaseTime() {
+            const baseTz = baseTzSelect.value;
+            const baseDateStr = baseDateSelect.value;
+            const sliderVal = parseInt(timeSlider.value, 10);
+
+            if (!baseDateStr) return;
+
+            // 滑桿 0-95 對應 00:00 到 23:45
+            const totalMinutes = sliderVal * 15;
+            const hour = Math.floor(totalMinutes / 60);
+            const minute = totalMinutes % 60;
+
+            // 更新滑桿數值文字顯示
+            sliderValDisplay.textContent = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+
+            // 解析基準日期的年、月、日
+            const dateParts = baseDateStr.split('-');
+            const year = parseInt(dateParts[0], 10);
+            const month = parseInt(dateParts[1], 10);
+            const day = parseInt(dateParts[2], 10);
+
+            // 1. 構造一個以「本地數值當作 UTC」的臨時 Date
+            const tempUtc = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
+
+            // 2. 獲取該基準時區在此時間點的 UTC 時差
+            const offsetHours = getTzOffset(tempUtc, baseTz);
+
+            // 3. 算出正確的真實世界 UTC 毫秒數 = 臨時本地毫秒 - 時差
+            const correctUtcMs = tempUtc.getTime() - offsetHours * 60 * 60 * 1000;
+
+            // 4. 設定為全域基準時間物件
+            baseDateObject = new Date(correctUtcMs);
+
+            // 更新所有時鐘顯示
+            updateClocks();
+        }
+
+        // 網頁載入後執行
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>
