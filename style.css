@@ -179,10 +179,9 @@ label {
     box-sizing: border-box;
 }
 
-/* 日期欄位不需撐滿整列，讓日曆圖示靠近輸入內容 */
-.form-group .form-input[type="date"],
-.form-group .form-input[type="datetime-local"] {
-    max-width: 16rem;
+/* 表單欄位不需撐滿整列（日期、數字、文字欄位統一寬度，日曆圖示也不會離輸入內容太遠） */
+.form-group .form-input {
+    max-width: 20rem;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator,
