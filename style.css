@@ -179,6 +179,12 @@ label {
     box-sizing: border-box;
 }
 
+/* 日期欄位不需撐滿整列，讓日曆圖示靠近輸入內容 */
+.form-group .form-input[type="date"],
+.form-group .form-input[type="datetime-local"] {
+    max-width: 16rem;
+}
+
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
@@ -488,6 +494,21 @@ button {
     transition: all 0.3s;
     white-space: nowrap;
     border-radius: 0;
+}
+
+/* 手機版：頁籤自動換行，所有選項一眼可見，不需左右滑動 */
+@media (max-width: 600px) {
+    .tabs-container {
+        flex-wrap: wrap;
+        overflow-x: visible;
+    }
+
+    .tab-btn {
+        flex: 1 1 auto;
+        padding: 0.75rem 0.9rem;
+        font-size: 0.95rem;
+        text-align: center;
+    }
 }
 
 .tab-btn:hover {
