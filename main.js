@@ -2,10 +2,10 @@
 const NAV_LINKS = [
     ['index.html', '首頁'],
     ['unitconv.html', '單位換算'],
+    ['nettest.html', '網路連線測試'],
     ['dateconv.html', '日期時間換算'],
     ['worldtime.html', '世界時間'],
     ['currency.html', '貨幣匯率換算'],
-    ['nettest.html', '網路連線測試'],
     ['passwordgen.html', '密碼產生器'],
 ];
 
