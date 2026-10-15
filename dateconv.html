@@ -19,26 +19,6 @@
 </head>
 
 <body>
-    <div id="mySidebar" class="sidebar">
-        <a href="index.html">首頁</a>
-        <a href="unitconv.html">單位換算</a>
-        <a href="dateconv.html">日期時間換算</a>
-        <a href="worldtime.html">世界時間</a>
-        <a href="currency.html">貨幣匯率換算</a>
-        <a href="nettest.html">網路連線測試</a>
-        <a href="passwordgen.html">密碼產生器</a>
-    </div>
-
-    <nav class="navbar">
-        <div class="navbar-left">
-            <span class="openbtn" onclick="toggleNav(event)">&#9776;</span>
-        </div>
-        <div class="navbar-right">
-            <a href="index.html" class="navbar-brand">SCITL TOOL BOX</a>
-            <div id="datetime-display" class="nav-links"></div>
-        </div>
-    </nav>
-
     <div id="main-content">
 
         <div class="container">
@@ -128,15 +108,7 @@
     <script type="module">
         import { Database, Constants } from './lunar/dist/index.esm.js';
 
-        // --- 頁籤切換 ---
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab).classList.add('active');
-            });
-        });
+        initTabs();
 
         const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
 
@@ -273,12 +245,6 @@
             element.innerHTML = `西元 ${gregorianStr}<br>${lunarDateFullStr}`;
         }
 
-        // 提取重複邏輯：取得 YYYY-MM-DD 格式的日期字串
-        function getTodayString() {
-            const now = new Date();
-            return now.toISOString().split('T')[0];
-        }
-
         // --- 時間戳轉換 ---
         const humanTimeEl = document.getElementById('humanReadableTime');
         const unixTimeEl = document.getElementById('unixTimestamp');
@@ -389,12 +355,9 @@
         resetTimestampBtn.addEventListener('click', setTimestampsToNow);
 
         database.load('./lunar/database/all.bin').then(() => {
-            // 先檢查 database 的可用方法
-            console.log('Database methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(database)));
-
             const now = new Date();
 
-            const todayString = getTodayString();
+            const todayString = getLocalDateString();
             // 1. 設定查詢欄位的預設值為今天，並顯示結果
             lunarQueryDateEl.value = todayString;
             displayLunarDate(now, lunarQueryResultEl);

@@ -19,26 +19,6 @@
 </head>
 
 <body>
-    <div id="mySidebar" class="sidebar">
-        <a href="index.html">首頁</a>
-        <a href="unitconv.html">單位換算</a>
-        <a href="dateconv.html">日期時間換算</a>
-        <a href="worldtime.html">世界時間</a>
-        <a href="currency.html">貨幣匯率換算</a>
-        <a href="nettest.html">網路連線測試</a>
-        <a href="passwordgen.html">密碼產生器</a>
-    </div>
-
-    <nav class="navbar">
-        <div class="navbar-left">
-            <span class="openbtn" onclick="toggleNav(event)">&#9776;</span>
-        </div>
-        <div class="navbar-right">
-            <a href="index.html" class="navbar-brand">SCITL TOOL BOX</a>
-            <div id="datetime-display" class="nav-links"></div>
-        </div>
-    </nav>
-
     <div id="main-content">
         <div class="container" style="margin-top: 0; max-width: 1000px;">
             <div class="worldtime-header-section">
@@ -188,31 +168,37 @@
         const sliderValDisplay = document.getElementById('sliderValDisplay');
         const resetLiveBtn = document.getElementById('resetLiveBtn');
 
+        // 讀取已儲存的時區清單，只接受 allTimezones 內的合法值
+        function loadSelectedTimezones() {
+            try {
+                const stored = JSON.parse(localStorage.getItem('scitl_world_timezones'));
+                if (Array.isArray(stored)) {
+                    const valid = stored.filter(tz => allTimezones.some(item => item.timezone === tz));
+                    if (valid.length > 0) return valid;
+                }
+            } catch (e) {
+                // 儲存內容損毀或無法存取時，使用預設清單
+            }
+            return [...defaultTimezones];
+        }
+
+        function saveSelectedTimezones() {
+            try {
+                localStorage.setItem('scitl_world_timezones', JSON.stringify(selectedTimezones));
+            } catch (e) {
+                // 無法寫入時（如隱私模式）略過
+            }
+        }
+
         // 初始化
         function init() {
             // 載入 localStorage 或設定預設
-            const stored = localStorage.getItem('scitl_world_timezones');
-            if (stored) {
-                try {
-                    selectedTimezones = JSON.parse(stored);
-                } catch (e) {
-                    selectedTimezones = [...defaultTimezones];
-                }
-            } else {
-                selectedTimezones = [...defaultTimezones];
-            }
+            selectedTimezones = loadSelectedTimezones();
 
             // 初始化時區下拉選單
             allTimezones.forEach(tz => {
-                const opt = document.createElement('option');
-                opt.value = tz.timezone;
-                opt.textContent = tz.name;
-                timezoneSelect.appendChild(opt);
-
-                const optBase = document.createElement('option');
-                optBase.value = tz.timezone;
-                optBase.textContent = tz.name;
-                baseTzSelect.appendChild(optBase);
+                timezoneSelect.add(new Option(tz.name, tz.timezone));
+                baseTzSelect.add(new Option(tz.name, tz.timezone));
             });
 
             // 預設對照的基準時區為本機時區（若不在列表中則用第一個）
@@ -224,7 +210,7 @@
             }
 
             // 預設日期為今天
-            const todayStr = new Date().toISOString().substring(0, 10);
+            const todayStr = getLocalDateString();
             baseDateSelect.value = todayStr;
 
             // 綁定事件
@@ -233,6 +219,10 @@
             baseTzSelect.addEventListener('change', enterCompareMode);
             baseDateSelect.addEventListener('change', enterCompareMode);
             resetLiveBtn.addEventListener('click', exitCompareMode);
+            clockGrid.addEventListener('click', (event) => {
+                const btn = event.target.closest('.remove-btn');
+                if (btn) removeCity(btn.dataset.tz);
+            });
 
             // 開始時鐘循環
             startClock();
@@ -273,8 +263,9 @@
                 const utcMap = {};
                 utcParts.forEach(p => utcMap[p.type] = parseInt(p.value, 10));
 
-                const tzD = new Date(tzMap.year, tzMap.month - 1, tzMap.day, tzMap.hour, tzMap.minute, tzMap.second);
-                const utcD = new Date(utcMap.year, utcMap.month - 1, utcMap.day, utcMap.hour, utcMap.minute, utcMap.second);
+                // 用 Date.UTC 避免受使用者本機時區（含夏令時間）影響
+                const tzD = Date.UTC(tzMap.year, tzMap.month - 1, tzMap.day, tzMap.hour % 24, tzMap.minute, tzMap.second);
+                const utcD = Date.UTC(utcMap.year, utcMap.month - 1, utcMap.day, utcMap.hour % 24, utcMap.minute, utcMap.second);
 
                 return (tzD - utcD) / (1000 * 60 * 60);
             } catch (e) {
@@ -396,8 +387,6 @@
                 const card = document.createElement('div');
                 card.className = `clock-card ${tz === localTz ? 'local-highlight' : ''}`;
 
-                const isDefault = defaultTimezones.includes(tz) && selectedTimezones.indexOf(tz) < 6;
-
                 card.innerHTML = `
                     <div class="card-header">
                         <div class="city-info">
@@ -407,7 +396,7 @@
                             </span>
                             <span class="region-name">${regionName}</span>
                         </div>
-                        <button class="remove-btn" onclick="removeCity('${tz}')" title="移除此時區">&times;</button>
+                        <button class="remove-btn" data-tz="${tz}" title="移除此時區">&times;</button>
                     </div>
                     <div class="time-display">${isLiveMode ? tzInfo.timeStr : tzInfo.timeNoSecStr}</div>
                     <div class="date-display">${tzInfo.dateStr} (${tzInfo.weekday})</div>
@@ -431,17 +420,17 @@
             }
 
             selectedTimezones.push(tz);
-            localStorage.setItem('scitl_world_timezones', JSON.stringify(selectedTimezones));
+            saveSelectedTimezones();
             timezoneSelect.value = ''; // 重設選擇器
             updateClocks();
         }
 
         // 移除時區城市
-        window.removeCity = function (tz) {
+        function removeCity(tz) {
             selectedTimezones = selectedTimezones.filter(item => item !== tz);
-            localStorage.setItem('scitl_world_timezones', JSON.stringify(selectedTimezones));
+            saveSelectedTimezones();
             updateClocks();
-        };
+        }
 
         // 進入對照轉換模式
         function enterCompareMode() {
@@ -455,8 +444,7 @@
             isLiveMode = true;
             resetLiveBtn.style.display = 'none';
             // 恢復滑動軸日期為今天
-            const todayStr = new Date().toISOString().substring(0, 10);
-            baseDateSelect.value = todayStr;
+            baseDateSelect.value = getLocalDateString();
             updateClocks();
         }
 

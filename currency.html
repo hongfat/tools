@@ -19,26 +19,6 @@
 </head>
 
 <body>
-    <div id="mySidebar" class="sidebar">
-        <a href="index.html">首頁</a>
-        <a href="unitconv.html">單位換算</a>
-        <a href="dateconv.html">日期時間換算</a>
-        <a href="worldtime.html">世界時間</a>
-        <a href="currency.html">貨幣匯率換算</a>
-        <a href="nettest.html">網路連線測試</a>
-        <a href="passwordgen.html">密碼產生器</a>
-    </div>
-
-    <nav class="navbar">
-        <div class="navbar-left">
-            <span class="openbtn" onclick="toggleNav(event)">&#9776;</span>
-        </div>
-        <div class="navbar-right">
-            <a href="index.html" class="navbar-brand">SCITL TOOL BOX</a>
-            <div id="datetime-display" class="nav-links"></div>
-        </div>
-    </nav>
-
     <div class="container">
         <h2>
             <center>貨幣匯率換算</center>
@@ -104,6 +84,25 @@
 
         // --- 主要貨幣換算表格 ---
 
+        // 依基準幣別快取匯率（API 資料一天才更新一次），避免每次輸入都重新請求
+        const rateCache = {};
+
+        function fetchRates(baseCurrency) {
+            if (!rateCache[baseCurrency]) {
+                rateCache[baseCurrency] = fetch(`${API_BASE_URL}/${baseCurrency}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.result !== 'success') delete rateCache[baseCurrency];
+                        return data;
+                    })
+                    .catch(error => {
+                        delete rateCache[baseCurrency];
+                        throw error;
+                    });
+            }
+            return rateCache[baseCurrency];
+        }
+
         // 處理表格中的換算邏輯
         async function handleTableConversion(event) {
             const sourceInput = event.target;
@@ -117,8 +116,7 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/${sourceCurrency}`);
-                const data = await response.json();
+                const data = await fetchRates(sourceCurrency);
                 if (data.result !== 'success') return;
 
                 const rates = data.rates;

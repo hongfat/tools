@@ -19,26 +19,6 @@
 </head>
 
 <body>
-    <div id="mySidebar" class="sidebar">
-        <a href="index.html">首頁</a>
-        <a href="unitconv.html">單位換算</a>
-        <a href="dateconv.html">日期時間換算</a>
-        <a href="worldtime.html">世界時間</a>
-        <a href="currency.html">貨幣匯率換算</a>
-        <a href="nettest.html">網路連線測試</a>
-        <a href="passwordgen.html">密碼產生器</a>
-    </div>
-
-    <nav class="navbar">
-        <div class="navbar-left">
-            <span class="openbtn" onclick="toggleNav(event)">&#9776;</span>
-        </div>
-        <div class="navbar-right">
-            <a href="index.html" class="navbar-brand">SCITL TOOL BOX</a>
-            <div id="datetime-display" class="nav-links"></div>
-        </div>
-    </nav>
-
     <div id="main-content">
 
         <div class="container">
@@ -57,42 +37,42 @@
 
             <div id="length-tab" class="tab-content active">
                 <div class="converter-controls">
-                    <button id="resetLengthBtn" class="reset-btn">重設</button>
+                    <button id="length-reset-btn" class="reset-btn">重設</button>
                 </div>
                 <div id="length-converter-container" class="unit-converter-grid"></div>
             </div>
 
             <div id="weight-tab" class="tab-content">
                 <div class="converter-controls">
-                    <button id="resetWeightBtn" class="reset-btn">重設</button>
+                    <button id="weight-reset-btn" class="reset-btn">重設</button>
                 </div>
                 <div id="weight-converter-container" class="unit-converter-grid"></div>
             </div>
 
             <div id="area-tab" class="tab-content">
                 <div class="converter-controls">
-                    <button id="resetAreaBtn" class="reset-btn">重設</button>
+                    <button id="area-reset-btn" class="reset-btn">重設</button>
                 </div>
                 <div id="area-converter-container" class="unit-converter-grid"></div>
             </div>
 
             <div id="volume-tab" class="tab-content">
                 <div class="converter-controls">
-                    <button id="resetVolumeBtn" class="reset-btn">重設</button>
+                    <button id="volume-reset-btn" class="reset-btn">重設</button>
                 </div>
                 <div id="volume-converter-container" class="unit-converter-grid"></div>
             </div>
 
             <div id="temperature-tab" class="tab-content">
                 <div class="converter-controls">
-                    <button id="resetTemperatureBtn" class="reset-btn">重設</button>
+                    <button id="temperature-reset-btn" class="reset-btn">重設</button>
                 </div>
                 <div id="temperature-converter-container" class="unit-converter-grid"></div>
             </div>
 
             <div id="pressure-tab" class="tab-content">
                 <div class="converter-controls">
-                    <button id="resetPressureBtn" class="reset-btn">重設</button>
+                    <button id="pressure-reset-btn" class="reset-btn">重設</button>
                 </div>
                 <div id="pressure-converter-container" class="unit-converter-grid"></div>
             </div>
@@ -130,15 +110,15 @@
             kilogram: { name: '公斤 (kg)', toKilogram: 1 },
             metricTon: { name: '公噸 (t)', toKilogram: 1000 },
             // 英制
-            ounce: { name: '盎司 (oz)', toKilogram: 0.0283495 },
-            pound: { name: '磅 (lb)', toKilogram: 0.453592 },
+            ounce: { name: '盎司 (oz)', toKilogram: 0.028349523125 },
+            pound: { name: '磅 (lb)', toKilogram: 0.45359237 },
             // 其他
             taiwaneseJin: { name: '台斤', toKilogram: 0.6 },
             taiwaneseTael: { name: '台兩', toKilogram: 0.0375 },
             carat: { name: '克拉 (ct)', toKilogram: 0.0002 },
             goldMace: { name: '黃金(錢)', toKilogram: 0.00375 },
             goldTael: { name: '黃金(兩)', toKilogram: 0.0375 },
-            goldOunce: { name: '黃金(盎司)', toKilogram: 0.0311035 },
+            goldOunce: { name: '黃金(盎司)', toKilogram: 0.0311034768 },
         };
 
         // --- 面積換算 ---
@@ -152,10 +132,10 @@
             squareKilometer: { name: '平方公里 (km²)', toSquareMeter: 1e6 },
             // 英制
             squareInch: { name: '平方英吋 (in²)', toSquareMeter: 0.00064516 },
-            squareFoot: { name: '平方英呎 (ft²)', toSquareMeter: 0.092903 },
-            squareYard: { name: '平方碼 (yd²)', toSquareMeter: 0.836127 },
-            acre: { name: '英畝 (ac)', toSquareMeter: 4046.86 },
-            squareMile: { name: '平方英哩 (mi²)', toSquareMeter: 2.58999e6 },
+            squareFoot: { name: '平方英呎 (ft²)', toSquareMeter: 0.09290304 },
+            squareYard: { name: '平方碼 (yd²)', toSquareMeter: 0.83612736 },
+            acre: { name: '英畝 (ac)', toSquareMeter: 4046.8564224 },
+            squareMile: { name: '平方英哩 (mi²)', toSquareMeter: 2589988.110336 },
             // 其他
             taiwaneseJia: { name: '甲', toSquareMeter: 9699 },
             taiwaneseFen: { name: '分', toSquareMeter: 969.9 },
@@ -170,11 +150,11 @@
             liter: { name: '公升 (L)', toLiter: 1 },
             cubicMeter: { name: '立方公尺 (m³)', toLiter: 1000 },
             // 英制/美制
-            usFluidOunce: { name: '美制液盎司 (fl oz)', toLiter: 0.0295735 },
-            impFluidOunce: { name: '英制液盎司 (fl oz)', toLiter: 0.0284131 },
-            usPint: { name: '美制品脫 (pt)', toLiter: 0.473176 },
-            usQuart: { name: '美制夸脫 (qt)', toLiter: 0.946353 },
-            usGallon: { name: '美制加侖 (gal)', toLiter: 3.78541 },
+            usFluidOunce: { name: '美制液盎司 (fl oz)', toLiter: 0.0295735295625 },
+            impFluidOunce: { name: '英制液盎司 (fl oz)', toLiter: 0.0284130625 },
+            usPint: { name: '美制品脫 (pt)', toLiter: 0.473176473 },
+            usQuart: { name: '美制夸脫 (qt)', toLiter: 0.946352946 },
+            usGallon: { name: '美制加侖 (gal)', toLiter: 3.785411784 },
             impGallon: { name: '英制加侖 (gal)', toLiter: 4.54609 },
         };
 
@@ -206,17 +186,22 @@
             mmH2O: { name: '毫米水柱 (mmH₂O)', toKpa: 0.00980665 },
         };
 
-        // 初始化各單位轉換器
-        initializeConverter('length', lengthUnits, 'length-converter-container', 'resetLengthBtn', handleLengthConversion);
-        initializeConverter('weight', weightUnits, 'weight-converter-container', 'resetWeightBtn', handleWeightConversion);
-        initializeConverter('area', areaUnits, 'area-converter-container', 'resetAreaBtn', handleAreaConversion);
-        initializeConverter('volume', volumeUnits, 'volume-converter-container', 'resetVolumeBtn', handleVolumeConversion);
-        initializeConverter('temperature', temperatureUnits, 'temperature-converter-container', 'resetTemperatureBtn', handleTemperatureConversion);
+        // 各單位以 factor（換算成基準單位的倍率）統一處理；溫度為非線性，另行處理
+        const linearCategories = {
+            length: { units: lengthUnits, base: 'toMeter' },
+            weight: { units: weightUnits, base: 'toKilogram' },
+            area: { units: areaUnits, base: 'toSquareMeter' },
+            volume: { units: volumeUnits, base: 'toLiter' },
+            pressure: { units: pressureUnits, base: 'toKpa' },
+        };
 
-        initializeConverter('pressure', pressureUnits, 'pressure-converter-container', 'resetPressureBtn', handlePressureConversion);
+        for (const [type, { units, base }] of Object.entries(linearCategories)) {
+            initializeConverter(type, units, (event) => convertLinear(event, units, type, base));
+        }
+        initializeConverter('temperature', temperatureUnits, (event) => convertTemperature(event, temperatureUnits, 'temperature'));
 
-        function initializeConverter(type, units, containerId, resetBtnId, conversionHandler) {
-            const container = document.getElementById(containerId);
+        function initializeConverter(type, units, conversionHandler) {
+            const container = document.getElementById(`${type}-converter-container`);
 
             // 動態生成輸入框
             for (const unit in units) {
@@ -232,154 +217,56 @@
                 input.id = `${type}-input-${unit}`;
                 input.dataset.unit = unit;
                 input.className = 'form-input';
+                input.addEventListener('input', conversionHandler);
 
                 group.appendChild(label);
                 group.appendChild(input);
                 container.appendChild(group);
-
-                input.addEventListener('input', (e) => conversionHandler(e, units, type));
             }
 
             // 重設按鈕
-            const resetBtn = document.getElementById(resetBtnId);
-            resetBtn.addEventListener('click', () => {
-                const inputs = container.getElementsByTagName('input');
-                for (const input of inputs) {
-                    input.value = '';
-                }
+            document.getElementById(`${type}-reset-btn`).addEventListener('click', () => {
+                container.querySelectorAll('input').forEach(input => input.value = '');
             });
         }
 
-        function handleLengthConversion(event) {
-            const units = lengthUnits;
-            const type = 'length';
+        // 取得來源輸入框的數值，空白或無效時回傳 null 並清空所有欄位
+        function readSource(event, units, type) {
             const sourceInput = event.target;
-            const sourceUnit = sourceInput.dataset.unit;
-            const sourceValue = parseFloat(sourceInput.value);
-
-            const valueInMeter = isNaN(sourceValue) ? 0 : sourceValue * units[sourceUnit].toMeter;
-
-            for (const unit in units) {
-                if (unit === sourceUnit) continue;
-                const targetInput = document.getElementById(`${type}-input-${unit}`);
-                const convertedValue = valueInMeter / units[unit].toMeter;
-                targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
-            }
-        }
-
-        function handleWeightConversion(event, units, type) {
-            const sourceInput = event.target;
-            const sourceUnit = sourceInput.dataset.unit;
-            const sourceValue = parseFloat(sourceInput.value);
-
-            const valueInKilogram = isNaN(sourceValue) ? 0 : sourceValue * units[sourceUnit].toKilogram;
-
-            for (const unit in units) {
-                if (unit === sourceUnit) continue;
-                const targetInput = document.getElementById(`${type}-input-${unit}`);
-                const convertedValue = valueInKilogram / units[unit].toKilogram;
-                targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
-            }
-        }
-
-        function handleAreaConversion(event, units, type) {
-            const sourceInput = event.target;
-            const sourceUnit = sourceInput.dataset.unit;
-            const sourceValue = parseFloat(sourceInput.value);
-
-            const valueInSquareMeter = isNaN(sourceValue) ? 0 : sourceValue * units[sourceUnit].toSquareMeter;
-
-            for (const unit in units) {
-                if (unit === sourceUnit) continue;
-                const targetInput = document.getElementById(`${type}-input-${unit}`);
-                const convertedValue = valueInSquareMeter / units[unit].toSquareMeter;
-                targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
-            }
-        }
-
-        function handleVolumeConversion(event, units, type) {
-            const sourceInput = event.target;
-            const sourceUnit = sourceInput.dataset.unit;
-            const sourceValue = parseFloat(sourceInput.value);
-
-            // 以公升為基礎單位進行換算
-            const valueInLiter = isNaN(sourceValue) ? 0 : sourceValue * units[sourceUnit].toLiter;
-
-            for (const unit in units) {
-                if (unit === sourceUnit) continue;
-                const targetInput = document.getElementById(`${type}-input-${unit}`);
-                const convertedValue = valueInLiter / units[unit].toLiter;
-                targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
-            }
-        }
-
-        function handlePressureConversion(event, units, type) {
-            const sourceInput = event.target;
-            const sourceUnit = sourceInput.dataset.unit;
-            const sourceValue = parseFloat(sourceInput.value);
-
-            // 以千帕為基礎單位進行換算
-            const valueInKpa = isNaN(sourceValue) ? 0 : sourceValue * units[sourceUnit].toKpa;
-
-            for (const unit in units) {
-                if (unit === sourceUnit) continue;
-                const targetInput = document.getElementById(`${type}-input-${unit}`);
-                const convertedValue = valueInKpa / units[unit].toKpa;
-                targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
-            }
-        }
-
-        function handleTemperatureConversion(event, units, type) {
-            const sourceInput = event.target;
-            const sourceUnit = sourceInput.dataset.unit;
-            const sourceValue = parseFloat(sourceInput.value);
-
-            if (isNaN(sourceValue) || sourceInput.value === '') {
-                // 清空所有欄位
+            const value = parseFloat(sourceInput.value);
+            if (isNaN(value)) {
                 for (const unit in units) {
-                    const targetInput = document.getElementById(`${type}-input-${unit}`);
-                    targetInput.value = '';
+                    document.getElementById(`${type}-input-${unit}`).value = '';
                 }
-                return;
+                return null;
             }
+            return { unit: sourceInput.dataset.unit, value };
+        }
 
-            // 溫度轉換邏輯（非線性，需要特殊處理）
-            let celsius;
-            if (sourceUnit === 'celsius') {
-                celsius = sourceValue;
-            } else if (sourceUnit === 'fahrenheit') {
-                celsius = (sourceValue - 32) * 5 / 9;
-            } else if (sourceUnit === 'kelvin') {
-                celsius = sourceValue - 273.15;
-            }
-
-            // 轉換為其他單位
+        function setOthers(units, type, sourceUnit, convert) {
             for (const unit in units) {
                 if (unit === sourceUnit) continue;
-                const targetInput = document.getElementById(`${type}-input-${unit}`);
-
-                let convertedValue;
-                if (unit === 'celsius') {
-                    convertedValue = celsius;
-                } else if (unit === 'fahrenheit') {
-                    convertedValue = celsius * 9 / 5 + 32;
-                } else if (unit === 'kelvin') {
-                    convertedValue = celsius + 273.15;
-                }
-
-                targetInput.value = parseFloat(convertedValue.toPrecision(10));
+                document.getElementById(`${type}-input-${unit}`).value = parseFloat(convert(unit).toPrecision(10));
             }
         }
 
-        // --- 頁籤切換 ---
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById(btn.dataset.tab).classList.add('active');
-            });
-        });
+        function convertLinear(event, units, type, base) {
+            const source = readSource(event, units, type);
+            if (!source) return;
+            const valueInBase = source.value * units[source.unit][base];
+            setOthers(units, type, source.unit, unit => valueInBase / units[unit][base]);
+        }
+
+        function convertTemperature(event, units, type) {
+            const source = readSource(event, units, type);
+            if (!source) return;
+            const toCelsius = { celsius: v => v, fahrenheit: v => (v - 32) * 5 / 9, kelvin: v => v - 273.15 };
+            const fromCelsius = { celsius: c => c, fahrenheit: c => c * 9 / 5 + 32, kelvin: c => c + 273.15 };
+            const celsius = toCelsius[source.unit](source.value);
+            setOthers(units, type, source.unit, unit => fromCelsius[unit](celsius));
+        }
+
+        initTabs();
     </script>
 </body>
 

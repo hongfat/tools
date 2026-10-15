@@ -1,30 +1,55 @@
+// --- 共用頁面框架：側邊欄與導覽列 ---
+const NAV_LINKS = [
+    ['index.html', '首頁'],
+    ['unitconv.html', '單位換算'],
+    ['dateconv.html', '日期時間換算'],
+    ['worldtime.html', '世界時間'],
+    ['currency.html', '貨幣匯率換算'],
+    ['nettest.html', '網路連線測試'],
+    ['passwordgen.html', '密碼產生器'],
+];
+
+document.body.insertAdjacentHTML('afterbegin', `
+    <div id="mySidebar" class="sidebar">
+        ${NAV_LINKS.map(([href, name]) => `<a href="${href}">${name}</a>`).join('\n        ')}
+    </div>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <span class="openbtn" onclick="toggleNav(event)">&#9776;</span>
+        </div>
+        <div class="navbar-right">
+            <a href="index.html" class="navbar-brand">SCITL TOOL BOX</a>
+            <div id="datetime-display" class="nav-links"></div>
+        </div>
+    </nav>`);
+
+// --- 日期時間顯示 ---
 function updateDateTime() {
     const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const pad = (n) => String(n).padStart(2, '0');
+    const dateTimeString = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ` +
+        `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
-    const dateTimeString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    
     const displayElement = document.getElementById('datetime-display');
     if (displayElement) {
         displayElement.textContent = dateTimeString;
     }
 }
-// 立即執行一次，然後每秒更新
 updateDateTime();
 setInterval(updateDateTime, 1000);
 
-const sidebar = document.getElementById("mySidebar");
-const mainContent = document.getElementById("main-content");
+// 取得本地時區的 YYYY-MM-DD（toISOString 會回傳 UTC 日期，在 UTC+8 的凌晨會差一天）
+function getLocalDateString(date = new Date()) {
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
 
-/* Toggle between showing and hiding the sidebar */
+// --- 側邊欄 ---
+const sidebar = document.getElementById('mySidebar');
+
 function toggleNav(event) {
-    event.stopPropagation(); // 阻止事件冒泡到 main-content
-    if (sidebar.style.width === "250px") {
+    event.stopPropagation(); // 阻止事件冒泡到頁面內容
+    if (sidebar.style.width === '250px') {
         closeNav();
     } else {
         openNav();
@@ -32,11 +57,28 @@ function toggleNav(event) {
 }
 
 function openNav() {
-    sidebar.style.width = "250px";
+    sidebar.style.width = '250px';
 }
 
 function closeNav() {
-    sidebar.style.width = "0";
+    sidebar.style.width = '0';
 }
 
-mainContent.addEventListener('click', closeNav);
+// 點擊頁面其他區域時收合側邊欄
+document.addEventListener('click', (event) => {
+    if (!sidebar.contains(event.target)) closeNav();
+});
+
+// --- 共用頁籤切換 ---
+// 頁籤按鈕以 data-tab 指向內容區塊 id；onSwitch(tabId) 可在切換後執行額外動作
+function initTabs(onSwitch) {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+            if (onSwitch) onSwitch(btn.dataset.tab);
+        });
+    });
+}
