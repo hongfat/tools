@@ -46,15 +46,24 @@
                 <center>日期時間換算</center>
             </h2>
 
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="lunar-tab">西元轉農曆</button>
+                <button class="tab-btn" data-tab="daydiff-tab">日期天數計算</button>
+                <button class="tab-btn" data-tab="dateadd-tab">日期加減計算</button>
+                <button class="tab-btn" data-tab="timestamp-tab">Timestamp 轉換</button>
+            </div>
+
+            <div id="lunar-tab" class="tab-content active">
             <h3>西元轉農曆</h3>
             <div class="form-group">
                 <label for="lunarQueryDate">選擇西元日期</label>
                 <input type="date" id="lunarQueryDate" class="form-input">
                 <p id="lunarQueryResult" style="margin-top: 10px;"></p><br>
             </div>
+            </div>
 
 
-            <div class="calculator-section">
+            <div id="daydiff-tab" class="tab-content">
                 <h3>日期天數計算</h3>
                 <div class="form-group">
                     <label for="startDate">開始日期</label>
@@ -68,7 +77,7 @@
                 <p id="result"></p><br>
             </div>
 
-            <div class="calculator-section">
+            <div id="dateadd-tab" class="tab-content">
                 <h3>日期加減計算</h3>
                 <div class="form-group">
                     <label for="baseDate">基準日期</label>
@@ -83,7 +92,7 @@
                 <p id="dateCalcResult"></p>
             </div>
 
-            <div class="calculator-section">
+            <div id="timestamp-tab" class="tab-content">
                 <h3>Timestamp轉換 (UNIX / ISO 8601)</h3>
                 <div class="form-group">
                     <label for="humanReadableTime">標準時間</label>
@@ -118,6 +127,16 @@
     <script src="main.js"></script>
     <script type="module">
         import { Database, Constants } from './lunar/dist/index.esm.js';
+
+        // --- 頁籤切換 ---
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
+            });
+        });
 
         const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
 

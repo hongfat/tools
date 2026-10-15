@@ -52,6 +52,7 @@
                 <button class="tab-btn" data-tab="area-tab">面積換算</button>
                 <button class="tab-btn" data-tab="volume-tab">容量換算</button>
                 <button class="tab-btn" data-tab="temperature-tab">溫度換算</button>
+                <button class="tab-btn" data-tab="pressure-tab">輪胎胎壓</button>
             </div>
 
             <div id="length-tab" class="tab-content active">
@@ -87,6 +88,13 @@
                     <button id="resetTemperatureBtn" class="reset-btn">重設</button>
                 </div>
                 <div id="temperature-converter-container" class="unit-converter-grid"></div>
+            </div>
+
+            <div id="pressure-tab" class="tab-content">
+                <div class="converter-controls">
+                    <button id="resetPressureBtn" class="reset-btn">重設</button>
+                </div>
+                <div id="pressure-converter-container" class="unit-converter-grid"></div>
             </div>
 
         </div>
@@ -177,12 +185,24 @@
             kelvin: { name: '克耳文 (K)', isLinear: false },
         };
 
+        // --- 輪胎胎壓換算 ---
+        const pressureUnits = {
+            psi: { name: '磅/平方吋 (psi)', toKpa: 6.894757 },
+            bar: { name: '巴 (bar)', toKpa: 100 },
+            kpa: { name: '千帕 (kPa)', toKpa: 1 },
+            mpa: { name: '兆帕 (MPa)', toKpa: 1000 },
+            kgfcm2: { name: '公斤力/平方公分 (kgf/cm²)', toKpa: 98.0665 },
+            atm: { name: '標準大氣壓 (atm)', toKpa: 101.325 },
+        };
+
         // 初始化各單位轉換器
         initializeConverter('length', lengthUnits, 'length-converter-container', 'resetLengthBtn', handleLengthConversion);
         initializeConverter('weight', weightUnits, 'weight-converter-container', 'resetWeightBtn', handleWeightConversion);
         initializeConverter('area', areaUnits, 'area-converter-container', 'resetAreaBtn', handleAreaConversion);
         initializeConverter('volume', volumeUnits, 'volume-converter-container', 'resetVolumeBtn', handleVolumeConversion);
         initializeConverter('temperature', temperatureUnits, 'temperature-converter-container', 'resetTemperatureBtn', handleTemperatureConversion);
+
+        initializeConverter('pressure', pressureUnits, 'pressure-converter-container', 'resetPressureBtn', handlePressureConversion);
 
         function initializeConverter(type, units, containerId, resetBtnId, conversionHandler) {
             const container = document.getElementById(containerId);
@@ -278,6 +298,22 @@
                 if (unit === sourceUnit) continue;
                 const targetInput = document.getElementById(`${type}-input-${unit}`);
                 const convertedValue = valueInLiter / units[unit].toLiter;
+                targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
+            }
+        }
+
+        function handlePressureConversion(event, units, type) {
+            const sourceInput = event.target;
+            const sourceUnit = sourceInput.dataset.unit;
+            const sourceValue = parseFloat(sourceInput.value);
+
+            // 以千帕為基礎單位進行換算
+            const valueInKpa = isNaN(sourceValue) ? 0 : sourceValue * units[sourceUnit].toKpa;
+
+            for (const unit in units) {
+                if (unit === sourceUnit) continue;
+                const targetInput = document.getElementById(`${type}-input-${unit}`);
+                const convertedValue = valueInKpa / units[unit].toKpa;
                 targetInput.value = isNaN(sourceValue) || sourceInput.value === '' ? '' : parseFloat(convertedValue.toPrecision(10));
             }
         }
