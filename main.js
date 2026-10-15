@@ -9,7 +9,8 @@ const NAV_LINKS = [
     ['passwordgen.html', '密碼產生器'],
 ];
 
-document.body.insertAdjacentHTML('afterbegin', `
+// 若頁面（例如瀏覽器快取的舊版 HTML）已內含側邊欄與導覽列，就不重複插入
+if (!document.getElementById('mySidebar')) document.body.insertAdjacentHTML('afterbegin', `
     <div id="mySidebar" class="sidebar">
         ${NAV_LINKS.map(([href, name]) => `<a href="${href}">${name}</a>`).join('\n        ')}
     </div>
