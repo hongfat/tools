@@ -52,7 +52,7 @@
                 <button class="tab-btn" data-tab="area-tab">面積換算</button>
                 <button class="tab-btn" data-tab="volume-tab">容量換算</button>
                 <button class="tab-btn" data-tab="temperature-tab">溫度換算</button>
-                <button class="tab-btn" data-tab="pressure-tab">輪胎胎壓</button>
+                <button class="tab-btn" data-tab="pressure-tab">壓力換算</button>
             </div>
 
             <div id="length-tab" class="tab-content active">
@@ -185,14 +185,25 @@
             kelvin: { name: '克耳文 (K)', isLinear: false },
         };
 
-        // --- 輪胎胎壓換算 ---
+        // --- 壓力換算 ---
         const pressureUnits = {
-            psi: { name: '磅/平方吋 (psi)', toKpa: 6.894757 },
-            bar: { name: '巴 (bar)', toKpa: 100 },
+            // 公制 / SI
+            pa: { name: '帕 (Pa)', toKpa: 0.001 },
+            hpa: { name: '百帕 (hPa)', toKpa: 0.1 },
             kpa: { name: '千帕 (kPa)', toKpa: 1 },
             mpa: { name: '兆帕 (MPa)', toKpa: 1000 },
+            bar: { name: '巴 (bar)', toKpa: 100 },
+            mbar: { name: '毫巴 (mbar)', toKpa: 0.1 },
             kgfcm2: { name: '公斤力/平方公分 (kgf/cm²)', toKpa: 98.0665 },
+            // 英制
+            psi: { name: '磅/平方吋 (psi)', toKpa: 6.894757 },
+            inHg: { name: '英吋汞柱 (inHg)', toKpa: 3.386389 },
+            inH2O: { name: '英吋水柱 (inH₂O)', toKpa: 0.249089 },
+            // 其他
             atm: { name: '標準大氣壓 (atm)', toKpa: 101.325 },
+            mmHg: { name: '毫米汞柱 (mmHg)', toKpa: 0.133322 },
+            torr: { name: '托 (Torr)', toKpa: 101.325 / 760 },
+            mmH2O: { name: '毫米水柱 (mmH₂O)', toKpa: 0.00980665 },
         };
 
         // 初始化各單位轉換器
