@@ -397,20 +397,34 @@ const dnsTypes = {
 // 快取 IP 地理位置查詢結果，避免重複請求與限流
 const ipLocationCache = {};
 
-async function fetchIpLocationData(ip) {
+// 查詢 IP 位置（ip 留空則查詢本機公網 IP），使用 ipwho.is（支援 HTTPS／CORS／IPv6，免註冊）
+async function fetchIpLocationData(ip = '') {
     if (ipLocationCache[ip]) {
         return ipLocationCache[ip];
     }
 
-    const response = await fetch(`https://api.ip.sb/geoip/${encodeURIComponent(ip)}`);
+    const response = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`);
     if (!response.ok) {
         throw new Error(`IP 查詢服務回應錯誤 (${response.status})`);
     }
 
-    const data = await response.json();
-    if (!data || !data.ip) {
-        throw new Error('找不到此 IP 的位置資訊');
+    const raw = await response.json();
+    if (!raw || raw.success === false || !raw.ip) {
+        throw new Error((raw && raw.message) || '找不到此 IP 的位置資訊');
     }
+
+    const data = {
+        ip: raw.ip,
+        isp: raw.connection && (raw.connection.isp || raw.connection.org),
+        asn: raw.connection && raw.connection.asn ? `AS${raw.connection.asn}` : '',
+        country: raw.country,
+        country_code: raw.country_code,
+        region: raw.region,
+        city: raw.city,
+        timezone: raw.timezone && raw.timezone.id,
+        latitude: raw.latitude,
+        longitude: raw.longitude,
+    };
 
     ipLocationCache[ip] = data;
     return data;
@@ -601,13 +615,7 @@ async function fetchIpInfo() {
     userAgentInfoEl.textContent = navigator.userAgent;
 
     try {
-        // 使用 api.ip.sb (支援 HTTPS 與 CORS，免註冊，穩定度高)
-        const response = await fetch('https://api.ip.sb/geoip');
-        const data = await response.json();
-
-        if (!data) {
-            throw new Error('IP 資訊查詢失敗');
-        }
+        const data = await fetchIpLocationData();
 
         clientIpEl.textContent = data.ip || '-';
         clientIspEl.textContent = data.isp || '-';
