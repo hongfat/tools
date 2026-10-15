@@ -46,59 +46,47 @@
                 <center>單位換算</center>
             </h2>
 
-            <div class="calculator-section">
-                <h3 class="collapsible-header" data-target="length-conversion-content" aria-expanded="true"
-                    aria-controls="length-conversion-content">長度換算 (點擊折疊/展開)</h3>
-                <div id="length-conversion-content" class="collapsible-content expanded">
-                    <div class="converter-controls">
-                        <button id="resetLengthBtn" class="reset-btn">重設</button>
-                    </div>
-                    <div id="length-converter-container" class="unit-converter-grid"></div>
-                </div>
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="length-tab">長度換算</button>
+                <button class="tab-btn" data-tab="weight-tab">重量換算</button>
+                <button class="tab-btn" data-tab="area-tab">面積換算</button>
+                <button class="tab-btn" data-tab="volume-tab">容量換算</button>
+                <button class="tab-btn" data-tab="temperature-tab">溫度換算</button>
             </div>
 
-            <div class="calculator-section">
-                <h3 class="collapsible-header" data-target="weight-conversion-content" aria-expanded="false"
-                    aria-controls="weight-conversion-content">重量換算 (點擊折疊/展開)</h3>
-                <div id="weight-conversion-content" class="collapsible-content expanded">
-                    <div class="converter-controls">
-                        <button id="resetWeightBtn" class="reset-btn">重設</button>
-                    </div>
-                    <div id="weight-converter-container" class="unit-converter-grid"></div>
+            <div id="length-tab" class="tab-content active">
+                <div class="converter-controls">
+                    <button id="resetLengthBtn" class="reset-btn">重設</button>
                 </div>
+                <div id="length-converter-container" class="unit-converter-grid"></div>
             </div>
 
-            <div class="calculator-section">
-                <h3 class="collapsible-header" data-target="area-conversion-content" aria-expanded="false"
-                    aria-controls="area-conversion-content">面積換算 (點擊折疊/展開)</h3>
-                <div id="area-conversion-content" class="collapsible-content expanded">
-                    <div class="converter-controls">
-                        <button id="resetAreaBtn" class="reset-btn">重設</button>
-                    </div>
-                    <div id="area-converter-container" class="unit-converter-grid"></div>
+            <div id="weight-tab" class="tab-content">
+                <div class="converter-controls">
+                    <button id="resetWeightBtn" class="reset-btn">重設</button>
                 </div>
+                <div id="weight-converter-container" class="unit-converter-grid"></div>
             </div>
 
-            <div class="calculator-section">
-                <h3 class="collapsible-header" data-target="volume-conversion-content" aria-expanded="false"
-                    aria-controls="volume-conversion-content">容量換算 (點擊折疊/展開)</h3>
-                <div id="volume-conversion-content" class="collapsible-content expanded">
-                    <div class="converter-controls">
-                        <button id="resetVolumeBtn" class="reset-btn">重設</button>
-                    </div>
-                    <div id="volume-converter-container" class="unit-converter-grid"></div>
+            <div id="area-tab" class="tab-content">
+                <div class="converter-controls">
+                    <button id="resetAreaBtn" class="reset-btn">重設</button>
                 </div>
+                <div id="area-converter-container" class="unit-converter-grid"></div>
             </div>
 
-            <div class="calculator-section">
-                <h3 class="collapsible-header" data-target="temperature-conversion-content" aria-expanded="false"
-                    aria-controls="temperature-conversion-content">溫度換算 (點擊折疊/展開)</h3>
-                <div id="temperature-conversion-content" class="collapsible-content expanded">
-                    <div class="converter-controls">
-                        <button id="resetTemperatureBtn" class="reset-btn">重設</button>
-                    </div>
-                    <div id="temperature-converter-container" class="unit-converter-grid"></div>
+            <div id="volume-tab" class="tab-content">
+                <div class="converter-controls">
+                    <button id="resetVolumeBtn" class="reset-btn">重設</button>
                 </div>
+                <div id="volume-converter-container" class="unit-converter-grid"></div>
+            </div>
+
+            <div id="temperature-tab" class="tab-content">
+                <div class="converter-controls">
+                    <button id="resetTemperatureBtn" class="reset-btn">重設</button>
+                </div>
+                <div id="temperature-converter-container" class="unit-converter-grid"></div>
             </div>
 
         </div>
@@ -336,44 +324,15 @@
             }
         }
 
-        // --- 響應式高度管理 ---
-        function initializeCollapsibles() {
-            function setMaxHeightForExpanded() {
-                document.querySelectorAll('.collapsible-content.expanded').forEach(content => {
-                    // 重新計算並設定高度
-                    content.style.maxHeight = content.scrollHeight + 'px';
-                });
-            }
-
-            setMaxHeightForExpanded();
-            window.addEventListener('resize', setMaxHeightForExpanded);
-
-            // --- 折疊/展開點擊事件 ---
-            document.querySelectorAll('.collapsible-header').forEach(header => {
-                header.addEventListener('click', () => {
-                    const targetId = header.dataset.target;
-                    const targetContent = document.getElementById(targetId);
-                    const isExpanded = targetContent.classList.contains('expanded');
-
-                    if (isExpanded) {
-                        targetContent.style.maxHeight = '0px'; // 觸發收合動畫
-                        targetContent.classList.remove('expanded');
-                        header.setAttribute('aria-expanded', 'false');
-                    } else {
-                        targetContent.classList.add('expanded');
-                        header.setAttribute('aria-expanded', 'true');
-                        // 直接呼叫高度設定函式，確保高度正確
-                        setMaxHeightForExpanded();
-                    }
-                });
+        // --- 頁籤切換 ---
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab).classList.add('active');
             });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeCollapsibles);
-        } else {
-            initializeCollapsibles();
-        }
+        });
     </script>
 </body>
 
