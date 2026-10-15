@@ -9,6 +9,7 @@
     --accent-color: #FFCC00;
     --card-border-color: #333;    
     --navbar-height: 5rem; /* 導覽列的固定高度 */
+    color-scheme: dark; /* 讓日期選單圖示、捲軸與下拉選單使用深色樣式 */
 }
 
 body {
@@ -176,6 +177,11 @@ label {
     color: var(--primary-text-color);
     border-radius: 4px;
     box-sizing: border-box;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
 }
 
 button {
