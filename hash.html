@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雜湊產生器 - SCITL TOOL BOX</title>
+    <link rel="stylesheet" href="style.css?v=7">
+        <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-9HCQRB0034');
+    </script>
+</head>
+
+<body>
+    <div id="main-content">
+
+        <div class="container">
+            <h2>
+                <center>雜湊產生器</center>
+            </h2>
+
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="text-tab">文字</button>
+                <button class="tab-btn" data-tab="file-tab">檔案</button>
+            </div>
+
+            <div id="text-tab" class="tab-content active">
+                <div class="form-group">
+                    <label for="hashText">輸入文字（以 UTF-8 計算）</label>
+                    <textarea id="hashText" class="form-input code-textarea" spellcheck="false"
+                        placeholder="輸入要計算雜湊值的文字"></textarea>
+                </div>
+            </div>
+
+            <div id="file-tab" class="tab-content">
+                <label id="dropZone" class="drop-zone" for="hashFile">
+                    <input type="file" id="hashFile">
+                    <span id="dropZoneText">點擊選擇檔案，或把檔案拖曳到這裡</span>
+                </label>
+                <p class="hint-text">檔案只在瀏覽器內計算，不會上傳。</p>
+            </div>
+
+            <div class="action-row">
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="useHmac">
+                    <label for="useHmac">HMAC</label>
+                </div>
+                <input type="text" id="hmacKey" class="form-input" placeholder="HMAC 金鑰" spellcheck="false"
+                    autocomplete="off" style="flex: 1; min-width: 10rem;" disabled>
+                <select id="outputFormat" class="form-input" aria-label="輸出格式">
+                    <option value="hex">十六進位（小寫）</option>
+                    <option value="HEX">十六進位（大寫）</option>
+                    <option value="base64">Base64</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="compareHash">比對雜湊值（選填）</label>
+                <input type="text" id="compareHash" class="form-input" style="max-width: none;" spellcheck="false"
+                    placeholder="貼上官方公布的雜湊值，例如下載頁的 SHA-256，檢查是否相符">
+                <p id="compareResult"></p>
+            </div>
+
+            <p id="hashError" class="error-text" role="alert"></p>
+            <table class="batch-table" id="hashResult"></table>
+            <p class="hint-text">MD5 與 SHA-1 已不安全，僅適合用來檢查檔案是否完整，請勿用於密碼或數位簽章。</p>
+        </div>
+    </div>
+
+    <script src="main.js?v=6"></script>
+    <script>
+        // --- MD5（瀏覽器的 Web Crypto API 不提供 MD5，依 RFC 1321 自行實作）---
+        const MD5_S = [7, 12, 17, 22, 5, 9, 14, 20, 4, 11, 16, 23, 6, 10, 15, 21];
+        const MD5_K = Array.from({ length: 64 }, (_, i) => Math.floor(Math.abs(Math.sin(i + 1)) * 2 ** 32));
+
+        function md5(bytes) {
+            let a0 = 0x67452301, b0 = 0xefcdab89, c0 = 0x98badcfe, d0 = 0x10325476;
+            const M = new Uint32Array(16);
+
+            const processBlock = (view, offset) => {
+                for (let i = 0; i < 16; i++) M[i] = view.getUint32(offset + i * 4, true);
+                let A = a0, B = b0, C = c0, D = d0;
+                for (let i = 0; i < 64; i++) {
+                    let F, g;
+                    if (i < 16) { F = (B & C) | (~B & D); g = i; }
+                    else if (i < 32) { F = (D & B) | (~D & C); g = (5 * i + 1) % 16; }
+                    else if (i < 48) { F = B ^ C ^ D; g = (3 * i + 5) % 16; }
+                    else { F = C ^ (B | ~D); g = (7 * i) % 16; }
+                    const s = MD5_S[(i >> 4) * 4 + (i % 4)];
+                    F = (F + A + MD5_K[i] + M[g]) | 0;
+                    A = D; D = C; C = B;
+                    B = (B + ((F << s) | (F >>> (32 - s)))) | 0;
+                }
+                a0 = (a0 + A) | 0; b0 = (b0 + B) | 0; c0 = (c0 + C) | 0; d0 = (d0 + D) | 0;
+            };
+
+            // 完整的 64 位元組區塊直接處理；最後不足的部分複製到補位緩衝區，避免大檔案多複製一份
+            const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+            const fullLength = bytes.length - (bytes.length % 64);
+            for (let offset = 0; offset < fullLength; offset += 64) processBlock(view, offset);
+
+            const restLength = bytes.length - fullLength;
+            const tail = new Uint8Array(restLength < 56 ? 64 : 128);
+            tail.set(bytes.subarray(fullLength));
+            tail[restLength] = 0x80;
+            const tailView = new DataView(tail.buffer);
+            const bitLength = bytes.length * 8;
+            tailView.setUint32(tail.length - 8, bitLength >>> 0, true);
+            tailView.setUint32(tail.length - 4, Math.floor(bitLength / 2 ** 32), true);
+            for (let offset = 0; offset < tail.length; offset += 64) processBlock(tailView, offset);
+
+            const out = new DataView(new ArrayBuffer(16));
+            [a0, b0, c0, d0].forEach((v, i) => out.setUint32(i * 4, v, true));
+            return new Uint8Array(out.buffer);
+        }
+
+        // HMAC = H((K ⊕ opad) ‖ H((K ⊕ ipad) ‖ 訊息))，MD5 區塊大小為 64 位元組
+        function hmacMd5(key, bytes) {
+            if (key.length > 64) key = md5(key);
+            const ipad = new Uint8Array(64 + bytes.length);
+            const opad = new Uint8Array(64 + 16);
+            for (let i = 0; i < 64; i++) {
+                ipad[i] = (key[i] || 0) ^ 0x36;
+                opad[i] = (key[i] || 0) ^ 0x5c;
+            }
+            ipad.set(bytes, 64);
+            opad.set(md5(ipad), 64);
+            return md5(opad);
+        }
+
+        // --- 各演算法 ---
+        const ALGORITHMS = ['MD5', 'SHA-1', 'SHA-256', 'SHA-384', 'SHA-512'];
+
+        async function digest(algorithm, bytes, hmacKey) {
+            if (algorithm === 'MD5') return hmacKey ? hmacMd5(hmacKey, bytes) : md5(bytes);
+            if (!hmacKey) return new Uint8Array(await crypto.subtle.digest(algorithm, bytes));
+            // Web Crypto 不接受空的 HMAC 金鑰，依 HMAC 定義，空金鑰等同一個全為 0 的位元組
+            const key = await crypto.subtle.importKey('raw', hmacKey.length ? hmacKey : new Uint8Array(1),
+                { name: 'HMAC', hash: algorithm }, false, ['sign']);
+            return new Uint8Array(await crypto.subtle.sign('HMAC', key, bytes));
+        }
+
+        const toHex = (bytes) => Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+        const toBase64 = (bytes) => btoa(String.fromCharCode(...bytes));
+
+        function formatDigest(bytes, format) {
+            if (format === 'base64') return toBase64(bytes);
+            return format === 'HEX' ? toHex(bytes).toUpperCase() : toHex(bytes);
+        }
+
+        // --- 畫面 ---
+        const hashText = document.getElementById('hashText');
+        const hashFile = document.getElementById('hashFile');
+        const dropZone = document.getElementById('dropZone');
+        const dropZoneText = document.getElementById('dropZoneText');
+        const useHmac = document.getElementById('useHmac');
+        const hmacKey = document.getElementById('hmacKey');
+        const outputFormat = document.getElementById('outputFormat');
+        const compareHash = document.getElementById('compareHash');
+        const compareResult = document.getElementById('compareResult');
+        const hashError = document.getElementById('hashError');
+        const hashResult = document.getElementById('hashResult');
+
+        let activeTab = 'text-tab';
+        let selectedFile = null;
+        let digests = null; // { 演算法: Uint8Array }
+        let runId = 0; // 輸入快速變動時，只採用最後一次計算的結果
+
+        const formatSize = (n) => n < 1024 ? `${n} B` : n < 1024 ** 2 ? `${(n / 1024).toFixed(1)} KB`
+            : n < 1024 ** 3 ? `${(n / 1024 ** 2).toFixed(1)} MB` : `${(n / 1024 ** 3).toFixed(2)} GB`;
+
+        function renderTable() {
+            hashResult.innerHTML = '';
+            compareResult.textContent = '';
+            if (!digests) return;
+
+            const format = outputFormat.value;
+            const expected = compareHash.value.trim().replace(/\s+/g, '');
+            let matched = null;
+            hashResult.innerHTML = ALGORITHMS.map(name => {
+                const bytes = digests[name];
+                const isMatch = expected && (toHex(bytes) === expected.toLowerCase() || toBase64(bytes) === expected);
+                if (isMatch) matched = name;
+                return `<tr${isMatch ? ' class="match"' : ''}><th scope="row">${name}</th>` +
+                    `<td class="mono">${formatDigest(bytes, format)}</td>` +
+                    `<td><button class="small-btn" data-copy="${name}">複製</button></td></tr>`;
+            }).join('');
+
+            if (expected) {
+                compareResult.innerHTML = matched
+                    ? `<span class="badge success">相符</span> 與 ${matched} 的結果一致`
+                    : '<span class="badge danger">不相符</span> 與所有演算法的結果都不同';
+            }
+        }
+
+        async function compute() {
+            const id = ++runId;
+            hashError.textContent = '';
+
+            let bytes;
+            if (activeTab === 'file-tab') {
+                if (!selectedFile) {
+                    digests = null;
+                    renderTable();
+                    return;
+                }
+                dropZoneText.textContent = `計算中：${selectedFile.name}…`;
+                try {
+                    bytes = new Uint8Array(await selectedFile.arrayBuffer());
+                } catch {
+                    if (id !== runId) return;
+                    hashError.textContent = '無法讀取檔案，檔案可能過大或已被移動。';
+                    dropZoneText.textContent = '點擊選擇檔案，或把檔案拖曳到這裡';
+                    selectedFile = null;
+                    digests = null;
+                    renderTable();
+                    return;
+                }
+            } else {
+                bytes = new TextEncoder().encode(hashText.value);
+            }
+
+            const key = useHmac.checked ? new TextEncoder().encode(hmacKey.value) : null;
+            try {
+                const results = await Promise.all(ALGORITHMS.map(name => digest(name, bytes, key)));
+                if (id !== runId) return;
+                digests = Object.fromEntries(ALGORITHMS.map((name, i) => [name, results[i]]));
+            } catch (err) {
+                if (id !== runId) return;
+                digests = null;
+                // crypto.subtle 只在 HTTPS 或 localhost 下提供
+                hashError.textContent = window.isSecureContext ? `計算失敗：${err.message}` : '瀏覽器只在 HTTPS 連線下提供 SHA 計算功能。';
+            }
+            if (selectedFile && activeTab === 'file-tab') {
+                dropZoneText.textContent = `${selectedFile.name}（${formatSize(selectedFile.size)}）— 點擊或拖曳以更換檔案`;
+            }
+            renderTable();
+        }
+
+        function selectFile(file) {
+            if (!file) return;
+            selectedFile = file;
+            compute();
+        }
+
+        hashFile.addEventListener('change', () => selectFile(hashFile.files[0]));
+        ['dragenter', 'dragover'].forEach(type => dropZone.addEventListener(type, (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        }));
+        ['dragleave', 'drop'].forEach(type => dropZone.addEventListener(type, (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+        }));
+        dropZone.addEventListener('drop', (e) => selectFile(e.dataTransfer.files[0]));
+
+        useHmac.addEventListener('change', () => {
+            hmacKey.disabled = !useHmac.checked;
+            compute();
+        });
+        hashText.addEventListener('input', compute);
+        hmacKey.addEventListener('input', compute);
+        outputFormat.addEventListener('change', renderTable);
+        compareHash.addEventListener('input', renderTable);
+
+        hashResult.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-copy]');
+            if (!btn || !digests) return;
+            navigator.clipboard.writeText(formatDigest(digests[btn.dataset.copy], outputFormat.value)).then(() => {
+                btn.textContent = '已複製!';
+                setTimeout(() => { btn.textContent = '複製'; }, 1500);
+            }).catch(err => {
+                console.error('無法複製雜湊值: ', err);
+                alert('複製失敗，請手動複製。');
+            });
+        });
+
+        initTabs((tabId) => {
+            activeTab = tabId;
+            compute();
+        });
+        compute();
+    </script>
+</body>
+
+</html>

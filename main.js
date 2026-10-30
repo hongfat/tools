@@ -6,10 +6,11 @@ const NAV_LINKS = [
     ['dateconv.html', '日期時間換算'],
     ['worldtime.html', '世界時間'],
     ['currency.html', '貨幣匯率換算'],
-    ['passwordgen.html', '密碼產生器'],
+    ['passwordgen.html', '密碼／隨機產生器'],
     ['encode.html', '編碼／解碼'],
     ['subnet.html', '子網路計算機'],
     ['qrcode.html', 'QR Code 產生器'],
+    ['hash.html', '雜湊產生器'],
 ];
 
 // 若頁面（例如瀏覽器快取的舊版 HTML）已內含側邊欄與導覽列，就不重複插入
@@ -46,6 +47,15 @@ setInterval(updateDateTime, 1000);
 function getLocalDateString(date = new Date()) {
     const pad = (n) => String(n).padStart(2, '0');
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+// --- 安全亂數 ---
+// 回傳 0 到 max - 1 的均勻亂數整數；以拒絕取樣避免取模造成的分佈偏差
+function randomInt(max) {
+    const limit = 0x100000000 - (0x100000000 % max);
+    const buf = new Uint32Array(1);
+    do { window.crypto.getRandomValues(buf); } while (buf[0] >= limit);
+    return buf[0] % max;
 }
 
 // --- 側邊欄 ---

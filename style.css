@@ -1397,4 +1397,46 @@ input[type="color"].form-input {
 button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* --- 雜湊產生器 (hash.html) 專用樣式 --- */
+.drop-zone {
+    display: block;
+    padding: 2rem 1rem;
+    margin-bottom: 1rem;
+    border: 2px dashed var(--card-border-color);
+    border-radius: 6px;
+    text-align: center;
+    color: var(--secondary-text-color);
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent-color);
+    color: var(--primary-text-color);
+}
+
+.drop-zone input[type="file"] {
+    display: none;
+}
+
+.small-btn {
+    padding: 0.3rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+.batch-table tr.match {
+    background-color: rgba(46, 196, 182, 0.08);
+}
+
+/* --- 密碼／隨機產生器 (passwordgen.html) 隨機字串與 UUID 頁籤 --- */
+.inline-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.inline-options .form-group {
+    flex: 1 1 9rem;
 }

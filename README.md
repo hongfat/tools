@@ -8,7 +8,7 @@ SCITL TOOL BOX 是一個基於純前端技術建置的常用工具箱網站（<h
 
 - **純前端架構 (Static HTML / JS / CSS)**：無後端與資料庫依賴，可直接部署在任何靜態網站空間（如 GitHub Pages）。
 - **共用頁面框架**：側邊欄、頂端導覽列、日期時間顯示與頁籤切換邏輯統一放在 `main.js`，新增頁面只需在 `NAV_LINKS` 加一筆。
-- **高安全隨機數**：密碼產生器採用 `window.crypto.getRandomValues()`，並以拒絕取樣避免取模偏差，且保證每個勾選的字元類型至少出現一次。
+- **高安全隨機數**：密碼／隨機產生器採用 `window.crypto.getRandomValues()`，並以拒絕取樣避免取模偏差，且保證每個勾選的字元類型至少出現一次。
 - **輸出跳脫**：來自外部（如 DNS TXT 記錄）的內容一律先跳脫 HTML 再顯示，localStorage 讀回的設定也會先驗證。
 - **本地農曆數據**：引入 [traditional-chinese-calendar-database](https://github.com/hungtcs/traditional-chinese-calendar-database) 的編譯模組與 `all.bin` 資料檔，支援 1901–2100 年的農曆、干支與節氣查詢。
 
@@ -50,8 +50,12 @@ SCITL TOOL BOX 是一個基於純前端技術建置的常用工具箱網站（<h
 - 依基準幣別快取匯率，避免重複請求；顯示匯率更新時間（當地與 UTC）。
 - 匯率僅供參考，實際交易以銀行公告為準。
 
-### 6. 密碼產生器 (`passwordgen.html`)
-- 長度 4–64 字元，可選大寫、小寫、數字、符號，一鍵複製。
+### 6. 密碼／隨機產生器 (`passwordgen.html`)
+以頁籤切換三個功能：
+- **密碼**：長度 4–64 字元，可選大寫、小寫、數字、符號，一鍵複製。
+- **隨機字串**：長度 1–1024、數量 1–1000，字元集可選英數、大小寫英數、數字、十六進位、Base64URL 或自訂，可排除易混淆字元，並顯示每個字串的熵（位元）。
+- **UUID**：v4（完全隨機）與 v7（毫秒時間戳記開頭，同一毫秒內以計數器維持排序，依 RFC 9562），一次最多 1000 個，可選大寫、移除連字號、加大括號。
+- 三者共用 `main.js` 的 `randomInt()`：以 `crypto.getRandomValues()` 搭配拒絕取樣，避免分佈偏差。
 
 ### 7. 編碼／解碼 (`encode.html`)
 以頁籤切換四種格式，皆可編碼、解碼、把結果移回輸入欄及複製：
@@ -69,6 +73,12 @@ SCITL TOOL BOX 是一個基於純前端技術建置的常用工具箱網站（<h
 - 可選容錯等級（L／M／Q／H）與前景、背景色，下載 PNG（256–2048 px）或 SVG。
 - 使用 [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator)（MIT），檔案放在 `qrcode/` 目錄，不需外部請求。
 
+### 10. 雜湊產生器 (`hash.html`)
+- 可計算文字（UTF-8）或檔案（點選或拖曳，不會上傳）的 MD5、SHA-1、SHA-256、SHA-384、SHA-512。
+- SHA 系列使用 Web Crypto API（`crypto.subtle`，需 HTTPS 或 localhost）；瀏覽器不提供 MD5，依 RFC 1321 自行實作。
+- 支援 HMAC，輸出格式可選十六進位（大／小寫）或 Base64。
+- 可貼上官方公布的雜湊值比對，相符的演算法會被標示出來。
+
 ---
 
 ## 📁 專案結構
@@ -76,9 +86,9 @@ SCITL TOOL BOX 是一個基於純前端技術建置的常用工具箱網站（<h
 | 檔案 | 說明 |
 | --- | --- |
 | `index.html` | 首頁（工具列表） |
-| `unitconv.html` / `dateconv.html` / `currency.html` / `worldtime.html` / `passwordgen.html` / `encode.html` / `subnet.html` / `qrcode.html` | 各工具頁面 |
+| `unitconv.html` / `dateconv.html` / `currency.html` / `worldtime.html` / `passwordgen.html` / `encode.html` / `subnet.html` / `qrcode.html` / `hash.html` | 各工具頁面 |
 | `nettest.html` + `nettest.js` | 網路連線測試頁面與其邏輯 |
-| `main.js` | 共用側邊欄／導覽列、時間顯示、頁籤切換 (`initTabs`)、本地日期工具 |
+| `main.js` | 共用側邊欄／導覽列、時間顯示、頁籤切換 (`initTabs`)、本地日期工具、安全亂數 (`randomInt`) |
 | `style.css` | 全站樣式 |
 | `lunar/` | 農曆模組（`dist/index.esm.js`）與資料（`database/all.bin`） |
 | `qrcode/` | QR Code 產生函式庫（qrcode-generator 1.4.4） |
