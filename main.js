@@ -7,6 +7,9 @@ const NAV_LINKS = [
     ['worldtime.html', '世界時間'],
     ['currency.html', '貨幣匯率換算'],
     ['passwordgen.html', '密碼產生器'],
+    ['encode.html', '編碼／解碼'],
+    ['subnet.html', '子網路計算機'],
+    ['qrcode.html', 'QR Code 產生器'],
 ];
 
 // 若頁面（例如瀏覽器快取的舊版 HTML）已內含側邊欄與導覽列，就不重複插入

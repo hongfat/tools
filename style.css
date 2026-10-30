@@ -1269,4 +1269,132 @@ button {
         display: inline-block;
         text-align: center;
     }
+}
+/* --- 編碼／解碼 (encode.html) 專用樣式 --- */
+.form-group .code-textarea {
+    max-width: none;
+    min-height: 8rem;
+    font-family: 'Courier New', Courier, monospace;
+    resize: vertical;
+}
+
+.action-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.action-row .form-group-checkbox,
+.action-row select {
+    margin-bottom: 0;
+}
+
+.action-row select {
+    width: auto;
+}
+
+.action-row .form-group-checkbox input {
+    margin-right: 0.5rem;
+}
+
+.action-row .form-group-checkbox label {
+    margin-bottom: 0;
+}
+
+.error-text {
+    color: #e71d36;
+    min-height: 1.5rem;
+}
+
+/* --- 子網路計算機 (subnet.html) 專用樣式 --- */
+.subnet-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.subnet-form .form-input {
+    flex: 2;
+    min-width: 200px;
+}
+
+.subnet-form .prefix-input {
+    flex: 1;
+    min-width: 100px;
+}
+
+.mono {
+    font-family: 'Courier New', Courier, monospace;
+    word-break: break-all;
+}
+
+.batch-table th[scope="row"] {
+    white-space: nowrap;
+    width: 1%;
+}
+
+.hint-text {
+    color: var(--secondary-text-color);
+    font-size: 0.9rem;
+}
+
+/* --- QR Code 產生器 (qrcode.html) 專用樣式 --- */
+.qr-layout {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: start;
+}
+
+.qr-preview {
+    text-align: center;
+}
+
+.qr-preview canvas {
+    display: block;
+    width: 256px;
+    height: 256px;
+    margin: 0 auto 1rem;
+    image-rendering: pixelated;
+    border-radius: 4px;
+}
+
+.qr-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.qr-options .form-group {
+    flex: 1 1 8rem;
+}
+
+input[type="color"].form-input {
+    height: 2.4rem;
+    padding: 0.2rem;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .qr-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .subnet-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .subnet-form .form-input, .subnet-form button {
+        width: 100%;
+        flex: none;
+    }
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }

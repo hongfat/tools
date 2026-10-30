@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>編碼／解碼 - SCITL TOOL BOX</title>
+    <link rel="stylesheet" href="style.css?v=6">
+        <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-9HCQRB0034');
+    </script>
+</head>
+
+<body>
+    <div id="main-content">
+
+        <div class="container">
+            <h2>
+                <center>編碼／解碼</center>
+            </h2>
+
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="base64-tab">Base64</button>
+                <button class="tab-btn" data-tab="url-tab">URL</button>
+                <button class="tab-btn" data-tab="html-tab">HTML 實體</button>
+                <button class="tab-btn" data-tab="unicode-tab">Unicode 跳脫</button>
+            </div>
+
+            <!-- 各頁籤的輸入、按鈕與輸出區塊由下方腳本依 CODECS 產生 -->
+            <div id="base64-tab" class="tab-content active"></div>
+            <div id="url-tab" class="tab-content"></div>
+            <div id="html-tab" class="tab-content"></div>
+            <div id="unicode-tab" class="tab-content"></div>
+        </div>
+    </div>
+
+    <script src="main.js?v=5"></script>
+    <script>
+        // --- Base64（以 UTF-8 處理中文等多位元組字元）---
+        function bytesToBinary(bytes) {
+            let binary = '';
+            for (let i = 0; i < bytes.length; i += 0x8000) {
+                binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+            }
+            return binary;
+        }
+
+        function base64Encode(text, { urlSafe }) {
+            const base64 = btoa(bytesToBinary(new TextEncoder().encode(text)));
+            return urlSafe ? base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') : base64;
+        }
+
+        function base64Decode(text) {
+            // 同時接受標準與 URL-safe 格式，並補回省略的 = 填充
+            let base64 = text.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
+            if (base64.length % 4 === 1) throw new Error('不是有效的 Base64 字串。');
+            base64 += '='.repeat((4 - base64.length % 4) % 4);
+            let binary;
+            try {
+                binary = atob(base64);
+            } catch {
+                throw new Error('不是有效的 Base64 字串。');
+            }
+            const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+            try {
+                return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+            } catch {
+                throw new Error('解碼結果不是有效的 UTF-8 文字（可能是二進位資料）。');
+            }
+        }
+
+        // --- URL ---
+        function urlEncode(text, { urlMode }) {
+            if (urlMode === 'full') return encodeURI(text);
+            const encoded = encodeURIComponent(text);
+            return urlMode === 'form' ? encoded.replace(/%20/g, '+') : encoded;
+        }
+
+        function urlDecode(text, { urlMode }) {
+            try {
+                return decodeURIComponent(urlMode === 'form' ? text.replace(/\+/g, ' ') : text);
+            } catch {
+                throw new Error('包含無效的百分比編碼（例如不完整的 %XX）。');
+            }
+        }
+
+        // --- HTML 實體 ---
+        const HTML_ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+
+        function htmlEncode(text, { nonAscii }) {
+            const escaped = text.replace(/[&<>"']/g, c => HTML_ESCAPES[c]);
+            if (!nonAscii) return escaped;
+            return escaped.replace(/[^\x00-\x7f]/gu, c => `&#x${c.codePointAt(0).toString(16).toUpperCase()};`);
+        }
+
+        // textarea 的內容以 RCDATA 解析：只會解碼實體，不會建立任何元素或執行腳本
+        function htmlDecode(text) {
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = text;
+            return textarea.value;
+        }
+
+        // --- Unicode 跳脫 ---
+        function unicodeEncode(text, { unicodeMode, nonAscii }) {
+            const hex = (n, len) => n.toString(16).toUpperCase().padStart(len, '0');
+            const chars = Array.from(text);
+            if (unicodeMode === 'codepoint') {
+                return chars.map(c => `U+${hex(c.codePointAt(0), 4)}`).join(' ');
+            }
+            return chars.map(c => {
+                const cp = c.codePointAt(0);
+                if (nonAscii && cp < 0x80) return c;
+                if (unicodeMode === 'es6') return `\\u{${hex(cp, 1)}}`;
+                // \uXXXX 只能表示 4 位十六進位，超出 BMP 的字元以代理對表示
+                return Array.from({ length: c.length }, (_, i) => `\\u${hex(c.charCodeAt(i), 4)}`).join('');
+            }).join('');
+        }
+
+        function unicodeDecode(text) {
+            return text.replace(/\\u\{([0-9a-fA-F]{1,6})\}|\\u([0-9a-fA-F]{4})|U\+([0-9a-fA-F]{4,6})(?: (?=U\+))?/g,
+                (match, es6, bmp, cp) => {
+                    if (bmp) return String.fromCharCode(parseInt(bmp, 16));
+                    const code = parseInt(es6 || cp, 16);
+                    return code <= 0x10ffff ? String.fromCodePoint(code) : match;
+                });
+        }
+
+        // --- 頁籤定義：options 為該頁籤的選項欄位，產生後以 name 作為 key 傳給編解碼函式 ---
+        const CODECS = {
+            'base64-tab': {
+                encode: base64Encode,
+                decode: base64Decode,
+                placeholder: '輸入要編碼的文字，或貼上 Base64 字串解碼',
+                options: `
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="base64-urlSafe" name="urlSafe">
+                        <label for="base64-urlSafe">URL-safe（Base64URL，無填充）</label>
+                    </div>`,
+            },
+            'url-tab': {
+                encode: urlEncode,
+                decode: urlDecode,
+                placeholder: '輸入網址或參數，例如：https://example.com/?q=中文 搜尋',
+                options: `
+                    <select name="urlMode" class="form-input" aria-label="URL 編碼方式">
+                        <option value="component">參數值（encodeURIComponent）</option>
+                        <option value="full">完整網址（encodeURI）</option>
+                        <option value="form">表單格式（空白轉 +）</option>
+                    </select>`,
+            },
+            'html-tab': {
+                encode: htmlEncode,
+                decode: htmlDecode,
+                placeholder: '輸入 HTML，例如：<a href="#">連結</a>，或貼上 &lt;p&gt; 解碼',
+                options: `
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="html-nonAscii" name="nonAscii">
+                        <label for="html-nonAscii">非 ASCII 字元也轉為 &amp;#x…;</label>
+                    </div>`,
+            },
+            'unicode-tab': {
+                encode: unicodeEncode,
+                decode: unicodeDecode,
+                placeholder: '輸入文字，或貼上 \\u4E2D\\u6587、\\u{1F600}、U+4E2D 解碼',
+                options: `
+                    <select name="unicodeMode" class="form-input" aria-label="Unicode 跳脫格式">
+                        <option value="js">\\uXXXX（JavaScript／JSON）</option>
+                        <option value="es6">\\u{XXXX}（ES6）</option>
+                        <option value="codepoint">U+XXXX（碼位）</option>
+                    </select>
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="unicode-nonAscii" name="nonAscii" checked>
+                        <label for="unicode-nonAscii">保留 ASCII 字元不轉換</label>
+                    </div>`,
+            },
+        };
+
+        Object.entries(CODECS).forEach(([tabId, codec]) => {
+            const tab = document.getElementById(tabId);
+            tab.innerHTML = `
+                <div class="form-group">
+                    <label for="${tabId}-input">輸入</label>
+                    <textarea id="${tabId}-input" class="form-input code-textarea" spellcheck="false"></textarea>
+                </div>
+                <div class="action-row">${codec.options}</div>
+                <div class="action-row">
+                    <button data-action="encode">編碼</button>
+                    <button data-action="decode">解碼</button>
+                    <button data-action="swap" class="reset-btn" title="把結果移到輸入欄">↑ 結果移到輸入</button>
+                    <button data-action="clear" class="reset-btn">清除</button>
+                </div>
+                <div class="form-group">
+                    <label for="${tabId}-output">結果</label>
+                    <textarea id="${tabId}-output" class="form-input code-textarea" readonly spellcheck="false"></textarea>
+                </div>
+                <div class="action-row">
+                    <button data-action="copy">複製結果</button>
+                </div>
+                <p class="error-text" role="alert"></p>`;
+
+            const input = tab.querySelector(`#${tabId}-input`);
+            const output = tab.querySelector(`#${tabId}-output`);
+            const errorEl = tab.querySelector('.error-text');
+            input.placeholder = codec.placeholder;
+
+            const getOptions = () => {
+                const opts = {};
+                tab.querySelectorAll('[name]').forEach(el => {
+                    opts[el.name] = el.type === 'checkbox' ? el.checked : el.value;
+                });
+                return opts;
+            };
+
+            const run = (fn) => {
+                errorEl.textContent = '';
+                try {
+                    output.value = fn(input.value, getOptions());
+                } catch (err) {
+                    output.value = '';
+                    errorEl.textContent = err.message;
+                }
+            };
+
+            tab.querySelector('[data-action="encode"]').addEventListener('click', () => run(codec.encode));
+            tab.querySelector('[data-action="decode"]').addEventListener('click', () => run(codec.decode));
+            tab.querySelector('[data-action="swap"]').addEventListener('click', () => {
+                input.value = output.value;
+                output.value = '';
+                errorEl.textContent = '';
+            });
+            tab.querySelector('[data-action="clear"]').addEventListener('click', () => {
+                input.value = '';
+                output.value = '';
+                errorEl.textContent = '';
+            });
+
+            const copyBtn = tab.querySelector('[data-action="copy"]');
+            copyBtn.addEventListener('click', () => {
+                if (!output.value) {
+                    alert('沒有可複製的結果！');
+                    return;
+                }
+                navigator.clipboard.writeText(output.value).then(() => {
+                    copyBtn.textContent = '已複製!';
+                    setTimeout(() => { copyBtn.textContent = '複製結果'; }, 1500);
+                }).catch(err => {
+                    console.error('無法複製結果: ', err);
+                    alert('複製失敗，請手動複製。');
+                });
+            });
+        });
+
+        initTabs();
+    </script>
+</body>
+
+</html>

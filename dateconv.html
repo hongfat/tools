@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>日期換算 - SCITL TOOL BOX</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
         <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
@@ -31,6 +31,7 @@
                 <button class="tab-btn" data-tab="daydiff-tab">日期天數計算</button>
                 <button class="tab-btn" data-tab="dateadd-tab">日期加減計算</button>
                 <button class="tab-btn" data-tab="timestamp-tab">Timestamp 轉換</button>
+                <button class="tab-btn" data-tab="era-tab">民國／和曆換算</button>
             </div>
 
             <div id="lunar-tab" class="tab-content centered-tab active">
@@ -97,10 +98,35 @@
                 <button id="resetTimestampBtn">重設為現在時間</button>
             </div>
 
+            <div id="era-tab" class="tab-content centered-tab">
+                <div class="form-group">
+                    <label for="eraQueryDate">西元日期</label>
+                    <input type="date" id="eraQueryDate" class="form-input">
+                    <p id="eraQueryResult" style="margin-top: 10px;"></p>
+                </div>
+                <div class="form-group">
+                    <label for="eraName">紀年轉西元</label>
+                    <select id="eraName" class="form-input">
+                        <option value="roc">民國</option>
+                        <option value="roc-before">民國前</option>
+                        <option value="meiji">明治</option>
+                        <option value="taisho">大正</option>
+                        <option value="showa">昭和</option>
+                        <option value="heisei">平成</option>
+                        <option value="reiwa">令和</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="eraYear">年</label>
+                    <input type="number" id="eraYear" value="1" min="1" class="form-input">
+                    <p id="eraYearResult" style="margin-top: 10px;"></p>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <script src="main.js?v=4"></script>
+    <script src="main.js?v=5"></script>
     <script type="module">
         import { Database, Constants } from './lunar/dist/index.esm.js';
 
@@ -349,6 +375,86 @@
         });
 
         resetTimestampBtn.addEventListener('click', setTimestampsToNow);
+
+        // --- 民國／和曆換算 ---
+        // 日本自明治 6 年（1873）起採用西曆，之前為陰曆，故和曆換算從 1873 年起提供
+        const JP_ERAS = [
+            { key: 'meiji', name: '明治', start: '1868-01-25', end: '1912-07-29' },
+            { key: 'taisho', name: '大正', start: '1912-07-30', end: '1926-12-24' },
+            { key: 'showa', name: '昭和', start: '1926-12-25', end: '1989-01-07' },
+            { key: 'heisei', name: '平成', start: '1989-01-08', end: '2019-04-30' },
+            { key: 'reiwa', name: '令和', start: '2019-05-01', end: null },
+        ];
+        const JP_CALENDAR_START = '1873-01-01';
+
+        const eraQueryDateEl = document.getElementById('eraQueryDate');
+        const eraQueryResultEl = document.getElementById('eraQueryResult');
+        const eraNameEl = document.getElementById('eraName');
+        const eraYearEl = document.getElementById('eraYear');
+        const eraYearResultEl = document.getElementById('eraYearResult');
+
+        const eraYearName = (n) => n === 1 ? '元' : String(n);
+
+        function rocYearString(year) {
+            return year >= 1912 ? `民國 ${eraYearName(year - 1911)} 年` : `民國前 ${1912 - year} 年`;
+        }
+
+        // dateStr 為 YYYY-MM-DD，可直接以字串比較先後
+        function jpEraString(dateStr) {
+            if (dateStr < JP_CALENDAR_START) return '和曆：1873 年以前日本使用陰曆，不提供換算';
+            const era = JP_ERAS.find(e => dateStr >= e.start && (!e.end || dateStr <= e.end));
+            const year = Number(dateStr.slice(0, 4)) - Number(era.start.slice(0, 4)) + 1;
+            return `和曆 ${era.name} ${eraYearName(year)} 年`;
+        }
+
+        function displayEraDate() {
+            const value = eraQueryDateEl.value;
+            if (!value) {
+                eraQueryResultEl.textContent = '請選擇日期。';
+                return;
+            }
+            const [y, m, d] = value.split('-').map(Number);
+            const md = `${m} 月 ${d} 日`;
+            eraQueryResultEl.innerHTML = `${rocYearString(y)} ${md}<br>${jpEraString(value)} ${value >= JP_CALENDAR_START ? md : ''}`;
+        }
+
+        function displayEraYear() {
+            const n = parseInt(eraYearEl.value, 10);
+            if (isNaN(n) || n < 1) {
+                eraYearResultEl.textContent = '請輸入正整數年份。';
+                return;
+            }
+            const key = eraNameEl.value;
+            if (key === 'roc') {
+                eraYearResultEl.textContent = `西元 ${n + 1911} 年`;
+                return;
+            }
+            if (key === 'roc-before') {
+                eraYearResultEl.textContent = `西元 ${1912 - n} 年`;
+                return;
+            }
+
+            const era = JP_ERAS.find(e => e.key === key);
+            const startYear = Number(era.start.slice(0, 4));
+            const year = startYear + n - 1;
+            const endYear = era.end ? Number(era.end.slice(0, 4)) : null;
+            if (endYear && year > endYear) {
+                eraYearResultEl.textContent = `${era.name}只到 ${endYear - startYear + 1} 年（西元 ${endYear} 年）。`;
+                return;
+            }
+            // 改元當年只有部分日期屬於此年號
+            let range = '';
+            if (year === startYear) range = `（${era.start.slice(5).replace('-', '/')} 起）`;
+            if (year === endYear) range = `（至 ${era.end.slice(5).replace('-', '/')}）`;
+            eraYearResultEl.textContent = `西元 ${year} 年${range}`;
+        }
+
+        eraQueryDateEl.value = getLocalDateString();
+        displayEraDate();
+        displayEraYear();
+        eraQueryDateEl.addEventListener('input', displayEraDate);
+        eraNameEl.addEventListener('change', displayEraYear);
+        eraYearEl.addEventListener('input', displayEraYear);
 
         database.load('./lunar/database/all.bin').then(() => {
             const now = new Date();

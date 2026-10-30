@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>子網路計算機 - SCITL TOOL BOX</title>
+    <link rel="stylesheet" href="style.css?v=6">
+        <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-9HCQRB0034');
+    </script>
+</head>
+
+<body>
+    <div id="main-content">
+
+        <div class="container">
+            <h2>
+                <center>子網路計算機</center>
+            </h2>
+
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="calc-tab">子網路計算</button>
+                <button class="tab-btn" data-tab="split-tab">子網路切割</button>
+            </div>
+
+            <div id="calc-tab" class="tab-content active">
+                <form id="calcForm" class="subnet-form">
+                    <input type="text" id="calcInput" class="form-input" value="192.168.1.10/24"
+                        placeholder="例如：192.168.1.10/24、10.0.0.1 255.255.0.0、2001:db8::1/64" spellcheck="false">
+                    <button type="submit">計算</button>
+                </form>
+                <p class="hint-text">支援 IPv4 與 IPv6，可輸入 CIDR（/24）或子網路遮罩（255.255.255.0）。未指定時 IPv4 預設 /24、IPv6 預設 /64。</p>
+                <p id="calcError" class="error-text" role="alert"></p>
+                <table class="batch-table" id="calcResult"></table>
+            </div>
+
+            <div id="split-tab" class="tab-content">
+                <form id="splitForm" class="subnet-form">
+                    <input type="text" id="splitInput" class="form-input" value="192.168.0.0/24"
+                        placeholder="要切割的網路，例如：192.168.0.0/24" spellcheck="false">
+                    <input type="number" id="splitPrefix" class="form-input prefix-input" value="26" min="0" max="128"
+                        aria-label="新的前綴長度" title="新的前綴長度">
+                    <button type="submit">切割</button>
+                </form>
+                <p class="hint-text">輸入原網路與新的前綴長度（例如 /24 切成 /26 會得到 4 個子網路）。最多列出前 1024 個。</p>
+                <p id="splitError" class="error-text" role="alert"></p>
+                <p id="splitSummary"></p>
+                <table class="batch-table" id="splitResult"></table>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js?v=5"></script>
+    <script>
+        // 位址一律以 BigInt 表示，IPv4（32 位元）與 IPv6（128 位元）共用同一套計算
+        const SPLIT_LIMIT = 1024;
+
+        // --- 解析 ---
+        function parseIPv4(str) {
+            const m = str.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+            if (!m) return null;
+            const octets = m.slice(1).map(Number);
+            if (octets.some(o => o > 255)) return null;
+            return octets.reduce((acc, o) => (acc << 8n) | BigInt(o), 0n);
+        }
+
+        function parseIPv6(str) {
+            str = str.replace(/%.*$/, ''); // 去掉區域識別碼，例如 fe80::1%eth0
+            // 結尾內嵌的 IPv4（例如 ::ffff:192.168.1.1）轉成兩組十六進位
+            const v4Tail = str.match(/^(.*:)(\d+\.\d+\.\d+\.\d+)$/);
+            if (v4Tail) {
+                const v4 = parseIPv4(v4Tail[2]);
+                if (v4 === null) return null;
+                str = `${v4Tail[1]}${(v4 >> 16n).toString(16)}:${(v4 & 0xffffn).toString(16)}`;
+            }
+
+            const halves = str.split('::');
+            if (halves.length > 2) return null;
+            const head = halves[0] ? halves[0].split(':') : [];
+            const tail = halves.length === 2 && halves[1] ? halves[1].split(':') : [];
+            if (halves.length === 1 ? head.length !== 8 : head.length + tail.length > 7) return null;
+
+            const groups = [...head, ...Array(8 - head.length - tail.length).fill('0'), ...tail];
+            if (!groups.every(g => /^[0-9a-fA-F]{1,4}$/.test(g))) return null;
+            return groups.reduce((acc, g) => (acc << 16n) | BigInt(parseInt(g, 16)), 0n);
+        }
+
+        function parseAddress(str) {
+            if (str.includes(':')) {
+                const value = parseIPv6(str);
+                return value === null ? null : { value, bits: 128 };
+            }
+            const value = parseIPv4(str);
+            return value === null ? null : { value, bits: 32 };
+        }
+
+        // 子網路遮罩轉前綴長度；遮罩的 1 必須連續，否則回傳 null
+        function maskToPrefix(mask, bits) {
+            const inverted = ~mask & allOnes(bits);
+            if ((inverted & (inverted + 1n)) !== 0n) return null;
+            return bits - inverted.toString(2).replace(/^0$/, '').length;
+        }
+
+        // 解析「位址/前綴」「位址/遮罩」「位址 遮罩」或只有位址
+        function parseNetwork(input) {
+            const [addrStr, prefixStr, extra] = input.trim().split(/\s*\/\s*|\s+/);
+            if (!addrStr) throw new Error('請輸入 IP 位址。');
+            if (extra !== undefined) throw new Error('格式不正確，請輸入「位址/前綴」，例如 192.168.1.10/24。');
+
+            const addr = parseAddress(addrStr);
+            if (!addr) throw new Error(`「${addrStr}」不是有效的 IPv4 或 IPv6 位址。`);
+
+            let prefix;
+            let defaulted = false;
+            if (prefixStr === undefined) {
+                prefix = addr.bits === 32 ? 24 : 64;
+                defaulted = true;
+            } else if (/^\d{1,3}$/.test(prefixStr)) {
+                prefix = Number(prefixStr);
+                if (prefix > addr.bits) throw new Error(`前綴長度需介於 0 到 ${addr.bits}。`);
+            } else {
+                const mask = addr.bits === 32 ? parseIPv4(prefixStr) : null;
+                prefix = mask === null ? null : maskToPrefix(mask, 32);
+                if (prefix === null) throw new Error(`「${prefixStr}」不是有效的前綴長度或子網路遮罩。`);
+            }
+            return { ...addr, prefix, defaulted };
+        }
+
+        // --- 格式化 ---
+        const allOnes = (bits) => (1n << BigInt(bits)) - 1n;
+        const prefixMask = (prefix, bits) => allOnes(bits) ^ allOnes(bits - prefix);
+
+        function formatIPv4(value) {
+            return [24n, 16n, 8n, 0n].map(s => (value >> s) & 0xffn).join('.');
+        }
+
+        function ipv6Groups(value) {
+            return Array.from({ length: 8 }, (_, i) => Number((value >> BigInt((7 - i) * 16)) & 0xffffn));
+        }
+
+        function formatIPv6Full(value) {
+            return ipv6Groups(value).map(g => g.toString(16).padStart(4, '0')).join(':');
+        }
+
+        // 依 RFC 5952 壓縮：最長（且至少兩組）的連續 0 以 :: 取代
+        function formatIPv6(value) {
+            const groups = ipv6Groups(value);
+            let bestStart = -1, bestLen = 1;
+            for (let i = 0; i < 8; i++) {
+                let j = i;
+                while (j < 8 && groups[j] === 0) j++;
+                if (j - i > bestLen) [bestStart, bestLen] = [i, j - i];
+                i = j;
+            }
+            const hex = groups.map(g => g.toString(16));
+            if (bestStart < 0) return hex.join(':');
+            return `${hex.slice(0, bestStart).join(':')}::${hex.slice(bestStart + bestLen).join(':')}`;
+        }
+
+        const formatAddress = (value, bits) => bits === 32 ? formatIPv4(value) : formatIPv6(value);
+
+        function formatBinaryIPv4(value) {
+            return value.toString(2).padStart(32, '0').match(/.{8}/g).join('.');
+        }
+
+        // 大數字加上千分位
+        const formatCount = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+        function reverseDns(value, bits) {
+            if (bits === 32) return `${formatIPv4(value).split('.').reverse().join('.')}.in-addr.arpa`;
+            return `${formatIPv6Full(value).replace(/:/g, '').split('').reverse().join('.')}.ip6.arpa`;
+        }
+
+        // --- 位址類型 ---
+        const IPV4_RANGES = [
+            ['0.0.0.0/8', '本網路（保留）'],
+            ['10.0.0.0/8', '私有位址（RFC 1918）'],
+            ['100.64.0.0/10', '電信級 NAT 共享位址（RFC 6598）'],
+            ['127.0.0.0/8', '回送位址（Loopback）'],
+            ['169.254.0.0/16', '鏈路本地位址（APIPA）'],
+            ['172.16.0.0/12', '私有位址（RFC 1918）'],
+            ['192.0.0.0/24', 'IETF 協定保留'],
+            ['192.0.2.0/24', '文件範例用（TEST-NET-1）'],
+            ['192.168.0.0/16', '私有位址（RFC 1918）'],
+            ['198.18.0.0/15', '網路效能測試用'],
+            ['198.51.100.0/24', '文件範例用（TEST-NET-2）'],
+            ['203.0.113.0/24', '文件範例用（TEST-NET-3）'],
+            ['224.0.0.0/4', '多播位址（Multicast）'],
+            ['255.255.255.255/32', '受限廣播位址'],
+            ['240.0.0.0/4', '保留位址'],
+        ];
+        const IPV6_RANGES = [
+            ['::/128', '未指定位址'],
+            ['::1/128', '回送位址（Loopback）'],
+            ['::ffff:0:0/96', 'IPv4 映射位址'],
+            ['64:ff9b::/96', 'NAT64 轉換位址'],
+            ['2001:db8::/32', '文件範例用'],
+            ['2002::/16', '6to4 位址'],
+            ['fc00::/7', '唯一本地位址（ULA，類似私有位址）'],
+            ['fe80::/10', '鏈路本地位址'],
+            ['ff00::/8', '多播位址（Multicast）'],
+            ['2000::/3', '全球單播位址（公有）'],
+        ];
+
+        function addressType(value, bits) {
+            const ranges = bits === 32 ? IPV4_RANGES : IPV6_RANGES;
+            for (const [cidr, label] of ranges) {
+                const net = parseNetwork(cidr);
+                const mask = prefixMask(net.prefix, bits);
+                if ((value & mask) === (net.value & mask)) return label;
+            }
+            return bits === 32 ? '公有位址' : '保留位址';
+        }
+
+        function ipv4Class(value) {
+            const first = Number(value >> 24n);
+            if (first < 128) return 'A';
+            if (first < 192) return 'B';
+            if (first < 224) return 'C';
+            if (first < 240) return 'D（多播）';
+            return 'E（保留）';
+        }
+
+        // --- 子網路範圍 ---
+        function subnetInfo(value, prefix, bits) {
+            const mask = prefixMask(prefix, bits);
+            const network = value & mask;
+            const last = network | (allOnes(bits) ^ mask);
+            const total = 1n << BigInt(bits - prefix);
+            // IPv4 扣掉網路與廣播位址；/31 為點對點（RFC 3021）、/32 為單一主機，皆不扣除。IPv6 沒有廣播位址
+            const reserveEnds = bits === 32 && prefix <= 30;
+            return {
+                mask, network, last, total,
+                firstHost: reserveEnds ? network + 1n : network,
+                lastHost: reserveEnds ? last - 1n : last,
+                usable: reserveEnds ? total - 2n : total,
+            };
+        }
+
+        // --- 畫面輸出 ---
+        const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+        function renderRows(table, rows) {
+            table.innerHTML = rows.map(([label, value, mono]) =>
+                `<tr><th scope="row">${escapeHtml(label)}</th><td${mono ? ' class="mono"' : ''}>${escapeHtml(value)}</td></tr>`
+            ).join('');
+        }
+
+        const calcInput = document.getElementById('calcInput');
+        const calcError = document.getElementById('calcError');
+        const calcResult = document.getElementById('calcResult');
+
+        function calculate() {
+            calcError.textContent = '';
+            calcResult.innerHTML = '';
+            let net;
+            try {
+                net = parseNetwork(calcInput.value);
+            } catch (err) {
+                calcError.textContent = err.message;
+                return;
+            }
+
+            const { value, prefix, bits } = net;
+            const info = subnetInfo(value, prefix, bits);
+            const fmt = (v) => formatAddress(v, bits);
+            const range = info.firstHost === info.lastHost ? fmt(info.firstHost) : `${fmt(info.firstHost)} – ${fmt(info.lastHost)}`;
+            const prefixNote = net.defaulted ? '（未指定，使用預設值）' : '';
+
+            if (bits === 32) {
+                renderRows(calcResult, [
+                    ['IP 位址', fmt(value), true],
+                    ['CIDR', `${fmt(info.network)}/${prefix}${prefixNote}`, true],
+                    ['網路位址', fmt(info.network), true],
+                    ['廣播位址', prefix <= 30 ? fmt(info.last) : '無（/31、/32 不使用廣播位址）', true],
+                    ['子網路遮罩', fmt(info.mask), true],
+                    ['萬用字元遮罩', fmt(allOnes(32) ^ info.mask), true],
+                    ['可用主機範圍', range, true],
+                    ['位址總數', formatCount(info.total)],
+                    ['可用主機數', formatCount(info.usable)],
+                    ['IP 類別', ipv4Class(value)],
+                    ['位址類型', addressType(value, 32)],
+                    ['二進位', formatBinaryIPv4(value), true],
+                    ['遮罩二進位', formatBinaryIPv4(info.mask), true],
+                    ['十六進位', `0x${value.toString(16).toUpperCase().padStart(8, '0')}`, true],
+                    ['十進位整數', value.toString(), true],
+                    ['反向 DNS', reverseDns(value, 32), true],
+                ]);
+            } else {
+                renderRows(calcResult, [
+                    ['IP 位址', fmt(value), true],
+                    ['完整格式', formatIPv6Full(value), true],
+                    ['網路前綴', `${fmt(info.network)}/${prefix}${prefixNote}`, true],
+                    ['位址範圍', range, true],
+                    ['位址總數', `${formatCount(info.total)}（2^${bits - prefix}）`],
+                    ['位址類型', addressType(value, 128)],
+                    ['反向 DNS', reverseDns(value, 128), true],
+                ]);
+            }
+        }
+
+        const splitInput = document.getElementById('splitInput');
+        const splitPrefix = document.getElementById('splitPrefix');
+        const splitError = document.getElementById('splitError');
+        const splitSummary = document.getElementById('splitSummary');
+        const splitResult = document.getElementById('splitResult');
+
+        function split() {
+            splitError.textContent = '';
+            splitSummary.textContent = '';
+            splitResult.innerHTML = '';
+            let net;
+            try {
+                net = parseNetwork(splitInput.value);
+            } catch (err) {
+                splitError.textContent = err.message;
+                return;
+            }
+
+            const { prefix, bits } = net;
+            const newPrefix = parseInt(splitPrefix.value, 10);
+            if (isNaN(newPrefix) || newPrefix < prefix || newPrefix > bits) {
+                splitError.textContent = `新的前綴長度需介於 /${prefix} 到 /${bits}。`;
+                return;
+            }
+
+            const fmt = (v) => formatAddress(v, bits);
+            const base = subnetInfo(net.value, prefix, bits).network;
+            const count = 1n << BigInt(newPrefix - prefix);
+            const step = 1n << BigInt(bits - newPrefix);
+            const shown = count < BigInt(SPLIT_LIMIT) ? Number(count) : SPLIT_LIMIT;
+            const hostsPerSubnet = subnetInfo(base, newPrefix, bits).usable;
+
+            splitSummary.textContent = `${fmt(base)}/${prefix} 切成 /${newPrefix}：共 ${formatCount(count)} 個子網路，` +
+                `每個 ${bits === 32 ? `可用主機 ${formatCount(hostsPerSubnet)} 個` : `${formatCount(step)} 個位址`}` +
+                (count > BigInt(SPLIT_LIMIT) ? `（僅列出前 ${SPLIT_LIMIT} 個）` : '') + '。';
+
+            const rows = [];
+            for (let i = 0; i < shown; i++) {
+                const info = subnetInfo(base + BigInt(i) * step, newPrefix, bits);
+                const range = info.firstHost === info.lastHost ? fmt(info.firstHost) : `${fmt(info.firstHost)} – ${fmt(info.lastHost)}`;
+                const cells = [i + 1, `${fmt(info.network)}/${newPrefix}`, range];
+                if (bits === 32) cells.push(newPrefix <= 30 ? fmt(info.last) : '—');
+                rows.push(`<tr>${cells.map((c, j) => `<td${j ? ' class="mono"' : ''}>${escapeHtml(c)}</td>`).join('')}</tr>`);
+            }
+            const headers = ['#', '子網路', bits === 32 ? '可用主機範圍' : '位址範圍'];
+            if (bits === 32) headers.push('廣播位址');
+            splitResult.innerHTML = `<thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody>`;
+        }
+
+        document.getElementById('calcForm').addEventListener('submit', (e) => { e.preventDefault(); calculate(); });
+        document.getElementById('splitForm').addEventListener('submit', (e) => { e.preventDefault(); split(); });
+        calcInput.addEventListener('input', calculate);
+
+        initTabs();
+        calculate();
+        split();
+    </script>
+</body>
+
+</html>

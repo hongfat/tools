@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code 產生器 - SCITL TOOL BOX</title>
+    <link rel="stylesheet" href="style.css?v=6">
+        <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HCQRB0034"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-9HCQRB0034');
+    </script>
+</head>
+
+<body>
+    <div id="main-content">
+
+        <div class="container">
+            <h2>
+                <center>QR Code 產生器</center>
+            </h2>
+
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="text-tab">文字／網址</button>
+                <button class="tab-btn" data-tab="wifi-tab">Wi-Fi</button>
+            </div>
+
+            <div class="qr-layout">
+                <div>
+                    <div id="text-tab" class="tab-content active">
+                        <div class="form-group">
+                            <label for="qrText">內容</label>
+                            <textarea id="qrText" class="form-input code-textarea" spellcheck="false"
+                                placeholder="輸入網址或任何文字">https://tool.scitl.net</textarea>
+                        </div>
+                    </div>
+
+                    <div id="wifi-tab" class="tab-content">
+                        <div class="form-group">
+                            <label for="wifiSsid">網路名稱 (SSID)</label>
+                            <input type="text" id="wifiSsid" class="form-input" spellcheck="false">
+                        </div>
+                        <div class="form-group">
+                            <label for="wifiSecurity">加密方式</label>
+                            <select id="wifiSecurity" class="form-input">
+                                <option value="WPA">WPA／WPA2／WPA3</option>
+                                <option value="WEP">WEP</option>
+                                <option value="nopass">無密碼</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="wifiPassword">密碼</label>
+                            <input type="text" id="wifiPassword" class="form-input" spellcheck="false" autocomplete="off">
+                        </div>
+                        <div class="form-group-checkbox">
+                            <input type="checkbox" id="wifiHidden">
+                            <label for="wifiHidden">隱藏網路</label>
+                        </div>
+                    </div>
+
+                    <div class="qr-options">
+                        <div class="form-group">
+                            <label for="qrLevel">容錯等級</label>
+                            <select id="qrLevel" class="form-input">
+                                <option value="L">L（7%）</option>
+                                <option value="M" selected>M（15%）</option>
+                                <option value="Q">Q（25%）</option>
+                                <option value="H">H（30%）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="qrSize">下載尺寸</label>
+                            <select id="qrSize" class="form-input">
+                                <option value="256">256 px</option>
+                                <option value="512" selected>512 px</option>
+                                <option value="1024">1024 px</option>
+                                <option value="2048">2048 px</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="qrDark">前景色</label>
+                            <input type="color" id="qrDark" class="form-input" value="#000000">
+                        </div>
+                        <div class="form-group">
+                            <label for="qrLight">背景色</label>
+                            <input type="color" id="qrLight" class="form-input" value="#ffffff">
+                        </div>
+                    </div>
+                    <p class="hint-text">容錯等級越高，QR Code 被遮蔽或汙損時越容易讀取，但圖案也會越密。前景色請比背景色深，否則部分掃描器無法辨識。</p>
+                </div>
+
+                <div class="qr-preview">
+                    <canvas id="qrCanvas" width="256" height="256" aria-label="QR Code 預覽"></canvas>
+                    <div class="action-row" style="justify-content: center;">
+                        <button id="downloadPngBtn">下載 PNG</button>
+                        <button id="downloadSvgBtn" class="reset-btn">下載 SVG</button>
+                    </div>
+                    <p id="qrError" class="error-text" role="alert"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js?v=5"></script>
+    <script src="qrcode/qrcode.js"></script>
+    <script>
+        // 預設的字串轉位元組只處理 ASCII，改用 UTF-8 才能正確編碼中文
+        qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
+
+        const QUIET_ZONE = 4; // QR Code 規範建議四周保留 4 格空白
+
+        const qrText = document.getElementById('qrText');
+        const wifiSsid = document.getElementById('wifiSsid');
+        const wifiSecurity = document.getElementById('wifiSecurity');
+        const wifiPassword = document.getElementById('wifiPassword');
+        const wifiHidden = document.getElementById('wifiHidden');
+        const qrLevel = document.getElementById('qrLevel');
+        const qrSize = document.getElementById('qrSize');
+        const qrDark = document.getElementById('qrDark');
+        const qrLight = document.getElementById('qrLight');
+        const qrCanvas = document.getElementById('qrCanvas');
+        const qrError = document.getElementById('qrError');
+        const downloadPngBtn = document.getElementById('downloadPngBtn');
+        const downloadSvgBtn = document.getElementById('downloadSvgBtn');
+
+        let activeTab = 'text-tab';
+        let currentQr = null;
+
+        // Wi-Fi QR Code 格式：WIFI:T:WPA;S:名稱;P:密碼;H:true;;，其中 \ ; , : " 需以反斜線跳脫
+        function wifiPayload() {
+            const escape = (s) => s.replace(/([\\;,:"])/g, '\\$1');
+            const type = wifiSecurity.value;
+            let payload = `WIFI:T:${type};S:${escape(wifiSsid.value)};`;
+            if (type !== 'nopass') payload += `P:${escape(wifiPassword.value)};`;
+            if (wifiHidden.checked) payload += 'H:true;';
+            return payload + ';';
+        }
+
+        function getPayload() {
+            if (activeTab === 'wifi-tab') {
+                if (!wifiSsid.value) throw new Error('請輸入網路名稱 (SSID)。');
+                return wifiPayload();
+            }
+            if (!qrText.value) throw new Error('請輸入要轉成 QR Code 的內容。');
+            return qrText.value;
+        }
+
+        // 依模組數與每格像素畫出 QR Code（含四周空白）
+        function drawQr(canvas, qr, cellSize) {
+            const count = qr.getModuleCount();
+            const size = (count + QUIET_ZONE * 2) * cellSize;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = qrLight.value;
+            ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = qrDark.value;
+            for (let r = 0; r < count; r++) {
+                for (let c = 0; c < count; c++) {
+                    if (qr.isDark(r, c)) {
+                        ctx.fillRect((c + QUIET_ZONE) * cellSize, (r + QUIET_ZONE) * cellSize, cellSize, cellSize);
+                    }
+                }
+            }
+        }
+
+        function render() {
+            qrError.textContent = '';
+            currentQr = null;
+            let payload;
+            try {
+                payload = getPayload();
+                const qr = qrcode(0, qrLevel.value); // 版本 0 表示依內容長度自動選擇
+                qr.addData(payload, 'Byte');
+                qr.make();
+                currentQr = qr;
+            } catch (err) {
+                // 函式庫在內容超過容量時會丟出 "code length overflow" 字串
+                qrError.textContent = err instanceof Error ? err.message : '內容過長，請縮短內容或降低容錯等級。';
+            }
+
+            downloadPngBtn.disabled = downloadSvgBtn.disabled = !currentQr;
+            if (!currentQr) {
+                const ctx = qrCanvas.getContext('2d');
+                ctx.clearRect(0, 0, qrCanvas.width, qrCanvas.height);
+                return;
+            }
+            // 預覽以整數像素繪製，再由 CSS 縮放到固定大小，保持邊緣銳利
+            const count = currentQr.getModuleCount() + QUIET_ZONE * 2;
+            drawQr(qrCanvas, currentQr, Math.max(1, Math.floor(512 / count)));
+        }
+
+        function downloadFile(href, filename) {
+            const a = document.createElement('a');
+            a.href = href;
+            a.download = filename;
+            a.click();
+        }
+
+        downloadPngBtn.addEventListener('click', () => {
+            if (!currentQr) return;
+            const count = currentQr.getModuleCount() + QUIET_ZONE * 2;
+            const canvas = document.createElement('canvas');
+            drawQr(canvas, currentQr, Math.max(1, Math.round(Number(qrSize.value) / count)));
+            downloadFile(canvas.toDataURL('image/png'), 'qrcode.png');
+        });
+
+        downloadSvgBtn.addEventListener('click', () => {
+            if (!currentQr) return;
+            const count = currentQr.getModuleCount();
+            const total = count + QUIET_ZONE * 2;
+            let path = '';
+            for (let r = 0; r < count; r++) {
+                for (let c = 0; c < count; c++) {
+                    if (currentQr.isDark(r, c)) path += `M${c + QUIET_ZONE} ${r + QUIET_ZONE}h1v1h-1z`;
+                }
+            }
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" width="${qrSize.value}" height="${qrSize.value}" shape-rendering="crispEdges">` +
+                `<rect width="100%" height="100%" fill="${qrLight.value}"/><path d="${path}" fill="${qrDark.value}"/></svg>`;
+            const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+            downloadFile(url, 'qrcode.svg');
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        });
+
+        wifiSecurity.addEventListener('change', () => {
+            wifiPassword.disabled = wifiSecurity.value === 'nopass';
+        });
+
+        [qrText, wifiSsid, wifiPassword, qrDark, qrLight].forEach(el => el.addEventListener('input', render));
+        [wifiSecurity, wifiHidden, qrLevel].forEach(el => el.addEventListener('change', render));
+
+        initTabs((tabId) => {
+            activeTab = tabId;
+            render();
+        });
+        render();
+    </script>
+</body>
+
+</html>

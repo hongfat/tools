@@ -33,11 +33,12 @@ SCITL TOOL BOX 是一個基於純前端技術建置的常用工具箱網站（<h
 - **本機網路資訊**：顯示公網 IP、ISP、ASN、地理位置、瀏覽器連線狀態與 User-Agent。
 
 ### 3. 日期時間換算 (`dateconv.html`)
-以頁籤切換四個功能：
+以頁籤切換五個功能：
 - **西元轉農曆**：查詢西元日期對應的農曆年（天干地支、生肖）、月、日、星期與節氣。
 - **日期天數計算**：計算兩個日期相差的天數，並分解為年、月、日。
 - **日期加減計算**：以基準日期加減 N 天，同時顯示對應農曆。
 - **Timestamp 轉換**：標準時間、UNIX 時間（秒／毫秒）、ISO 8601（UTC／本地時區／基本格式）即時雙向轉換，可一鍵重設為現在時間。
+- **民國／和曆換算**：西元日期轉民國（含民國前）與日本年號（明治～令和，1873 年起）；也可由紀年反查西元年，改元當年會標示起訖日期。
 
 ### 4. 世界時間 (`worldtime.html`)
 - 本機時間看板、世界城市時鐘卡片（含今天／明天／昨天與快慢時數）。
@@ -52,6 +53,22 @@ SCITL TOOL BOX 是一個基於純前端技術建置的常用工具箱網站（<h
 ### 6. 密碼產生器 (`passwordgen.html`)
 - 長度 4–64 字元，可選大寫、小寫、數字、符號，一鍵複製。
 
+### 7. 編碼／解碼 (`encode.html`)
+以頁籤切換四種格式，皆可編碼、解碼、把結果移回輸入欄及複製：
+- **Base64**：以 UTF-8 處理中文，可選 URL-safe（Base64URL）；解碼時兩種格式皆接受，並自動補回填充。
+- **URL**：參數值（`encodeURIComponent`）、完整網址（`encodeURI`）、表單格式（空白轉 `+`）。
+- **HTML 實體**：跳脫 `& < > " '`，可選將非 ASCII 字元轉為 `&#x…;`；解碼支援所有具名實體。
+- **Unicode 跳脫**：`\uXXXX`（超出 BMP 的字元以代理對表示）、`\u{XXXX}`、`U+XXXX` 三種格式。
+
+### 8. 子網路計算機 (`subnet.html`)
+- **子網路計算**：可輸入 `位址/前綴`、`位址/遮罩` 或 `位址 遮罩`。IPv4 顯示網路／廣播位址、遮罩、萬用字元遮罩、可用主機範圍與數量、類別、位址類型（私有、CGNAT、回送等）、二進位與反向 DNS；IPv6 顯示完整與壓縮格式（RFC 5952）、前綴、範圍、位址總數與類型。`/31`、`/32` 依 RFC 3021 不扣除網路與廣播位址。
+- **子網路切割**：把網路切成較小的子網路並列表（最多顯示 1024 個），IPv4／IPv6 皆可。
+
+### 9. QR Code 產生器 (`qrcode.html`)
+- 支援 **文字／網址** 與 **Wi-Fi**（SSID、加密方式、密碼、隱藏網路，手機掃描即可連線）。
+- 可選容錯等級（L／M／Q／H）與前景、背景色，下載 PNG（256–2048 px）或 SVG。
+- 使用 [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator)（MIT），檔案放在 `qrcode/` 目錄，不需外部請求。
+
 ---
 
 ## 📁 專案結構
@@ -59,11 +76,12 @@ SCITL TOOL BOX 是一個基於純前端技術建置的常用工具箱網站（<h
 | 檔案 | 說明 |
 | --- | --- |
 | `index.html` | 首頁（工具列表） |
-| `unitconv.html` / `dateconv.html` / `currency.html` / `worldtime.html` / `passwordgen.html` | 各工具頁面 |
+| `unitconv.html` / `dateconv.html` / `currency.html` / `worldtime.html` / `passwordgen.html` / `encode.html` / `subnet.html` / `qrcode.html` | 各工具頁面 |
 | `nettest.html` + `nettest.js` | 網路連線測試頁面與其邏輯 |
 | `main.js` | 共用側邊欄／導覽列、時間顯示、頁籤切換 (`initTabs`)、本地日期工具 |
 | `style.css` | 全站樣式 |
 | `lunar/` | 農曆模組（`dist/index.esm.js`）與資料（`database/all.bin`） |
+| `qrcode/` | QR Code 產生函式庫（qrcode-generator 1.4.4） |
 
 > 修改 `main.js` 或 `nettest.js` 後，請同步調整 HTML 中 `?v=` 版本參數，避免瀏覽器使用舊快取。
 
@@ -87,6 +105,7 @@ SCITL TOOL BOX 是一個基於純前端技術建置的常用工具箱網站（<h
 
 - 傳統中文曆法與農曆資料庫：[traditional-chinese-calendar-database](https://github.com/hungtcs/traditional-chinese-calendar-database)
 - 傳統中文曆法範例實作：[Browser ESModule Example](https://hungtcs.github.io/traditional-chinese-calendar-database/examples/browser-esmodule.html)
+- QR Code 產生函式庫：[qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator)（Kazuhiko Arase，MIT）
 - 即時匯率服務：[ExchangeRate-API](https://www.exchangerate-api.com)
 - 國旗圖示服務：[FlagCDN](https://flagcdn.com)
 - DNS 安全查詢：[Cloudflare DNS-over-HTTPS](https://cloudflare-dns.com)
